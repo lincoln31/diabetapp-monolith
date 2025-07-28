@@ -15,3 +15,61 @@ datasource db {
   
 }
 
+
+// prisma/schema.prisma
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  password        String
+  firstName       String?   
+  lastName        String?
+  
+  // Perfil específico de diabetes (según RF001)
+  typeOfDiabetes  String?   // "TYPE_1" | "TYPE_2" | "GESTACIONAL" | "PREDIABETES"
+  diagnosedAt     DateTime? // Fecha del diagnóstico
+  yearsWithDiabetes Int?    // Calculado o manual, importante para personalización
+  
+  // Metas y configuración (según RF004)
+  targetHba1c     Float?    // Meta de HbA1c, ej: 6.5
+  targetGlucoseMin Int?     @default(80)  // Rango glucémico mínimo (mg/dL)
+  targetGlucoseMax Int?     @default(180) // Rango glucémico máximo (mg/dL)
+  
+  // Configuración personal (según RNF002 - Usabilidad)
+  birthDate       DateTime? // Para personalizar contenido educativo por edad
+  weight          Float?    // Para calculadoras y recomendaciones
+  height          Float?    // Para calculadoras de IMC
+  activityLevel   String?   // "SEDENTARY" | "LIGHT" | "MODERATE" | "ACTIVE"
+  
+  // Configuración de medicamentos (según RF005)
+  currentMedications String? // JSON o texto simple por ahora
+  insulinType     String?   // "RAPID" | "LONG_ACTING" | "MIXED" | "NONE"
+  
+  // Preferencias de notificaciones (según RF001)
+  notificationPreferences Json? // Estructura flexible para diferentes tipos
+  reminderTimes   Json?     // Horarios personalizados para recordatorios
+  
+  // Configuración de metas diarias (según RF004)
+  dailyGlucoseChecks Int?   @default(4) // Meta de glucometrías por día
+  exerciseGoalMinutes Int?  @default(30) // Meta de ejercicio diario
+  
+  // Metadata importante para análisis (según RNF007)
+  timezone        String?   @default("America/Bogota") // Para timestamps correctos
+  language        String?   @default("es") // Para localización
+  onboardingCompleted Boolean @default(false) // Control del setup inicial
+  isActive        Boolean   @default(true)  // Para soft delete
+  
+  // Compliance y privacidad (según RNF003)
+  dataConsentAt   DateTime? // Cuándo aceptó términos de datos
+  lastLoginAt     DateTime? // Para métricas de engagement
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relaciones futuras (preparación para Fase 2-3)
+  // glucoseReadings GlucoseReading[]
+  // medications     Medication[]
+  // achievements    Achievement[]
+  // dailyGoals      DailyGoal[]
+  
+  @@map("users") // Nombre de tabla en plural
+}
