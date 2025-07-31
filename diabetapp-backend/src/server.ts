@@ -1,8 +1,10 @@
 // Importamos la librería Express
 import express, { Request, Response } from 'express';
+import authRoutes from './modules/auth/auth.routes';
 
 // Creamos una instancia de la aplicación Express
 const app = express();
+
 
 // Definimos el puerto en el que escuchará nuestro servidor
 // Usará el puerto que nos dé el hosting (process.env.PORT) o el 3000 si estamos en local
@@ -21,6 +23,8 @@ app.get('/api', (req: Request, res: Response) => {
   res.status(200).json({ message: '¡Hola, DiabetApp! El backend está funcionando.' });
 });
 
+// 2. Le decimos a la app que use nuestras nuevas rutas bajo el prefijo /api/auth
+app.use('/api/auth', authRoutes);
 // Ponemos el servidor a escuchar en el puerto definido
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
