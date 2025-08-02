@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import prisma from '../../config/db'; 
-import { RegisterUserInput } from './auth.types';
+import { RegisterUserInput , LoginUserInput, AuthResponse } from './auth.types';
+import jwt from 'jsonwebtoken';
+import { string } from 'zod';
 
 
 export class AuthService {
@@ -73,4 +75,124 @@ export class AuthService {
       
       return !existingUser; // true si está disponible
     }
+
+    async loginUser(credentials: LoginUserInput): Promise<AuthResponse> {
+      try {
+        // 1. Buscar usuario por email
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email.toLowerCase() },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            typeOfDiabetes: true,
+            onboardingCompleted: true,
+            password: true, // Necesario para comparar contraseñas
+            createdAt: true
+          }
+        });
+  
+        if (!user) {
+          throw new Error('USER_NOT_FOUND');
+        }
+  
+        // 2. Verificar contraseña
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isPasswordValid) {
+          throw new Error('INVALID_PASSWORD');
+        }
+  
+        // 3. Generar token JWT
+        const token = jwt.sign(
+          { userId: user.id, email: user.email },
+          process.env.JWT_SECRET || 'default_secret', // Usar variable de entorno o valor por defecto
+          { expiresIn: '1h' } // Expira en 1 hora
+        );
+  
+        // 4. Preparar respuesta
+        const authResponse: AuthResponse = {
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName ?? undefined,
+            lastName: user.lastName ?? undefined,
+            typeOfDiabetes: user.typeOfDiabetes ?? undefined,
+            onboardingCompleted: user.onboardingCompleted,
+            createdAt: user.createdAt
+          },
+          token
+        };
+  
+        return authResponse;
+  
+      } catch (error: any) {
+        if (error.message === 'USER_NOT_FOUND') {
+          throw error;
+        }
+        
+        if (error.message === 'INVALID_PASSWORD') {
+          throw error;
+        }
+        
+        console.error('Error during login:', error);
+        throw new Error('LOGIN_ERROR');
+      }
+    }
+    
+    async verifyToken(token: string) {
+      try {
+        if (!process.env.JWT_SECRET) {
+          throw new Error('JWT_SECRET_MISSING');
+        }
+  
+        const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+        
+        // Verificar que el usuario aún existe y está activo
+        const user = await prisma.user.findUnique({
+          where: { 
+            id: decoded.userId,
+            isActive: true 
+          },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            typeOfDiabetes: true,
+            onboardingCompleted: true,
+          }
+        });
+  
+        if (!user) {
+          throw new Error('USER_NOT_FOUND');
+        }
+  
+        return { user, decoded };
+  
+      } catch (error: any) {
+        if (error.name === 'JsonWebTokenError') {
+          throw new Error('INVALID_TOKEN');
+        }
+        
+        if (error.name === 'TokenExpiredError') {
+          throw new Error('TOKEN_EXPIRED');
+        }
+        
+        if (error.message === 'JWT_SECRET_MISSING') {
+          throw error;
+        }
+        
+        console.error('Error verifying token:', error);
+        throw new Error('TOKEN_VERIFICATION_ERROR');
+      }
+    }
+
+    
+    
   }
+  
+
+  
+
+  
