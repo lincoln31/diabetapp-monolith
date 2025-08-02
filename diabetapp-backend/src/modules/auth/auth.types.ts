@@ -8,3 +8,21 @@ export interface RegisterUserInput {
     birthDate?: string; // ISO date string
   }
   
+  // Nueva interface para login
+export interface LoginUserInput {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  user: {
+    id: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    typeOfDiabetes?: string;
+    onboardingCompleted: boolean;
+    createdAt: Date;
+  };
+  token: string;
+}
