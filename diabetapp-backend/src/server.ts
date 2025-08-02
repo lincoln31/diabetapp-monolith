@@ -1,5 +1,6 @@
 // Importamos la librería Express
 import express, { Request, Response } from 'express';
+import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes';
 
 // Creamos una instancia de la aplicación Express
@@ -9,6 +10,13 @@ const app = express();
 // Definimos el puerto en el que escuchará nuestro servidor
 // Usará el puerto que nos dé el hosting (process.env.PORT) o el 3000 si estamos en local
 const PORT = process.env.PORT || 3000;
+
+// Configurar CORS para permitir peticiones desde tu app móvil
+app.use(cors({
+  origin: '*', // En producción, especifica tu dominio
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Middleware para que Express pueda entender JSON en el cuerpo de las peticiones
 app.use(express.json());
