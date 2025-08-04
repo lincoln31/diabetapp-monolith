@@ -31,3 +31,14 @@ export const registerSchema = z.object({
       .datetime('Fecha debe ser formato ISO válido')
       .optional()
   });
+
+  export const loginSchema = z.object({
+    email: z
+      .string()
+      .email('Email debe tener formato válido')
+      .min(1, 'Email es obligatorio'),
+    
+    password: z
+      .string()
+      .min(1, 'Contraseña es obligatoria')
+  });
