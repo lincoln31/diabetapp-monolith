@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'expo-router';
+
 import { 
   View, 
   Text, 
@@ -206,9 +208,9 @@ const LoginScreen = () => {
         {/* Registro */}
         <View style={styles.registerContainer}>
           <Text style={styles.registerText}>¿No tienes cuenta?</Text>
-          <TouchableOpacity>
-            <Text style={styles.registerLink}> Regístrate aquí</Text>
-          </TouchableOpacity>
+          <Link href="/register" style={styles.registerLink}>
+              Regístrate aquí
+          </Link>
         </View>
 
         {/* Información de seguridad */}
