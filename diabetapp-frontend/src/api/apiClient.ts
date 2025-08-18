@@ -2,6 +2,7 @@
 
 import axios, { AxiosError } from 'axios';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG } from '../constants/config';
 
 // Creamos la instancia de Axios con la configuración centralizada
@@ -13,7 +14,24 @@ const apiClient = axios.create({
     'Accept': 'application/json',
   }
 });
-
+// Interceptor para agregar automáticamente el token a las requests
+apiClient.interceptors.request.use(
+  async (config) => {
+    try {
+      // Obtener el token del almacenamiento local
+      const token = await AsyncStorage.getItem('userToken');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error al obtener el token:', error);
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 // 3. Implementar Interceptores para Manejo de Errores Global 
 apiClient.interceptors.response.use(
   // (response) => response: Esta es la función para respuestas exitosas (status 2xx).

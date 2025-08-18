@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'expo-router';
+import { Link , useRouter} from 'expo-router';
 import { 
   View, 
   Text, 
@@ -27,6 +27,7 @@ const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   
   const { login, isLoading } = useAuth();
+  const router = useRouter();
 
   const handleLogin = async () => {
     const result = await login({ email, password });
@@ -34,6 +35,7 @@ const LoginScreen = () => {
       // Aquí navegarías a la pantalla principal
       // navigation.navigate('Home');
       console.log('Login exitoso, navegando...');
+      router.push('/modals/add-glucose');
     }
   };
 
@@ -84,13 +86,11 @@ const LoginScreen = () => {
           />
 
           {/* Botón de login */}
-          <Button
-            title="Iniciar Sesión"
-            onPress={handleLogin}
-            loading={isLoading}
-            loadingText="Iniciando sesión..."
-            style={styles.loginButton}
-          />
+          <Button 
+            title="Iniciar Sesión" 
+            onPress={handleLogin} 
+            loading={isLoading} 
+            style={styles.loginButton} />
 
           {/* Links adicionales */}
           <View style={styles.linksContainer}>

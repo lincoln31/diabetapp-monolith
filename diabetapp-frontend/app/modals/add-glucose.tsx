@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
   Alert,
-  ActivityIndicator,
   StyleSheet,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
-import axios from 'axios';
+import { Card, Input, Button, Icon } from '../../src/components/ui';
+import apiClient from '../../src/api/apiClient';
+import { COLORS } from '../../src/constants/config';
+import { validateRequired } from '../../src/utils/validation';
 
 const AddGlucoseScreen = () => {
   const router = useRouter();
@@ -25,7 +25,7 @@ const AddGlucoseScreen = () => {
   const [notes, setNotes] = useState('');
   const [timestamp, setTimestamp] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Estados para el DateTimePicker
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -82,15 +82,12 @@ const AddGlucoseScreen = () => {
       Alert.alert('Error', 'Por favor, ingresa un valor de glucosa');
       return;
     }
-
     const validationError = validateGlucoseValue(glucoseValue);
     if (validationError) {
       Alert.alert('Error', validationError);
       return;
     }
-
     setIsLoading(true);
-
     try {
       // Preparar el objeto de datos
       const payload = {
@@ -98,18 +95,9 @@ const AddGlucoseScreen = () => {
         momentOfDay,
         notes: notes.trim(),
         timestamp: timestamp.toISOString(),
-        userId: 'USER_ID', // Aquí iría el ID del usuario autenticado
       };
-
-      // Llamada a la API del backend
-      const response = await axios.post('/api/glucose/record', payload, {
-        headers: {
-          'Authorization': `Bearer ${userToken}`, // Token JWT del usuario
-          'Content-Type': 'application/json',
-        },
-      });
-
-      // Manejar respuesta exitosa
+      // Llamada a la API del backend (el token se agrega automáticamente)
+      const response = await apiClient.post('/glucose/add', payload);
       if (response.status === 201 || response.status === 200) {
         Alert.alert(
           '¡Éxito!',
@@ -117,26 +105,20 @@ const AddGlucoseScreen = () => {
           [
             {
               text: 'OK',
-              onPress: () => router.back(), // Cerrar la pantalla modal
+              onPress: () => router.back(),
             },
           ]
         );
       }
-
-    } catch (error) {
-      console.error('Error saving glucose reading:', error);
-      
+    } catch (error: any) {
       let errorMessage = 'No se pudo guardar el registro. Revisa tu conexión a internet.';
-      
-      if (axios.isAxiosError(error) && error.response) {
-        // El servidor respondió con un error
+      if (error.response) {
         if (error.response.status === 401) {
           errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
         } else if (error.response.status === 400) {
           errorMessage = 'Datos inválidos. Verifica la información ingresada.';
         }
       }
-      
       Alert.alert('Error', errorMessage);
     } finally {
       setIsLoading(false);
@@ -165,35 +147,33 @@ const AddGlucoseScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity
+          <Button
+            variant="outline"
+            size="small"
             style={styles.closeButton}
             onPress={() => router.back()}
-          >
-            <Text style={styles.closeButtonText}>✕</Text>
-          </TouchableOpacity>
+            title="✕"
+          />
           <Text style={styles.title}>Nueva Medición de Glucosa</Text>
         </View>
 
-        <View style={styles.form}>
+        <Card style={styles.form}>
           {/* Campo de Glucosa */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nivel de Glucosa (mg/dL) *</Text>
-            <TextInput
-              style={[styles.input, styles.glucoseInput]}
-              value={glucoseValue}
-              onChangeText={setGlucoseValue}
-              placeholder="Ej: 120"
-              keyboardType="numeric"
-              maxLength={3}
-              textAlign="center"
-            />
-          </View>
+          <Input
+            icon="chart"
+            placeholder="Nivel de Glucosa (mg/dL) *"
+            value={glucoseValue}
+            onChangeText={setGlucoseValue}
+            keyboardType="numeric"
+            maxLength={3}
+            style={styles.glucoseInput}
+          />
 
           {/* Momento del Día */}
           <View style={styles.inputGroup}>
@@ -219,19 +199,20 @@ const AddGlucoseScreen = () => {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Fecha y hora</Text>
             <View style={styles.dateTimeContainer}>
-              <TouchableOpacity
+              <Button
+                variant="outline"
+                size="small"
                 style={styles.dateTimeButton}
                 onPress={() => setShowDatePicker(true)}
-              >
-                <Text style={styles.dateTimeText}>📅 {formatDate(timestamp)}</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
+                title={`📅 ${formatDate(timestamp)}`}
+              />
+              <Button
+                variant="outline"
+                size="small"
                 style={styles.dateTimeButton}
                 onPress={() => setShowTimePicker(true)}
-              >
-                <Text style={styles.dateTimeText}>🕐 {formatTime(timestamp)}</Text>
-              </TouchableOpacity>
+                title={`🕐 ${formatTime(timestamp)}`}
+              />
             </View>
           </View>
 
@@ -245,7 +226,6 @@ const AddGlucoseScreen = () => {
               maximumDate={new Date()}
             />
           )}
-
           {showTimePicker && (
             <DateTimePicker
               value={timestamp}
@@ -256,52 +236,43 @@ const AddGlucoseScreen = () => {
           )}
 
           {/* Notas */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Notas (opcional)</Text>
-            <TextInput
-              style={[styles.input, styles.notesInput]}
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="¿Cómo te sientes? ¿Qué comiste? ¿Hiciste ejercicio?"
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-              maxLength={200}
-            />
-            <Text style={styles.charCounter}>{notes.length}/200 caracteres</Text>
-          </View>
+          <Input
+            icon="note"
+            placeholder="Notas (opcional)"
+            value={notes}
+            onChangeText={setNotes}
+            multiline
+            numberOfLines={3}
+            style={styles.notesInput}
+            maxLength={200}
+          />
+          <Text style={styles.charCounter}>{notes.length}/200 caracteres</Text>
 
           {/* Botón de Ahora */}
-          <TouchableOpacity
+          <Button
+            variant="secondary"
+            size="small"
             style={styles.nowButton}
             onPress={() => setTimestamp(new Date())}
-          >
-            <Text style={styles.nowButtonText}>🕐 Usar fecha y hora actual</Text>
-          </TouchableOpacity>
+            title="🕐 Usar fecha y hora actual"
+          />
 
           {/* Botón Guardar */}
-          <TouchableOpacity
-            style={[
-              styles.saveButton,
-              (isLoading || !glucoseValue.trim()) && styles.saveButtonDisabled,
-            ]}
+          <Button
+            title="Registrar Glucosa"
             onPress={handleSave}
+            loading={isLoading}
+            style={styles.saveButton}
             disabled={isLoading || !glucoseValue.trim()}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="white" size="small" />
-            ) : (
-              <Text style={styles.saveButtonText}>Registrar Glucosa</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+          />
+        </Card>
 
         {/* Información de referencia */}
-        <View style={styles.infoContainer}>
+        <Card style={styles.infoContainer} variant="motivation">
           <Text style={styles.infoTitle}>ℹ️ Niveles de referencia:</Text>
           <Text style={styles.infoText}>• Normal: 70-140 mg/dL</Text>
           <Text style={styles.infoText}>• Consulta a tu médico para rangos personalizados</Text>
-        </View>
+        </Card>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -310,7 +281,7 @@ const AddGlucoseScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: COLORS.background,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -326,31 +297,23 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#e9ecef',
-    alignItems: 'center',
-    justifyContent: 'center',
     marginRight: 15,
-  },
-  closeButtonText: {
-    fontSize: 16,
-    color: '#6c757d',
-    fontWeight: 'bold',
+    padding: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#212529',
+    color: COLORS.gray[800],
     flex: 1,
   },
   form: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
@@ -361,30 +324,21 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#495057',
+    color: COLORS.gray[600],
     marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#dee2e6',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: '#fff',
   },
   glucoseInput: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
     paddingVertical: 20,
-    borderColor: '#007bff',
+    borderColor: COLORS.primary,
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#dee2e6',
+    borderColor: COLORS.gray[200],
     borderRadius: 12,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.white,
   },
   picker: {
     height: 50,
@@ -395,18 +349,7 @@ const styles = StyleSheet.create({
   },
   dateTimeButton: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#dee2e6',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
     marginHorizontal: 4,
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  dateTimeText: {
-    fontSize: 16,
-    color: '#495057',
   },
   notesInput: {
     height: 80,
@@ -414,65 +357,28 @@ const styles = StyleSheet.create({
   },
   charCounter: {
     fontSize: 12,
-    color: '#6c757d',
+    color: COLORS.gray[400],
     textAlign: 'right',
     marginTop: 4,
   },
   nowButton: {
-    backgroundColor: '#e9ecef',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    alignItems: 'center',
     marginBottom: 20,
   },
-  nowButtonText: {
-    fontSize: 14,
-    color: '#495057',
-    fontWeight: '500',
-  },
   saveButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#007bff',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
-  },
-  saveButtonDisabled: {
-    backgroundColor: '#adb5bd',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  saveButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+    marginTop: 8,
   },
   infoContainer: {
-    backgroundColor: '#e7f3ff',
-    padding: 16,
-    borderRadius: 12,
     marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#b3d9ff',
   },
   infoTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0066cc',
+    color: COLORS.primary,
     marginBottom: 8,
   },
   infoText: {
     fontSize: 12,
-    color: '#0066cc',
+    color: COLORS.primary,
     marginBottom: 2,
   },
 });
