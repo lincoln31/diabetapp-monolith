@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+// Removed unused import of PrismaClient
 import bcrypt from 'bcrypt';
 import prisma from '../../config/db'; 
 import { RegisterUserInput , LoginUserInput, AuthResponse } from './auth.types';
@@ -127,16 +127,16 @@ export class AuthService {
         return authResponse;
   
       } catch (error: any) {
-        if (error.message === 'USER_NOT_FOUND') {
-          throw error;
+        // Si el usuario no se encuentra o la contraseña es incorrecta...
+        if (error.message === 'USER_NOT_FOUND' || error.message === 'INVALID_PASSWORD') {
+          // ...lanzamos un error específico y unificado.
+          throw new Error('INVALID_CREDENTIALS');
         }
         
-        if (error.message === 'INVALID_PASSWORD') {
-          throw error;
-        }
-        
-        console.error('Error during login:', error);
-        throw new Error('LOGIN_ERROR');
+        // Para cualquier otro error inesperado (ej. fallo de la base de datos)
+        console.error('Error inesperado durante el login:', error);
+        // Lanzamos un error genérico que el controlador puede manejar.
+        throw new Error('DATABASE_ERROR');
       }
     }
     

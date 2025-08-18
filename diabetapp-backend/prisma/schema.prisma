@@ -66,10 +66,30 @@ model User {
   updatedAt       DateTime  @updatedAt
   
   // Relaciones futuras (preparación para Fase 2-3)
-  // glucoseReadings GlucoseReading[]
+   glucoseReadings GlucoseReading[]
   // medications     Medication[]
   // achievements    Achievement[]
   // dailyGoals      DailyGoal[]
+
   
-  @@map("users") // Nombre de tabla en plural
+  @@map("users") 
+}
+
+model GlucoseReading {
+  id        String    @id @default(cuid())
+  value     Int       // El valor en mg/dL, ej: 110
+
+  // Contexto del registro (según RF002)
+  timestamp DateTime  // Fecha y hora exactas del registro, enviadas desde el móvil
+  momentOfDay String    // "AYUNAS", "ANTES_COMIDA", "DESPUES_COMIDA", "NOCTURNA"
+  notes     String?   // Notas opcionales del usuario, ej: "Comí pizza"
+
+  // Relación con el usuario (¡LA PARTE MÁS IMPORTANTE!)
+  userId    String    // Clave foránea que apunta al ID del usuario
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  createdAt DateTime  @default(now())
+
+  @@map("glucose_readings") // Nombre explícito para la tabla
 }
