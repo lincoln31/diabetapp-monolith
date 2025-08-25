@@ -12,10 +12,13 @@
 
     /* --- Chequeo de Tipos Estricto --- */
     "strict": true,                    // Habilita todas las comprobaciones de tipo estrictas. Es una buena práctica.
-    "skipLibCheck": true               // No comprueba los tipos de las librerías de terceros (acelera la compilación).
+    "skipLibCheck": true,               // No comprueba los tipos de las librerías de terceros (acelera la compilación).
+    "typeRoots":["./src/types", "./node_modules/@types"],
+    "types": ["node", "express"]
   },
   "include": [
-    "src/**/*"                         // Le dice a TypeScript que solo compile los archivos dentro de la carpeta 'src'.
+    "src/**/*"
+                             // Le dice a TypeScript que solo compile los archivos dentro de la carpeta 'src'.
   ],
   "exclude": [
     "node_modules"                     // Ignora explícitamente la carpeta node_modules.
