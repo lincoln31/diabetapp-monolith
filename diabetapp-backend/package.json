@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts"
+    "dev": "nodemon src/server.ts",
+    "generate-secret": "node scripts/generate-jwt-secret.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,7 @@
     "@prisma/client": "^6.13.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "zod": "^4.0.11"
@@ -25,6 +27,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/connect": "^3.4.38",
     "@types/cors": "^2.8.19",
+    "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mime": "^3.0.4",

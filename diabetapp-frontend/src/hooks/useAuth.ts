@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiClient from '../api/apiClient';
-import { API_CONFIG } from '../constants/config';
+import { API_CONFIG, TOKEN_STORAGE_KEY } from '../constants/config';
 import { validateEmail, validatePassword } from '../utils/validation';
 
 interface LoginData {
@@ -50,6 +51,9 @@ export const useAuth = () => {
       });
 
       const { user, token } = response.data.data;
+
+      // Guardar el token para que apiClient lo envíe en las siguientes peticiones
+      await AsyncStorage.setItem(TOKEN_STORAGE_KEY, token);
 
       Alert.alert(
         '¡Bienvenido! 🎉',
@@ -137,7 +141,8 @@ export const useAuth = () => {
 
   const logout = async (): Promise<void> => {
     try {
-      await apiClient.post(API_CONFIG.endpoints.auth.logout);
+      // El backend aún no expone /auth/logout (JWT sin estado): basta con borrar el token local
+      await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
       console.log('Sesión cerrada exitosamente');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);

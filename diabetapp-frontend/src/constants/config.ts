@@ -17,11 +17,14 @@ export const API_CONFIG = {
       update: '/user/update',
     },
     glucose: {
-      readings: '/glucose/readings',
-      add: '/glucose/add',
+      readings: '/glucose',
+      add: '/glucose',
     }
   }
 };
+
+// Clave de AsyncStorage donde se guarda el JWT de la sesión
+export const TOKEN_STORAGE_KEY = 'userToken';
 
 // Configuración de la aplicación
 export const APP_CONFIG = {

@@ -1,7 +1,17 @@
 // Importamos la librería Express
 import express, { Request, Response, Application } from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import { loadEnvConfig } from './config/env';
 import authRoutes from './modules/auth/auth.routes';
+import glucoseRoutes from './modules/glucose/routes/glucoseRoutes';
+import { env } from './config/env';
+
+// Cargar variables de entorno desde .env
+dotenv.config();
+
+// Cargar configuración de entorno
+loadEnvConfig();
 
 // Creamos una instancia de la aplicación Express
 const app: Application = express();
@@ -37,6 +47,9 @@ app.get('/api', (req: Request, res: Response) => {
 // 2. Le decimos a la app que use nuestras nuevas rutas bajo el prefijo /api/auth
 app.use('/api/auth', authRoutes);
 
+// 3. Rutas de glucosa (protegidas por middleware de autenticación)
+app.use('/api/glucose', glucoseRoutes);
+
 // 🔍 DEBUGGING: Capturar rutas no encontradas
 app.use( (req, res) => {
   console.log(`❌ Ruta no encontrada: ${req.method} ${req.originalUrl}`);
@@ -63,4 +76,7 @@ app.listen(PORT, '0.0.0.0', () => { // 👈 IMPORTANTE: '0.0.0.0' para aceptar c
   console.log(`   GET  http://192.168.1.9:${PORT}/api`);
   console.log(`   GET  http://192.168.1.9:${PORT}/api/test`);
   console.log(`   POST http://192.168.1.9:${PORT}/api/auth/login`);
+  console.log(`   POST http://192.168.1.9:${PORT}/api/auth/register`);
+  console.log(`   GET  http://192.168.1.9:${PORT}/api/glucose`);
+  console.log(`   POST http://192.168.1.9:${PORT}/api/glucose`);
 });

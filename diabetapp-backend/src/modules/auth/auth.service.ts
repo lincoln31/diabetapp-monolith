@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import prisma from '../../config/db'; 
 import { RegisterUserInput , LoginUserInput, AuthResponse } from './auth.types';
 import jwt from 'jsonwebtoken';
+import { env } from '../../config/env';
 import { string } from 'zod';
 
 
@@ -106,7 +107,7 @@ export class AuthService {
         // 3. Generar token JWT
         const token = jwt.sign(
           { userId: user.id, email: user.email },
-          process.env.JWT_SECRET || 'default_secret', // Usar variable de entorno o valor por defecto
+          env.JWT_SECRET,
           { expiresIn: '1h' } // Expira en 1 hora
         );
   
