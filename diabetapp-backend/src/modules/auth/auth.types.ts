@@ -4,6 +4,7 @@ export interface RegisterUserInput {
     password: string;
     firstName?: string;
     lastName?: string;
+    phone?: string;
     typeOfDiabetes?: 'TYPE_1' | 'TYPE_2' | 'GESTACIONAL' | 'PREDIABETES';
     birthDate?: string; // ISO date string
   }

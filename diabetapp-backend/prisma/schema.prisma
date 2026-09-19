@@ -23,6 +23,7 @@ model User {
   password        String
   firstName       String?   
   lastName        String?
+  phone           String?   // Teléfono de contacto (opcional)
   
   // Perfil específico de diabetes (según RF001)
   typeOfDiabetes  String?   // "TYPE_1" | "TYPE_2" | "GESTACIONAL" | "PREDIABETES"

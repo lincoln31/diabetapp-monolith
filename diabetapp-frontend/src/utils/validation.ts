@@ -32,7 +32,24 @@ export const validatePassword = (password: string): ValidationResult => {
   return { isValid: true };
 };
 
-export const validatePasswordConfirmation = (password: string, confirmPassword: string): ValidationResult => {
+// Reglas para contraseñas nuevas (las mismas que exige el backend en el registro)
+export const validateNewPassword = (password: string): ValidationResult => {
+  const basicValidation = validatePassword(password);
+  if (!basicValidation.isValid) {
+    return basicValidation;
+  }
+
+  if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password)) {
+    return {
+      isValid: false,
+      message: 'La contraseña debe tener al menos una minúscula, una mayúscula y un número'
+    };
+  }
+
+  return { isValid: true };
+};
+
+export const validatePasswordConfirmation =(password: string, confirmPassword: string): ValidationResult => {
   if (!confirmPassword) {
     return { isValid: false, message: 'Confirma tu contraseña' };
   }
@@ -81,9 +98,23 @@ export const validateDateOfBirth = (dateOfBirth: string): ValidationResult => {
   
   const [, day, month, year] = match;
   const birthDate = new Date(Number(year), Number(month) - 1, Number(day));
+
+  // Rechazar fechas inexistentes como 31/02/2000 (Date las "desborda" al mes siguiente)
+  if (
+    birthDate.getFullYear() !== Number(year) ||
+    birthDate.getMonth() !== Number(month) - 1 ||
+    birthDate.getDate() !== Number(day)
+  ) {
+    return { isValid: false, message: 'La fecha de nacimiento no es válida' };
+  }
+
   const today = new Date();
+  if (birthDate > today) {
+    return { isValid: false, message: 'La fecha de nacimiento no puede ser futura' };
+  }
+
   const age = today.getFullYear() - birthDate.getFullYear();
-  
+
   if (age < APP_CONFIG.minAge) {
     return { 
       isValid: false, 
@@ -94,7 +125,13 @@ export const validateDateOfBirth = (dateOfBirth: string): ValidationResult => {
   return { isValid: true };
 };
 
-export const formatDateInput = (text: string): string => {
+// Convierte DD/MM/YYYY (ya validada) al formato ISO que espera el backend
+export const dateOfBirthToISO = (dateOfBirth: string): string => {
+  const [day, month, year] = dateOfBirth.split('/').map(Number);
+  return new Date(Date.UTC(year, month - 1, day)).toISOString();
+};
+
+export const formatDateInput =(text: string): string => {
   // Remover caracteres no numéricos
   const numbers = text.replace(/\D/g, '');
   

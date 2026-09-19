@@ -7,6 +7,14 @@ import { env } from '../../config/env';
 import { string } from 'zod';
 
 
+// Genera el JWT de sesión (usado en login y en registro)
+const signToken = (userId: string, email: string) =>
+  jwt.sign(
+    { userId, email },
+    env.JWT_SECRET,
+    { expiresIn: '1h' } // Expira en 1 hora
+  );
+
 export class AuthService {
     async createUser(userData: RegisterUserInput) {
       try {
@@ -28,6 +36,7 @@ export class AuthService {
           password: hashedPassword,
           firstName: userData.firstName,
           lastName: userData.lastName,
+          phone: userData.phone,
           typeOfDiabetes: userData.typeOfDiabetes,
           onboardingCompleted: false, // Usuario nuevo necesita onboarding
           isActive: true,
@@ -54,8 +63,11 @@ export class AuthService {
           }
         });
   
-        return newUser;
-  
+        // 5. Iniciar sesión automáticamente tras el registro
+        const token = signToken(newUser.id, newUser.email);
+
+        return { user: newUser, token };
+
       } catch (error: any) {
         // Re-lanzar errores conocidos
         if (error.message === 'USER_ALREADY_EXISTS') {
@@ -105,11 +117,7 @@ export class AuthService {
         }
   
         // 3. Generar token JWT
-        const token = jwt.sign(
-          { userId: user.id, email: user.email },
-          env.JWT_SECRET,
-          { expiresIn: '1h' } // Expira en 1 hora
-        );
+        const token = signToken(user.id, user.email);
   
         // 4. Preparar respuesta
         const authResponse: AuthResponse = {

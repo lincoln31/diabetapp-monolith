@@ -24,14 +24,15 @@ export const registerController = async (req: Request, res: Response) => {
     const userData = validationResult.data;
 
     // 2. Crear usuario
-    const newUser = await authService.createUser(userData);
+    const { user, token } = await authService.createUser(userData);
 
-    // 3. Respuesta exitosa
+    // 3. Respuesta exitosa (incluye token para iniciar sesión directamente)
     return res.status(201).json({
       success: true,
       message: 'Usuario registrado exitosamente',
       data: {
-        user: newUser,
+        user,
+        token,
         requiresOnboarding: true // Indicar que necesita completar perfil
       }
     });

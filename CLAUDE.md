@@ -62,9 +62,8 @@ No hay tests en el frontend.
 - `src/app.tsx` y `src/screens/LoginScreen.tsx` son restos anteriores a Expo Router; no están enrutados. Las carpetas raíz `components/`, `hooks/`, `constants/` son del template de Expo (tema claro/oscuro) y la app actual usa principalmente `src/`.
 - Las rutas se importan con paths relativos (`../src/...`); existe el alias `@/*` → raíz del frontend.
 
-## Desajustes conocidos entre frontend y backend
+## Contrato frontend ↔ backend
 
-Tenerlos en cuenta al tocar cualquiera de los dos lados:
-
-- El registro del frontend envía `phone` y `dateOfBirth` (formato `DD/MM/AAAA`), mientras que el backend espera `birthDate` en ISO y no conoce `phone`; además el backend no devuelve `token` al registrar.
-- Las reglas de contraseña difieren (frontend `minPasswordLength: 6`; backend mínimo 8 con mayúscula, minúscula y número).
+- El frontend valida los formularios con las mismas reglas que los esquemas Zod del backend (contraseña 8+ con mayúscula, minúscula y número; teléfono opcional 10–20 caracteres). Si cambias una regla, cámbiala en `src/utils/validation.ts` y en el `*.validation.ts` correspondiente.
+- Fechas: la app captura `DD/MM/YYYY` y envía ISO (`dateOfBirthToISO`); el backend recibe `birthDate` con `z.string().datetime()`.
+- Registro y login devuelven `{ user, token }`; `useAuth` guarda el token en ambos casos.
