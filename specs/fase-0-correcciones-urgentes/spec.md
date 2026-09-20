@@ -75,9 +75,9 @@ Eliminar los riesgos de seguridad inmediatos y los fallos que rompen la app, sin
 | CA-0.6 | Arranque del backend sin `JWT_SECRET` y con `DATABASE_URL` vacía | Se ejecuta `npm run dev` | La consola muestra `JWT_SECRET: …` y `DATABASE_URL: …` con su motivo, y el proceso termina con código ≠ 0 | RF-0.5 |
 | CA-0.7 | El repositorio tras la fase | Se buscan los archivos de RF-0.6 | No existen, y `tsc --noEmit` pasa en backend; en frontend no aparecen errores nuevos | RF-0.6 |
 
-## 8. Decisiones pendientes
+## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** ¿En qué entornos se usó el secreto filtrado? (solo local / algún servidor / Railway, Render…). Determina dónde aplicar RF-0.1. Si solo fue local, basta con cambiar el `.env` de cada desarrollador.
+- **Resuelta (2026-09-19):** el secreto filtrado se usó **en local y en los servidores**. RF-0.1 se aplica en ambos: cada desarrollador cambia el `JWT_SECRET` de su `.env` y se cambia también la variable en cada servidor desplegado, reiniciando el servicio.
 
 ## 9. Definición de terminado
 
