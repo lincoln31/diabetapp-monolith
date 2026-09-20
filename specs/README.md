@@ -62,4 +62,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 1 | En implementación (PR abierto; falta probar la app en dispositivo) |
 | 2 | En implementación (PR abierto; falta probar la app en dispositivo) |
 | 3 | En implementación (PR abierto; falta probar la app en dispositivo) |
-| 4 | Borrador |
+| 4 | En implementación (PR abierto; falta activar la protección de ramas) |

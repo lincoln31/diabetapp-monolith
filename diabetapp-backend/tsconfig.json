@@ -4,7 +4,6 @@
     "target": "ES2020",                // Compila a una versión moderna de JavaScript compatible con Node.js reciente.
     "module": "commonjs",              // El sistema de módulos estándar de Node.js ('require').
     "outDir": "./dist",                // Dónde guardar los archivos JavaScript compilados (para producción).
-    "rootDir": "./src",                // Dónde se encuentra tu código fuente TypeScript.
 
     /* --- Interoperabilidad de Módulos --- */
     "esModuleInterop": true,           // LA MÁS IMPORTANTE: Permite importar módulos CommonJS (como Express) con la sintaxis 'import from'. Resuelve muchos problemas.
@@ -14,10 +13,10 @@
     "strict": true,                    // Habilita todas las comprobaciones de tipo estrictas. Es una buena práctica.
     "skipLibCheck": true,               // No comprueba los tipos de las librerías de terceros (acelera la compilación).
     "typeRoots":["./src/types", "./node_modules/@types"],
-    "types": ["node", "express"]
+    "types": ["node", "express", "jest"]
   },
   "include": [
-    "src/**/*"
+    "src/**/*", "test/**/*", "scripts/**/*.ts", "prisma/**/*.ts"
                              // Le dice a TypeScript que solo compile los archivos dentro de la carpeta 'src'.
   ],
   "exclude": [

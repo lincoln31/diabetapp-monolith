@@ -15,6 +15,8 @@ El código, los comentarios y los mensajes al usuario están en español.
 
 El plan de mejora se sigue con especificaciones (SDD) en `specs/`: `specs/README.md` explica el flujo (spec → plan → tareas → implementación → verificación) y `specs/constitucion.md` los principios obligatorios. Antes de cambiar arquitectura, contrato de API o estructura de carpetas, consulta la spec de la fase correspondiente; si el cambio no está previsto, actualiza primero la spec.
 
+La CI (`.github/workflows/ci.yml`) ejecuta en cada PR hacia `Develop` o `main`: formato, lint, tipos, migraciones y tests, en dos trabajos (`backend` y `frontend`). Node se fija con `.nvmrc`.
+
 ## Comandos
 
 ### Backend (`cd diabetapp-backend`)
@@ -32,7 +34,16 @@ npx ts-node prisma/seed-perf.ts <email>   # solo local: 10 000 lecturas para med
 
 Requiere `.env` (ignorado por git; parte de `env.example`) con `DATABASE_URL` (p. ej. `postgresql://user:password@localhost:5433/diabetapp_dev`) y `JWT_SECRET`.
 
-No hay framework de tests configurado (`npm test` solo falla); mientras tanto, `requests.http` tiene una petición por criterio de aceptación de la fase 1.
+```bash
+npm test                     # jest: tests de integración contra diabetapp_test
+npm test -- -t "login"       # un test concreto por su nombre
+npm test -- --coverage       # cobertura (umbral: 80 % de líneas)
+npm run lint                 # eslint con tipos
+npm run typecheck            # tsc --noEmit
+npm run format:check         # prettier
+```
+
+Los tests usan `.env.test` y la base `diabetapp_test` del mismo contenedor; cada test arranca con las tablas vacías. `requests.http` sirve para probar a mano.
 
 ### Frontend (`cd diabetapp-frontend`)
 
@@ -43,7 +54,12 @@ npm run lint         # expo lint (eslint-config-expo + reglas de dependencia)
 npm run typecheck    # tsc --noEmit
 ```
 
-No hay tests en el frontend. Requiere `.env` con `EXPO_PUBLIC_API_URL` (parte de `.env.example`).
+```bash
+npm test                     # jest-expo + @testing-library/react-native
+npm run format:check         # prettier
+```
+
+Requiere `.env` con `EXPO_PUBLIC_API_URL` (parte de `.env.example`).
 
 ## Arquitectura del backend
 

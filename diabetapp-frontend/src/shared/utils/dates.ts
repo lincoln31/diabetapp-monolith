@@ -1,16 +1,13 @@
-/** Formatea DD/MM/YYYY mientras el usuario escribe. */
+/**
+ * Formatea DD/MM/YYYY mientras el usuario escribe, sin dejar barras sueltas
+ * al final (escribir "15" muestra "15", no "15/").
+ */
 export const formatDateInput = (text: string): string => {
-  const numbers = text.replace(/\D/g, '');
+  const numbers = text.replace(/\D/g, '').slice(0, 8);
 
-  if (numbers.length >= 4) {
-    return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(4, 8)}`;
-  }
-
-  if (numbers.length >= 2) {
-    return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
-  }
-
-  return numbers;
+  return [numbers.slice(0, 2), numbers.slice(2, 4), numbers.slice(4, 8)]
+    .filter((part) => part.length > 0)
+    .join('/');
 };
 
 /** Convierte DD/MM/YYYY (ya validada) al formato ISO que espera el backend. */

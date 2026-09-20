@@ -22,7 +22,8 @@ export const loginRateLimit = rateLimit({
   limit: env.RATE_LIMIT_LOGIN_MAX,
   skipSuccessfulRequests: true,
   keyGenerator: (req) => {
-    const email = typeof req.body?.email === 'string' ? req.body.email.toLowerCase() : '';
+    const body = req.body as { email?: unknown } | undefined;
+    const email = typeof body?.email === 'string' ? body.email.toLowerCase() : '';
     return `${ipKeyGenerator(req.ip ?? '')}:${email}`;
   },
 });

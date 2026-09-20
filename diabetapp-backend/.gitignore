@@ -1,5 +1,7 @@
 node_modules
 # Keep environment variables out of version control
 .env*
+# Excepción: variables de tests, sin secretos reales (spec fase 4)
+!.env.test
 
 /src/generated/prisma

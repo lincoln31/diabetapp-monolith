@@ -1,0 +1,7 @@
+node_modules
+dist
+dist-check
+.expo
+coverage
+package-lock.json
+diabetapp-backend/prisma/migrations

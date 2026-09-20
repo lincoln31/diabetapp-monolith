@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { config } from 'dotenv';
 
-// Único punto del backend que lee process.env (spec fase 1, RF-1.13)
-config();
+// Único punto del backend que lee process.env (spec fase 1, RF-1.13).
+// En tests se usa .env.test, que apunta a la base de datos de pruebas.
+config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env', quiet: true });
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),

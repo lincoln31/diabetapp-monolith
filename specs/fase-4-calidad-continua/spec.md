@@ -122,10 +122,10 @@ Que **ningún cambio llegue a `Develop` ni a `main` sin pasar automáticamente l
 | CA-4.12 | Dos pushes seguidos al mismo PR | Se hacen | La primera ejecución aparece como cancelada | RF-4.14 |
 | CA-4.13 | Un PR nuevo | Se abre | La descripción viene prellenada con la plantilla | RF-4.15 |
 
-## 8. Decisiones pendientes
+## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** Protección de ramas (RF-4.13): ¿se exige además **1 aprobación** de otra persona antes de fusionar? Depende de cuántas personas trabajan en el proyecto; con una sola persona, la aprobación bloquearía todo.
-- **[NECESITA ACLARACIÓN]** ¿Quién tiene permisos de administración en el repositorio para configurar la protección de ramas? (Es un paso manual en GitHub.)
+- **Resuelta (2026-09-19):** proyecto personal de una sola persona: **no** se exigen aprobaciones de revisores. La protección de ramas solo exige que la CI esté en verde y que los cambios entren por PR.
+- **Resuelta (2026-09-19):** el propietario del repositorio (lincoln31) es quien configura la protección de ramas en GitHub.
 - **Decisión tomada:** el issue #56 pide "Jest o Vitest": se usa **Jest** en ambos proyectos, porque la app de Expo solo tiene soporte oficial con `jest-expo` y así hay una sola herramienta.
 
 ## 9. Definición de terminado
