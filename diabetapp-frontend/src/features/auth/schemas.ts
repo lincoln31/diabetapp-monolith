@@ -9,7 +9,10 @@ const MIN_AGE = 13;
  */
 
 export const loginSchema = z.object({
-  email: z.string().min(1, 'El correo electrónico es requerido').email('Correo electrónico inválido'),
+  email: z
+    .string()
+    .min(1, 'El correo electrónico es requerido')
+    .email('Correo electrónico inválido'),
   password: z.string().min(1, 'La contraseña es requerida'),
 });
 

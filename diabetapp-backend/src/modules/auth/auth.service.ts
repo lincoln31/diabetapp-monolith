@@ -27,7 +27,10 @@ const publicUserFields = {
  * Hash de descarte para que el login tarde lo mismo exista o no el correo
  * (spec fase 2, RF-2.10). Se calcula una vez al arrancar.
  */
-const DUMMY_PASSWORD_HASH = bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), env.BCRYPT_ROUNDS);
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync(
+  crypto.randomBytes(16).toString('hex'),
+  env.BCRYPT_ROUNDS,
+);
 
 export class AuthService {
   /** Crea el par de tokens de una sesión. Sin `familyId` inicia una cadena nueva. */

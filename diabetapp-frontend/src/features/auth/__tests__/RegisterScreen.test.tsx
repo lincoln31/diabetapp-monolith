@@ -18,9 +18,7 @@ describe('RegisterScreen', () => {
   beforeEach(() => mockSignUp.mockReset());
 
   it('muestra los errores de todos los campos al enviar el formulario vacío', async () => {
-    const { getByText, getByRole } = await render(
-      <RegisterScreen />,
-    );
+    const { getByText, getByRole } = await render(<RegisterScreen />);
     fireEvent.press(getByRole('button', { name: 'Crear Cuenta' }));
 
     await waitFor(() => {

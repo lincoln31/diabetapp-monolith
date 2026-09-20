@@ -5,15 +5,12 @@ describe('/api/glucose', () => {
   it('crea una lectura', async () => {
     const { accessToken } = await registerUser();
 
-    const response = await api()
-      .post('/api/glucose')
-      .set(authHeader(accessToken))
-      .send({
-        value: 110,
-        timestamp: '2026-09-19T10:00:00.000Z',
-        momentOfDay: 'BEFORE_BREAKFAST',
-        notes: 'Antes del desayuno',
-      });
+    const response = await api().post('/api/glucose').set(authHeader(accessToken)).send({
+      value: 110,
+      timestamp: '2026-09-19T10:00:00.000Z',
+      momentOfDay: 'BEFORE_BREAKFAST',
+      notes: 'Antes del desayuno',
+    });
 
     expect(response.status).toBe(201);
     expect(response.body.data).toMatchObject({ value: 110, momentOfDay: 'BEFORE_BREAKFAST' });
@@ -49,9 +46,7 @@ describe('/api/glucose', () => {
       });
     }
 
-    const response = await api()
-      .get('/api/glucose?page=2&limit=3')
-      .set(authHeader(accessToken));
+    const response = await api().get('/api/glucose?page=2&limit=3').set(authHeader(accessToken));
 
     expect(response.status).toBe(200);
     expect(response.body.data.map((r: { value: number }) => r.value)).toEqual([104, 103, 102]);
@@ -101,9 +96,7 @@ describe('/api/glucose', () => {
     expect([ver.status, editar.status, borrar.status]).toEqual([404, 404, 404]);
 
     // La lectura sigue intacta para su dueño
-    const propia = await api()
-      .get(`/api/glucose/${lectura.id}`)
-      .set(authHeader(dueño.accessToken));
+    const propia = await api().get(`/api/glucose/${lectura.id}`).set(authHeader(dueño.accessToken));
     expect(propia.body.data.value).toBe(110);
   });
 
@@ -130,9 +123,7 @@ describe('/api/glucose', () => {
       .send({ value: 125, notes: 'Corregido' });
     expect(actualizada.body.data).toMatchObject({ value: 125, notes: 'Corregido' });
 
-    const borrada = await api()
-      .delete(`/api/glucose/${lectura.id}`)
-      .set(authHeader(accessToken));
+    const borrada = await api().delete(`/api/glucose/${lectura.id}`).set(authHeader(accessToken));
     expect(borrada.status).toBe(200);
     expect(borrada.body.data).toBeNull();
 

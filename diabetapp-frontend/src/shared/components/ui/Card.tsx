@@ -15,15 +15,7 @@ const Card: React.FC<CardProps> = ({
   ...props
 }) => {
   return (
-    <View 
-      style={[
-        styles.card, 
-        styles[variant], 
-        styles[`${padding}Padding`],
-        style
-      ]}
-      {...props}
-    >
+    <View style={[styles.card, styles[variant], styles[`${padding}Padding`], style]} {...props}>
       {children}
     </View>
   );
@@ -41,7 +33,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  
+
   // Variantes
   default: {
     backgroundColor: COLORS.white,
@@ -54,7 +46,7 @@ const styles = StyleSheet.create({
   security: {
     backgroundColor: COLORS.green[50],
   },
-  
+
   // Padding
   smallPadding: {
     padding: 12,

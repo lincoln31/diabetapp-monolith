@@ -17,12 +17,7 @@ import { loginSchema, refreshSchema, registerSchema } from './auth.schemas';
 
 const router = Router();
 
-router.post(
-  '/register',
-  registerRateLimit,
-  validate({ body: registerSchema }),
-  registerController,
-);
+router.post('/register', registerRateLimit, validate({ body: registerSchema }), registerController);
 router.post('/login', loginRateLimit, validate({ body: loginSchema }), loginController);
 router.post('/refresh', refreshRateLimit, validate({ body: refreshSchema }), refreshController);
 // logout no exige token de acceso: debe funcionar aunque haya expirado

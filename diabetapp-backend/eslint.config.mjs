@@ -4,7 +4,17 @@ import prettier from 'eslint-config-prettier';
 
 /** ESLint del backend (spec fase 4, RF-4.6). */
 export default tseslint.config(
-  { ignores: ['dist/', 'node_modules/', 'prisma/migrations/', 'coverage/', 'scripts/*.js', 'eslint.config.mjs', 'jest.config.js'] },
+  {
+    ignores: [
+      'dist/',
+      'node_modules/',
+      'prisma/migrations/',
+      'coverage/',
+      'scripts/*.js',
+      'eslint.config.mjs',
+      'jest.config.js',
+    ],
+  },
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   {
@@ -15,7 +25,10 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
       // Los handlers async de Express 5 devuelven promesas: es intencional
-      '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { arguments: false } }],
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        { checksVoidReturn: { arguments: false } },
+      ],
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },

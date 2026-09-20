@@ -31,11 +31,11 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `fix/fase-0-correcciones-urgent
 
 ## Trazabilidad
 
-| RF | Tareas | CA |
-|---|---|---|
-| RF-0.1 | T0.1, T0.2, T0.4 | CA-0.1 |
-| RF-0.2 | T0.3 | CA-0.2 |
-| RF-0.3 | T0.5 | CA-0.3 |
-| RF-0.4 | T0.6 | CA-0.4, CA-0.5 |
-| RF-0.5 | T0.7 | CA-0.6 |
-| RF-0.6 | T0.8 – T0.11 | CA-0.7 |
+| RF     | Tareas           | CA             |
+| ------ | ---------------- | -------------- |
+| RF-0.1 | T0.1, T0.2, T0.4 | CA-0.1         |
+| RF-0.2 | T0.3             | CA-0.2         |
+| RF-0.3 | T0.5             | CA-0.3         |
+| RF-0.4 | T0.6             | CA-0.4, CA-0.5 |
+| RF-0.5 | T0.7             | CA-0.6         |
+| RF-0.6 | T0.8 – T0.11     | CA-0.7         |

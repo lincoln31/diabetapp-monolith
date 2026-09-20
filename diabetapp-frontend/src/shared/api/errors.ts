@@ -31,7 +31,12 @@ export const toApiError = (error: unknown): ApiError => {
     const body = error.response?.data as ApiErrorBody | undefined;
 
     if (body?.error?.code) {
-      return new ApiError(body.error.code, body.error.message, body.error.fields, error.response?.status);
+      return new ApiError(
+        body.error.code,
+        body.error.message,
+        body.error.fields,
+        error.response?.status,
+      );
     }
 
     if (!error.response) {

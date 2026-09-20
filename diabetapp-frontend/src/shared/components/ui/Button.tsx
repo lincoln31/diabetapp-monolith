@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-  TouchableOpacity, 
-  Text, 
-  ActivityIndicator, 
-  StyleSheet, 
+import {
+  TouchableOpacity,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
   TouchableOpacityProps,
   StyleProp,
   ViewStyle,
@@ -56,14 +56,12 @@ const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator 
-          size="small" 
-          color={variant === 'outline' ? COLORS.primary : COLORS.white} 
+        <ActivityIndicator
+          size="small"
+          color={variant === 'outline' ? COLORS.primary : COLORS.white}
         />
       ) : (
-        <Text style={getTextStyle()}>
-          {loadingText || title}
-        </Text>
+        <Text style={getTextStyle()}>{loadingText || title}</Text>
       )}
     </TouchableOpacity>
   );
@@ -83,7 +81,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-  
+
   // Variantes
   primary: {
     backgroundColor: COLORS.primary,
@@ -98,7 +96,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0,
     elevation: 0,
   },
-  
+
   // Tamaños
   small: {
     paddingVertical: 8,
@@ -112,14 +110,14 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 32,
   },
-  
+
   // Estados
   disabled: {
     backgroundColor: COLORS.gray[300],
     shadowOpacity: 0,
     elevation: 0,
   },
-  
+
   // Texto
   text: {
     fontSize: 16,
@@ -135,7 +133,7 @@ const styles = StyleSheet.create({
   largeText: {
     fontSize: 18,
   },
-  
+
   // Colores de texto por variante
   primaryText: {
     color: COLORS.white,
@@ -146,7 +144,7 @@ const styles = StyleSheet.create({
   outlineText: {
     color: COLORS.primary,
   },
-  
+
   // Estados de texto
   disabledText: {
     color: COLORS.gray[500],

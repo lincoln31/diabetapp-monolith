@@ -35,7 +35,10 @@ export const createGlucoseReading = async (req: Request, res: Response) => {
 export const updateGlucoseReading = async (req: Request, res: Response) => {
   const { id } = validatedParams<GlucoseIdParams>(req);
 
-  return ok(res, await glucoseService.update(id, req.user!.id, validatedBody<UpdateGlucoseInput>(req)));
+  return ok(
+    res,
+    await glucoseService.update(id, req.user!.id, validatedBody<UpdateGlucoseInput>(req)),
+  );
 };
 
 export const deleteGlucoseReading = async (req: Request, res: Response) => {

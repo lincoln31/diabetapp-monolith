@@ -32,8 +32,7 @@ export const validate =
       if (result.success) {
         req.body = result.data;
         req.validated = { ...req.validated, body: result.data };
-      }
-      else fields.push(...toFieldErrors(result.error));
+      } else fields.push(...toFieldErrors(result.error));
     }
 
     if (schemas.query) {

@@ -39,7 +39,9 @@ describe('POST /api/auth/register', () => {
   it('rechaza un correo ya registrado con EMAIL_IN_USE', async () => {
     const { email } = await registerUser();
 
-    const response = await api().post('/api/auth/register').send({ email, password: VALID_PASSWORD });
+    const response = await api()
+      .post('/api/auth/register')
+      .send({ email, password: VALID_PASSWORD });
 
     expect(response.status).toBe(409);
     expect(response.body.error.code).toBe('EMAIL_IN_USE');
