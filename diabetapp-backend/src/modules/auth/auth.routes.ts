@@ -1,27 +1,19 @@
-// ./modules/auth/auth.routes.ts
-
 import { Router } from 'express';
+import { authenticate } from '../../shared/middleware/authenticate';
+import { validate } from '../../shared/middleware/validate';
 import {
-    registerController,
-    loginController,
-    checkEmailController,
-    verifyTokenController
+  checkEmailController,
+  loginController,
+  registerController,
+  verifyTokenController,
 } from './auth.controller';
+import { checkEmailSchema, loginSchema, registerSchema } from './auth.schemas';
 
 const router = Router();
 
-// --- Definiciones de Rutas de Autenticación ---
-
-// POST /api/auth/register
-router.post('/register', registerController);
-
-// POST /api/auth/login
-router.post('/login', loginController);
-
-// GET /api/auth/check-email?email=some@email.com
-router.get('/check-email', checkEmailController);
-
-// GET /api/auth/verify-token (requiere header de Authorization)
-router.get('/verify-token', verifyTokenController);
+router.post('/register', validate({ body: registerSchema }), registerController);
+router.post('/login', validate({ body: loginSchema }), loginController);
+router.get('/check-email', validate({ query: checkEmailSchema }), checkEmailController);
+router.get('/verify-token', authenticate, verifyTokenController);
 
 export default router;

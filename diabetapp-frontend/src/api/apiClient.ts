@@ -5,6 +5,83 @@ import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG, TOKEN_STORAGE_KEY } from '../constants/config';
 
+/**
+ * Contrato de la API (fase 1 del plan de mejora, specs/fase-1-bases-backend).
+ * Éxito: { success: true, data, meta? } · Error: { success: false, error: { code, message, fields? } }
+ */
+export interface ApiSuccess<T> {
+  success: true;
+  data: T;
+  meta?: PaginationMeta;
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export type ApiErrorCode =
+  | 'VALIDATION_ERROR'
+  | 'INVALID_CREDENTIALS'
+  | 'UNAUTHENTICATED'
+  | 'TOKEN_EXPIRED'
+  | 'FORBIDDEN'
+  | 'NOT_FOUND'
+  | 'EMAIL_IN_USE'
+  | 'CONFLICT'
+  | 'INTERNAL_ERROR'
+  | 'NETWORK_ERROR'; // Solo del lado de la app: sin respuesta del servidor
+
+export interface ApiFieldError {
+  /** Vacío cuando el error no es de un campo concreto, sino del formulario. */
+  field: string;
+  message: string;
+}
+
+export interface ApiErrorBody {
+  success: false;
+  error: {
+    code: ApiErrorCode;
+    message: string;
+    fields?: ApiFieldError[];
+  };
+}
+
+export interface NormalizedApiError {
+  code: ApiErrorCode;
+  message: string;
+  fields?: ApiFieldError[];
+}
+
+/**
+ * Convierte cualquier error de una petición en { code, message, fields }.
+ * Las pantallas deciden según `code`, nunca según el texto ni el código HTTP.
+ */
+export const getApiError = (error: unknown): NormalizedApiError => {
+  if (axios.isAxiosError(error)) {
+    const body = error.response?.data as ApiErrorBody | undefined;
+
+    if (body?.error?.code) {
+      return { code: body.error.code, message: body.error.message, fields: body.error.fields };
+    }
+
+    if (!error.response) {
+      return {
+        code: 'NETWORK_ERROR',
+        message: 'No se pudo conectar con el servidor. Revisa tu conexión.',
+      };
+    }
+  }
+
+  return { code: 'INTERNAL_ERROR', message: 'Ocurrió un error inesperado. Intenta de nuevo.' };
+};
+
+/** Primer mensaje de campo, si el error trae detalle de validación. */
+export const getFirstFieldMessage = (error: NormalizedApiError): string | undefined =>
+  error.fields?.[0]?.message;
+
 // Creamos la instancia de Axios con la configuración centralizada
 const apiClient = axios.create({
   baseURL: API_CONFIG.baseURL,

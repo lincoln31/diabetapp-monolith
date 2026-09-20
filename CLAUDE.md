@@ -27,11 +27,12 @@ npm start                   # node dist/server.js
 npx prisma migrate dev --name <nombre>   # crear/aplicar migración tras editar schema.prisma
 npx prisma generate         # regenerar el cliente
 npx prisma studio
+npx ts-node prisma/seed-perf.ts <email>   # solo local: 10 000 lecturas para medir rendimiento
 ```
 
 Requiere `.env` (ignorado por git; parte de `env.example`) con `DATABASE_URL` (p. ej. `postgresql://user:password@localhost:5433/diabetapp_dev`) y `JWT_SECRET`.
 
-No hay framework de tests configurado (`npm test` solo falla).
+No hay framework de tests configurado (`npm test` solo falla); mientras tanto, `requests.http` tiene una petición por criterio de aceptación de la fase 1.
 
 ### Frontend (`cd diabetapp-frontend`)
 
@@ -46,14 +47,29 @@ No hay tests en el frontend.
 
 ## Arquitectura del backend
 
-- `src/server.ts` monta middlewares (logger de peticiones, CORS abierto, `express.json()`), las rutas bajo `/api/<módulo>` y un handler 404 final que lista rutas disponibles (mantener esa lista al día al añadir rutas).
-- Módulos por dominio en `src/modules/<dominio>/` con la separación: `*.routes.ts` → `*.controller.ts` → `*.service.ts` (clase con acceso a Prisma), más `*.validation.ts` (esquemas Zod) y `*.types.ts`. Existen `auth` (`register`, `login`, `check-email`, `verify-token`) y `glucose` (CRUD en `/api/glucose`; este módulo usa subcarpetas `controllers/`, `routes/`, `services/`, `validation/`).
-- Convención de errores: el servicio lanza `new Error('CODIGO_EN_MAYUSCULAS')` (p. ej. `USER_ALREADY_EXISTS`, `INVALID_CREDENTIALS`, `DATABASE_ERROR`) y el controlador hace `switch (error.message)` para mapearlo a status HTTP. Las respuestas siguen el formato `{ success, message, data? | code? | errors? }`; los errores de Zod se devuelven como `errors: [{ field, message }]`.
-- `src/config/db.ts` exporta un `PrismaClient` singleton (cacheado en `global` fuera de producción).
-- Modelos Prisma (`prisma/schema.prisma`): `User` (tabla `users`, id `cuid`, muchos campos opcionales de perfil/metas; los "enums" como `typeOfDiabetes` son `String`) y `GlucoseReading` (tabla `glucose_readings`, relación con `User` con `onDelete: Cascade`).
-- `src/config/env.ts` valida las variables de entorno con Zod al arrancar (`JWT_SECRET` de 32+ caracteres; si falta algo el proceso termina). `npm run generate-secret` genera uno.
-- Rutas protegidas: `authenticateToken` (`src/middleware/auth.middleware.ts`) verifica el JWT y deja `req.user.id` (tipado en `src/types/express.d.ts`).
-- `momentOfDay` de las lecturas es un enum validado en `glucoseValidation.ts` (`BEFORE_BREAKFAST`, `AFTER_LUNCH`, …); el frontend debe enviar esos mismos valores. `value` es entero (20–600 mg/dL).
+```
+src/
+├── app.ts                 # crea la app Express (sin escuchar): logger → cors → json → módulos → notFound → errorHandler
+├── server.ts              # solo hace listen
+├── config/                # env.ts (única lectura de process.env, validada con Zod) y db.ts (PrismaClient)
+├── shared/
+│   ├── errors/            # errorCodes.ts (catálogo) y AppError
+│   ├── http/respond.ts    # ok(res, data, { status, meta })
+│   └── middleware/        # authenticate, validate, errorHandler, notFound, requestLogger
+├── modules/
+│   ├── index.ts           # registerModules(): una línea por módulo
+│   └── <dominio>/         # <d>.routes.ts → <d>.controller.ts → <d>.service.ts + <d>.schemas.ts
+└── types/express.d.ts     # req.user y req.validated
+```
+
+- **Contrato de API**: éxito `{ success: true, data, meta? }`; error `{ success: false, error: { code, message, fields? } }`. Un `field` vacío dentro de `fields` significa que el error es del formulario completo, no de un campo.
+- **Códigos de error** (`shared/errors/errorCodes.ts`): `VALIDATION_ERROR` 400; `INVALID_CREDENTIALS`, `UNAUTHENTICATED` y `TOKEN_EXPIRED` 401; `FORBIDDEN` 403; `NOT_FOUND` 404; `EMAIL_IN_USE` y `CONFLICT` 409; `INTERNAL_ERROR` 500. La app decide por `code`, nunca por el mensaje ni por el status.
+- **Errores**: cualquier capa lanza `new AppError('CODIGO')` y el `errorHandler` lo traduce (mapea Prisma P2002 → `CONFLICT` y P2025 → `NOT_FOUND`). Los controladores **no** llevan `try/catch`: Express 5 envía al manejador las promesas rechazadas.
+- **Validación**: `validate({ body, query, params })` en la ruta. El `body` validado reemplaza a `req.body`; query y params se leen con `validatedQuery<T>(req)` y `validatedParams<T>(req)`, porque en Express 5 son de solo lectura. Los tipos se infieren del esquema con `z.infer`.
+- **Módulos**: `health`, `auth` (register, login, check-email, verify-token) y `glucose` (CRUD en `/api/glucose` con `?from&to&page&limit` y `meta` de paginación). Añadir un módulo = carpeta en `modules/` más una línea en `modules/index.ts`.
+- **Recursos de usuario**: se consultan y modifican filtrando por `userId` en la misma operación (`updateMany` / `deleteMany`); una lectura de otro usuario responde `NOT_FOUND`.
+- **Prisma**: enums nativos `MomentOfDay`, `DiabetesType`, `ActivityLevel` e `InsulinType`; los esquemas Zod los importan de `@prisma/client` para tener una sola lista de valores. `glucose_readings` tiene índice `(userId, timestamp)`.
+- **Logs**: una línea por petición solo en desarrollo, sin body ni cabeceras; el SQL de Prisma solo con `PRISMA_LOG_QUERIES=true`.
 
 ## Arquitectura del frontend
 
@@ -68,6 +84,8 @@ No hay tests en el frontend.
 
 ## Contrato frontend ↔ backend
 
-- El frontend valida los formularios con las mismas reglas que los esquemas Zod del backend (contraseña 8+ con mayúscula, minúscula y número; teléfono opcional 10–20 caracteres). Si cambias una regla, cámbiala en `src/utils/validation.ts` y en el `*.validation.ts` correspondiente.
+- El frontend valida los formularios con las mismas reglas que los esquemas Zod del backend (contraseña 8+ con mayúscula, minúscula y número; teléfono opcional 10–20 caracteres). Si cambias una regla, cámbiala en `src/utils/validation.ts` y en el `*.schemas.ts` correspondiente.
 - Fechas: la app captura `DD/MM/YYYY` y envía ISO (`dateOfBirthToISO`); el backend recibe `birthDate` con `z.string().datetime()`.
-- Registro y login devuelven `{ user, token }`; `useAuth` guarda el token en ambos casos.
+- Registro y login devuelven `data: { user, token, requiresOnboarding }`; `useAuth` guarda el token en ambos casos.
+- Errores: la app los normaliza con `getApiError(error)` de `src/api/apiClient.ts` y decide por `code`.
+- `momentOfDay` usa los valores del enum `MomentOfDay` del backend.

@@ -1,0 +1,117 @@
+### Peticiones manuales de la API (una por criterio de aceptación de specs/fase-1-bases-backend).
+### Se ejecutan con la extensión REST Client de VS Code o el cliente HTTP de JetBrains.
+### En la fase 4 estas mismas peticiones se convierten en tests automáticos.
+
+@host = http://localhost:3000/api
+@email = ana@test.com
+@password = Abcdef12
+
+### CA-1.8 · Estado del servicio
+GET {{host}}/health
+
+### CA-1.7 · Ruta inexistente → 404 NOT_FOUND sin listar rutas
+GET {{host}}/no-existe
+
+### CA-1.1 · Registro correcto → 201 { success, data }
+# @name register
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Ana",
+  "lastName": "Pérez",
+  "email": "{{email}}",
+  "phone": "3001234567",
+  "birthDate": "1990-03-15T00:00:00.000Z",
+  "password": "{{password}}"
+}
+
+### CA-1.2 · Mismo correo otra vez → 409 EMAIL_IN_USE
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "{{password}}" }
+
+### Login (guarda el token para las siguientes peticiones)
+# @name login
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "{{password}}" }
+
+###
+@token = {{login.response.body.data.token}}
+
+### Body mal formado → 400 VALIDATION_ERROR
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{roto
+
+### CA-1.4 · Sin cabecera Authorization → 401 UNAUTHENTICATED
+GET {{host}}/glucose
+
+### CA-1.5 · Token inválido o expirado → 401
+GET {{host}}/glucose
+Authorization: Bearer token.invalido.aqui
+
+### Crear lectura → 201
+# @name createReading
+POST {{host}}/glucose
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "value": 110,
+  "timestamp": "2026-09-19T10:00:00.000Z",
+  "momentOfDay": "BEFORE_BREAKFAST",
+  "notes": "Antes del desayuno"
+}
+
+###
+@readingId = {{createReading.response.body.data.id}}
+
+### CA-1.3 · Datos inválidos → 400 con fields por campo
+POST {{host}}/glucose
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "value": "abc", "momentOfDay": "ayunas" }
+
+### CA-1.9 · Listado paginado (meta con page, limit, total, totalPages)
+GET {{host}}/glucose?page=1&limit=3
+Authorization: Bearer {{token}}
+
+### CA-1.10 · Filtro por rango de fechas (ambos extremos incluidos)
+GET {{host}}/glucose?from=2026-09-01T00:00:00.000Z&to=2026-09-30T23:59:59.000Z
+Authorization: Bearer {{token}}
+
+### CA-1.11 · limit fuera de rango → 400
+GET {{host}}/glucose?limit=500
+Authorization: Bearer {{token}}
+
+### Obtener una lectura propia → 200
+GET {{host}}/glucose/{{readingId}}
+Authorization: Bearer {{token}}
+
+### CA-1.13 · Actualizar con body vacío → 400
+PUT {{host}}/glucose/{{readingId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{}
+
+### Actualizar correctamente → 200
+PUT {{host}}/glucose/{{readingId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "value": 125, "notes": "Corregido" }
+
+### CA-1.12 · Lectura de otro usuario (usa el token de otra cuenta) → 404
+DELETE {{host}}/glucose/{{readingId}}
+Authorization: Bearer token.de.otro.usuario
+
+### Borrar la propia → 200 con data null
+DELETE {{host}}/glucose/{{readingId}}
+Authorization: Bearer {{token}}

@@ -59,7 +59,7 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | Fase | Estado |
 |---|---|
 | 0 | En implementación (PR abierto; pendiente rotar el secreto en los servidores) |
-| 1 | Borrador |
+| 1 | En implementación (PR abierto; falta probar la app en dispositivo) |
 | 2 | Borrador |
 | 3 | Borrador |
 | 4 | Borrador |
