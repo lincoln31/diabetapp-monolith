@@ -39,11 +39,11 @@ No hay framework de tests configurado (`npm test` solo falla); mientras tanto, `
 ```bash
 npm start            # expo start
 npm run android | ios | web
-npm run lint         # expo lint (eslint-config-expo)
-npx tsc --noEmit     # chequeo de tipos
+npm run lint         # expo lint (eslint-config-expo + reglas de dependencia)
+npm run typecheck    # tsc --noEmit
 ```
 
-No hay tests en el frontend.
+No hay tests en el frontend. Requiere `.env` con `EXPO_PUBLIC_API_URL` (parte de `.env.example`).
 
 ## Arquitectura del backend
 
@@ -76,18 +76,36 @@ src/
 ## Arquitectura del frontend
 
 - Las rutas viven en `app/` (Expo Router, file-based) y están separadas en dos grupos: `(auth)/login.tsx` y `(auth)/register.tsx` (solo sin sesión) y `(app)/index.tsx` y `(app)/glucose/new.tsx` (solo con sesión). `app/_layout.tsx` monta `<AuthProvider>` y usa `Stack.Protected` con el estado de sesión; mantiene el splash hasta saber si hay sesión.
-- La lógica reutilizable está en `src/` (ver `REFACTORING.md`):
-  - `src/constants/config.ts` — fuente única de `API_CONFIG` (baseURL por plataforma: `localhost` en iOS, IP LAN `192.168.1.9` en Android — ajustar a la IP local de la máquina), endpoints, `COLORS` y reglas de validación.
-  - `src/api/apiClient.ts` — instancia Axios que añade el token de acceso y, ante `TOKEN_EXPIRED`, renueva **una sola vez** aunque haya varias peticiones en curso y las repite. Si la renovación falla, borra la sesión y avisa por `sessionEvents`. Expone `getApiError()` para normalizar errores.
-  - `src/session/` — `tokenStorage.ts` (tokens en `expo-secure-store`, con copia en memoria), `AuthProvider.tsx` (`useSession()`: estado `loading`/`authenticated`/`unauthenticated`, `signIn`, `signUp`, `signOut`) y `sessionEvents.ts` (evita el import circular con el cliente HTTP).
-  - `src/components/ui/` — componentes base (`Button`, `Input`, `Card`, `Header`, `Icon`, `Checkbox`) exportados desde `index.ts`. Usar estos y `COLORS` en vez de estilos ad hoc.
-- Las carpetas raíz `components/`, `hooks/`, `constants/` son del template de Expo (tema claro/oscuro) y la app actual usa principalmente `src/`.
-- Las rutas se importan con paths relativos (`../src/...`); existe el alias `@/*` → raíz del frontend.
+- Los archivos de `app/` son **finos**: solo layout y `export { Pantalla as default } from '@/src/features/...'`. Nunca llevan lógica ni estilos.
+
+```
+src/
+├── features/                    # una carpeta por funcionalidad, todas con la misma forma
+│   ├── auth/                    # AuthProvider.tsx, api.ts, schemas.ts, types.ts, screens/, index.ts
+│   ├── glucose/                 # api.ts, schemas.ts, types.ts, constants.ts, screens/, index.ts
+│   └── home/
+└── shared/
+    ├── api/                     # client.ts (get/post/put/del tipados), errors.ts (ApiError), types.ts
+    ├── session/                 # tokenStorage.ts (expo-secure-store) y sessionEvents.ts
+    ├── components/ui/           # Button, Input, Card, Header, Icon, Checkbox, FormError
+    ├── config/                  # env.ts (EXPO_PUBLIC_API_URL) y app.ts
+    ├── forms/applyServerErrors.ts
+    ├── theme/colors.ts          # COLORS
+    └── utils/                   # dates.ts, showError.ts
+```
+
+- **Reglas de dependencia** (las vigila ESLint con `import/no-restricted-paths`): `shared/` nunca importa de `features/`, y una funcionalidad solo importa de otra a través de su `index.ts`.
+- **Llamadas a la API**: siempre por el servicio de la funcionalidad (`authApi`, `glucoseApi`), que devuelve el `data` ya tipado. Las pantallas no importan el cliente HTTP ni axios.
+- **Errores**: el cliente convierte todo en `ApiError` (`code`, `message`, `fields`) y **no muestra alertas**. En formularios, `applyServerErrors` coloca cada mensaje bajo su campo y lo demás va a `<FormError>`; fuera de formularios, `showError()`.
+- **Formularios**: `react-hook-form` + `zod` (`zodResolver`). Los esquemas de cada funcionalidad repiten las reglas del backend; si cambia una, cámbiala en ambos lados.
+- **Configuración**: `EXPO_PUBLIC_API_URL` en `.env` (hay `.env.example`). Si falta, la app falla al arrancar con un mensaje explicativo. Tras editar `.env` hay que reiniciar `npm start`.
+- **Imports** con el alias `@/` (p. ej. `@/src/shared/components/ui`); los relativos solo dentro de la misma carpeta.
+- **Iconos**: `Icon` con nombres semánticos tipados (`AppIconName`) sobre Ionicons de `@expo/vector-icons`.
 
 ## Contrato frontend ↔ backend
 
-- El frontend valida los formularios con las mismas reglas que los esquemas Zod del backend (contraseña 8+ con mayúscula, minúscula y número; teléfono opcional 10–20 caracteres). Si cambias una regla, cámbiala en `src/utils/validation.ts` y en el `*.schemas.ts` correspondiente.
-- Fechas: la app captura `DD/MM/YYYY` y envía ISO (`dateOfBirthToISO`); el backend recibe `birthDate` con `z.string().datetime()`.
+- El frontend valida los formularios con las mismas reglas que los esquemas Zod del backend (contraseña 8+ con mayúscula, minúscula y número; teléfono opcional 10–20 caracteres). Ambos usan Zod 4: si cambias una regla, cámbiala en `src/features/<x>/schemas.ts` y en el `*.schemas.ts` del backend.
+- Fechas: la app captura `DD/MM/YYYY` y envía ISO (`shared/utils/dates.ts`); el backend recibe `birthDate` en ISO. El campo se llama `dateOfBirth` en el formulario y `birthDate` en la API (hay un alias al mapear errores).
 - Registro y login devuelven `data: { user, accessToken, refreshToken, requiresOnboarding }`; `AuthProvider` guarda ambos tokens en el almacenamiento seguro. Las contraseñas se envían tal cual las escribe el usuario (sin `trim`).
-- Errores: la app los normaliza con `getApiError(error)` de `src/api/apiClient.ts` y decide por `code`.
+- Errores: la app los normaliza con `toApiError(error)` de `src/shared/api/errors.ts` y decide por `code`.
 - `momentOfDay` usa los valores del enum `MomentOfDay` del backend.
