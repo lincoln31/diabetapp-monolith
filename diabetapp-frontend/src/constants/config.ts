@@ -10,7 +10,9 @@ export const API_CONFIG = {
     auth: {
       login: '/auth/login',
       register: '/auth/register',
+      refresh: '/auth/refresh',
       logout: '/auth/logout',
+      me: '/auth/me',
     },
     user: {
       profile: '/user/profile',
@@ -22,9 +24,6 @@ export const API_CONFIG = {
     }
   }
 };
-
-// Clave de AsyncStorage donde se guarda el JWT de la sesión
-export const TOKEN_STORAGE_KEY = 'userToken';
 
 // Configuración de la aplicación
 export const APP_CONFIG = {

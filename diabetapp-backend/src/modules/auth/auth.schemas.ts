@@ -35,10 +35,10 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Contraseña es obligatoria'),
 });
 
-export const checkEmailSchema = z.object({
-  email: z.string().email('Email debe tener formato válido'),
+export const refreshSchema = z.object({
+  refreshToken: z.string().min(1, 'El token de renovación es obligatorio'),
 });
 
 export type RegisterUserInput = z.infer<typeof registerSchema>;
 export type LoginUserInput = z.infer<typeof loginSchema>;
-export type CheckEmailQuery = z.infer<typeof checkEmailSchema>;
+export type RefreshInput = z.infer<typeof refreshSchema>;

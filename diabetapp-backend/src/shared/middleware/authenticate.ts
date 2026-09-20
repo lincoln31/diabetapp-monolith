@@ -3,9 +3,9 @@ import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
 import { AppError } from '../errors/AppError';
 
+/** El token de acceso solo lleva el id del usuario en `sub` (spec fase 2, D-2.2). */
 interface JWTPayload {
-  userId: string;
-  email: string;
+  sub: string;
 }
 
 /**
@@ -24,7 +24,7 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction): 
 
   try {
     const payload = jwt.verify(token, env.JWT_SECRET) as JWTPayload;
-    req.user = { id: payload.userId, email: payload.email };
+    req.user = { id: payload.sub };
     next();
   } catch (error) {
     const isExpired = error instanceof jwt.TokenExpiredError;

@@ -11,10 +11,10 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
-import { Card, Input, Button, Icon } from '../../src/components/ui';
-import apiClient, { getApiError, getFirstFieldMessage } from '../../src/api/apiClient';
-import { API_CONFIG, COLORS } from '../../src/constants/config';
-import { validateRequired } from '../../src/utils/validation';
+import { Card, Input, Button, Icon } from '../../../src/components/ui';
+import apiClient, { getApiError, getFirstFieldMessage } from '../../../src/api/apiClient';
+import { API_CONFIG, COLORS } from '../../../src/constants/config';
+import { validateRequired } from '../../../src/utils/validation';
 
 const AddGlucoseScreen = () => {
   const router = useRouter();

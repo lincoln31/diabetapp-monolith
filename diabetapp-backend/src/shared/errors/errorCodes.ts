@@ -13,6 +13,11 @@ export const ERROR_CODES = {
   NOT_FOUND: { status: 404, message: 'Recurso no encontrado' },
   EMAIL_IN_USE: { status: 409, message: 'El correo electrónico ya está registrado' },
   CONFLICT: { status: 409, message: 'El recurso ya existe' },
+  PAYLOAD_TOO_LARGE: { status: 413, message: 'El contenido enviado es demasiado grande' },
+  RATE_LIMITED: {
+    status: 429,
+    message: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
+  },
   INTERNAL_ERROR: { status: 500, message: 'Error interno del servidor' },
 } as const;
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { 
   View, 
   Text, 
@@ -12,16 +12,16 @@ import {
 } from 'react-native';
 
 // Componentes UI reutilizables
-import { Header, Card, Input, Button, Checkbox } from '../src/components/ui';
+import { Header, Card, Input, Button, Checkbox } from '../../src/components/ui';
 
-// Hook personalizado para autenticación
-import { useAuth } from '../src/hooks/useAuth';
+// Sesión compartida por toda la app
+import { useSession } from '../../src/session/AuthProvider';
 
 // Utilidades
-import { formatDateInput } from '../src/utils/validation';
+import { formatDateInput } from '../../src/utils/validation';
 
 // Configuración
-import { COLORS } from '../src/constants/config';
+import { COLORS } from '../../src/constants/config';
 
 const RegisterScreen = () => {
   const [formData, setFormData] = useState({
@@ -38,8 +38,7 @@ const RegisterScreen = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   
-  const { register, isLoading } = useAuth();
-  const router = useRouter();
+  const { signUp, isSubmitting } = useSession();
 
   // Función para actualizar los campos del formulario
   const updateField = (field: keyof typeof formData, value: string) => {
@@ -55,12 +54,9 @@ const RegisterScreen = () => {
       return;
     }
 
-    const result = await register(formData);
-    if (result) {
-      // El usuario ya queda con sesión iniciada: ir a la pantalla principal
-      // (replace para que "atrás" no regrese al formulario de registro)
-      router.replace('/home');
-    }
+    // El registro deja la sesión iniciada: el cambio de estado lleva solo
+    // a la pantalla principal, sin poder volver atrás al formulario
+    await signUp(formData);
   };
 
   // Función para formatear la fecha mientras se escribe
@@ -182,7 +178,7 @@ const RegisterScreen = () => {
           <Button
             title="Crear Cuenta"
             onPress={handleRegister}
-            loading={isLoading}
+            loading={isSubmitting}
             loadingText="Creando cuenta..."
             style={styles.registerButton}
           />
@@ -191,7 +187,7 @@ const RegisterScreen = () => {
         {/* Login */}
         <View style={styles.loginContainer}>
           <Text style={styles.loginText}>¿Ya tienes una cuenta?</Text>
-          <Link href="/" style={styles.loginLink}>
+          <Link href="/login" style={styles.loginLink}>
             Inicia sesión aquí
           </Link>
         </View>
