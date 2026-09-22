@@ -40,7 +40,8 @@ Content-Type: application/json
 { "email": "{{email}}", "password": "{{password}}" }
 
 ###
-@token = {{login.response.body.data.token}}
+@token = {{login.response.body.data.accessToken}}
+@refreshToken = {{login.response.body.data.refreshToken}}
 
 ### Body mal formado → 400 VALIDATION_ERROR
 POST {{host}}/auth/login
@@ -115,3 +116,42 @@ Authorization: Bearer token.de.otro.usuario
 ### Borrar la propia → 200 con data null
 DELETE {{host}}/glucose/{{readingId}}
 Authorization: Bearer {{token}}
+
+### ---------------------------------------------------------------------------
+### Fase 2 · sesión y seguridad
+### ---------------------------------------------------------------------------
+
+### CA-2.3 · Renovar sesión: devuelve un par nuevo y revoca el anterior
+# @name refresh
+POST {{host}}/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "{{refreshToken}}" }
+
+### CA-2.3 / CA-2.4 · Reutilizar el token ya rotado → 401 y se revoca toda la cadena
+POST {{host}}/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "{{refreshToken}}" }
+
+### CA-2.6 · Usuario de la sesión actual
+GET {{host}}/auth/me
+Authorization: Bearer {{token}}
+
+### CA-2.5 · Cerrar sesión (idempotente: repetir devuelve 200)
+POST {{host}}/auth/logout
+Content-Type: application/json
+
+{ "refreshToken": "{{refresh.response.body.data.refreshToken}}" }
+
+### CA-2.7 · Endpoint eliminado → 404
+GET {{host}}/auth/check-email?email=ana@test.com
+
+### CA-2.9 · Ejecutar 6 veces seguidas: la sexta → 429 RATE_LIMITED con Retry-After
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "ContraseñaIncorrecta9" }
+
+### CA-2.11 · Revisar las cabeceras: sin X-Powered-By y con X-Content-Type-Options
+GET {{host}}/health

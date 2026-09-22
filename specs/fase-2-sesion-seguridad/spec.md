@@ -122,10 +122,10 @@ Que el paciente **inicie sesión una vez y siga dentro** de forma segura mientra
 | CA-2.19 | Una cuenta registrada con la contraseña `" Abcdef12 "` (con espacios) | Login con la misma contraseña | Funciona; con `"Abcdef12"` sin espacios, falla | RF-2.22 |
 | CA-2.20 | Revisión del código de la app y del backend | Se buscan tokens en `console.log` / logs | No aparecen | RNF-2.1 |
 
-## 8. Decisiones pendientes
+## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN] Modelo de sesión.** La spec propone token de acceso corto + token de renovación rotativo (seguro y estándar en apps de salud). La alternativa simple es **un único JWT de 7 días** y cerrar sesión ante cualquier 401: menos código, pero sin revocación real (RF-2.4 y RF-2.6 no se cumplirían). ¿Se aprueba el modelo con renovación?
-- **[NECESITA ACLARACIÓN] Duraciones.** ¿15 min / 30 días son aceptables? Un paciente que no abra la app en 30 días tendrá que volver a iniciar sesión.
+- **Resuelta (2026-09-19):** se aprueba el modelo con **token de acceso corto + token de renovación rotativo** (RF-2.1 a RF-2.6), por ser el estándar en apps de salud y permitir revocar sesiones de verdad.
+- **Resuelta (2026-09-19):** duraciones aprobadas: token de acceso **15 min**, token de renovación **30 días**.
 - **Decisión tomada (RF-2.11):** el registro seguirá diciendo "correo ya registrado". Ocultarlo exigiría verificación por correo (fuera de alcance). El límite de registros (RF-2.12) reduce su abuso. Revisar cuando exista verificación de correo.
 
 ## 9. Definición de terminado

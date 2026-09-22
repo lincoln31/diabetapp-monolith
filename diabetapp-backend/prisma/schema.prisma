@@ -68,6 +68,7 @@ model User {
   
   // Relaciones futuras (preparación para Fase 2-3)
    glucoseReadings GlucoseReading[]
+  refreshTokens   RefreshToken[]
   // medications     Medication[]
   // achievements    Achievement[]
   // dailyGoals      DailyGoal[]
@@ -95,6 +96,24 @@ model GlucoseReading {
   @@index([userId, timestamp]) // Consulta principal: historial del usuario por fecha
   @@map("glucose_readings") // Nombre explícito para la tabla
 }
+/// Token de renovación de sesión (spec fase 2, RF-2.2): se guarda solo su hash.
+model RefreshToken {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash    String    @unique // SHA-256 del token; el valor nunca se guarda
+  familyId     String    // Cadena de sesión: un login = una familia de tokens
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?   // Token que lo sustituyó al rotar
+  createdAt    DateTime  @default(now())
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
 // --- Enums (fase 1, RF-1.18): la base de datos rechaza valores fuera de estas listas ---
 
 enum DiabetesType {

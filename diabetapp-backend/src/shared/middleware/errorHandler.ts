@@ -20,6 +20,13 @@ const send = (res: Response, code: ErrorCode, message?: string, fields?: FieldEr
 const isMalformedJson = (error: unknown): boolean =>
   error instanceof SyntaxError && 'body' in error && 'status' in error;
 
+/** Body por encima del límite de express.json(). */
+const isPayloadTooLarge = (error: unknown): boolean =>
+  typeof error === 'object' &&
+  error !== null &&
+  'type' in error &&
+  (error as { type?: string }).type === 'entity.too.large';
+
 /**
  * Único lugar donde un error se convierte en respuesta HTTP
  * (spec fase 1, RF-1.2, RF-1.4, RF-1.8).
@@ -37,6 +44,11 @@ export const errorHandler = (
 
   if (error instanceof ZodError) {
     send(res, 'VALIDATION_ERROR', undefined, toFieldErrors(error));
+    return;
+  }
+
+  if (isPayloadTooLarge(error)) {
+    send(res, 'PAYLOAD_TOO_LARGE');
     return;
   }
 

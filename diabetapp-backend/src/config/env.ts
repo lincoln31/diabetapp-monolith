@@ -14,6 +14,20 @@ const envSchema = z.object({
     .string('DATABASE_URL debe ser una URL válida')
     .min(1, 'DATABASE_URL es obligatoria'),
   CORS_ORIGIN: z.string().default('*'),
+  // Sesión (spec fase 2): token de acceso corto + token de renovación largo
+  ACCESS_TOKEN_TTL: z.string().default('15m'),
+  REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
+  // Límites de peticiones (spec fase 2, RF-2.12)
+  RATE_LIMIT_LOGIN_MAX: z.coerce.number().int().positive().default(5),
+  RATE_LIMIT_REGISTER_MAX: z.coerce.number().int().positive().default(5),
+  RATE_LIMIT_REFRESH_MAX: z.coerce.number().int().positive().default(30),
+  // Número de proxies de confianza (Render/Railway: 1). false = sin proxy
+  TRUST_PROXY: z
+    .union([z.coerce.number().int().min(0), z.enum(['false', 'true'])])
+    .default('false')
+    .transform((value) => (value === 'false' ? false : value === 'true' ? 1 : value)),
+  // Coste de bcrypt: se baja solo en tests para que no tarden
+  BCRYPT_ROUNDS: z.coerce.number().int().min(4).max(15).default(12),
   // Las consultas SQL solo se registran si se pide explícitamente (RF-1.22)
   PRISMA_LOG_QUERIES: z
     .enum(['true', 'false'])

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link , useRouter} from 'expo-router';
+import { Link } from 'expo-router';
 import { 
   View, 
   Text, 
@@ -10,33 +10,27 @@ import {
 } from 'react-native';
 
 // Componentes UI reutilizables
-import Header from '../src/components/ui/Header';
-import Card from '../src/components/ui/Card';
-import Input from '../src/components/ui/Input';
-import Button from '../src/components/ui/Button';
+import Header from '../../src/components/ui/Header';
+import Card from '../../src/components/ui/Card';
+import Input from '../../src/components/ui/Input';
+import Button from '../../src/components/ui/Button';
 
 // Hook personalizado para autenticación
-import { useAuth } from '../src/hooks/useAuth';
+import { useSession } from '../../src/session/AuthProvider';
 
 // Configuración
-import { COLORS } from '../src/constants/config';
+import { COLORS } from '../../src/constants/config';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
-  const { login, isLoading } = useAuth();
-  const router = useRouter();
+  const { signIn, isSubmitting } = useSession();
 
   const handleLogin = async () => {
-    const result = await login({ email, password });
-    if (result) {
-      // Aquí navegarías a la pantalla principal
-      // navigation.navigate('Home');
-      console.log('Login exitoso, navegando...');
-      router.push('/modals/add-glucose');
-    }
+    // Al iniciar sesión, el cambio de estado lleva solo a la pantalla principal
+    await signIn(email, password);
   };
 
   return (
@@ -89,7 +83,7 @@ const LoginScreen = () => {
           <Button 
             title="Iniciar Sesión" 
             onPress={handleLogin} 
-            loading={isLoading} 
+            loading={isSubmitting} 
             style={styles.loginButton} />
 
           {/* Links adicionales */}

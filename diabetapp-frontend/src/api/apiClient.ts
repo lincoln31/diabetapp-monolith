@@ -1,12 +1,13 @@
 // src/api/apiClient.ts
 
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_CONFIG, TOKEN_STORAGE_KEY } from '../constants/config';
+import { API_CONFIG } from '../constants/config';
+import { notifySessionExpired } from '../session/sessionEvents';
+import { clearTokens, getTokens, setTokens } from '../session/tokenStorage';
 
 /**
- * Contrato de la API (fase 1 del plan de mejora, specs/fase-1-bases-backend).
+ * Contrato de la API (specs/fase-1-bases-backend).
  * Éxito: { success: true, data, meta? } · Error: { success: false, error: { code, message, fields? } }
  */
 export interface ApiSuccess<T> {
@@ -31,6 +32,8 @@ export type ApiErrorCode =
   | 'NOT_FOUND'
   | 'EMAIL_IN_USE'
   | 'CONFLICT'
+  | 'PAYLOAD_TOO_LARGE'
+  | 'RATE_LIMITED'
   | 'INTERNAL_ERROR'
   | 'NETWORK_ERROR'; // Solo del lado de la app: sin respuesta del servidor
 
@@ -88,82 +91,86 @@ const apiClient = axios.create({
   timeout: API_CONFIG.timeout,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  }
-});
-// Interceptor para agregar automáticamente el token a las requests
-apiClient.interceptors.request.use(
-  async (config) => {
-    try {
-      // Obtener el token del almacenamiento local
-      const token = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    } catch (error) {
-      console.error('Error al obtener el token:', error);
-    }
-    return config;
+    Accept: 'application/json',
   },
-  (error) => {
-    return Promise.reject(error);
+});
+
+/** Instancia sin interceptores: renovar no debe disparar otra renovación. */
+const plainClient = axios.create({
+  baseURL: API_CONFIG.baseURL,
+  timeout: API_CONFIG.timeout,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+// Añade el token de acceso a cada petición
+apiClient.interceptors.request.use(async (config) => {
+  const tokens = await getTokens();
+
+  if (tokens) {
+    config.headers.Authorization = `Bearer ${tokens.accessToken}`;
   }
-);
-// 3. Implementar Interceptores para Manejo de Errores Global 
+
+  return config;
+});
+
+/**
+ * Renovación única: si varias peticiones caducan a la vez, todas esperan
+ * la misma promesa y se repiten con el token nuevo (spec fase 2, RF-2.19).
+ */
+let refreshing: Promise<string> | null = null;
+
+const doRefresh = async (): Promise<string> => {
+  const tokens = await getTokens();
+
+  if (!tokens) {
+    throw new Error('SIN_SESION');
+  }
+
+  const response = await plainClient.post(API_CONFIG.endpoints.auth.refresh, {
+    refreshToken: tokens.refreshToken,
+  });
+
+  const { accessToken, refreshToken } = response.data.data;
+  await setTokens({ accessToken, refreshToken });
+
+  return accessToken;
+};
+
+const isAuthEndpoint = (url?: string): boolean =>
+  !!url && (url.includes('/auth/refresh') || url.includes('/auth/login') || url.includes('/auth/register'));
+
 apiClient.interceptors.response.use(
-  // (response) => response: Esta es la función para respuestas exitosas (status 2xx).
-  // No hacemos nada y simplemente dejamos que la respuesta continúe su camino.
   (response) => response,
+  async (error: AxiosError) => {
+    const config = error.config as (AxiosRequestConfig & { _retry?: boolean }) | undefined;
+    const apiError = getApiError(error);
 
-  // (error) => { ... }: Esta es la función que se dispara si hay un error.
-  (error: AxiosError) => {
-    // Primero, verificamos si el error es realmente un error de Axios.
-    if (!axios.isAxiosError(error)) {
-      // Si no es un error de Axios, es algo inesperado. Lo dejamos pasar.
-      return Promise.reject(error);
+    if (apiError.code === 'TOKEN_EXPIRED' && config && !config._retry && !isAuthEndpoint(config.url)) {
+      config._retry = true;
+
+      try {
+        refreshing = refreshing ?? doRefresh().finally(() => (refreshing = null));
+        const accessToken = await refreshing;
+
+        config.headers = { ...config.headers, Authorization: `Bearer ${accessToken}` };
+        return apiClient(config);
+      } catch {
+        // La renovación falló: la sesión terminó de verdad
+        await clearTokens();
+        notifySessionExpired();
+      }
     }
 
-    // Si `error.response` no existe, significa que fue un error de red (sin conexión) o un timeout.
-    if (!error.response) {
+    if (apiError.code === 'INTERNAL_ERROR' && error.response) {
+      // Error del servidor: la pantalla no puede hacer nada útil con el detalle
       Alert.alert(
-        'Error de Conexión',
-        'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet.'
+        'Error del Servidor',
+        'Ha ocurrido un problema en nuestros sistemas. Intenta de nuevo más tarde.',
       );
-      return Promise.reject(error);
     }
 
-    // Si tenemos una respuesta, podemos manejar errores basados en el código de estado HTTP.
-    const { status, data } = error.response;
-
-    switch (status) {
-      case 500:
-        // Error interno del servidor.
-        Alert.alert(
-          'Error del Servidor',
-          'Ha ocurrido un problema en nuestros sistemas. Por favor, intenta de nuevo más tarde.'
-        );
-        break;
-      
-      case 409: // Conflicto (ej. email ya existe en el registro)
-        // Este error es específico (lo vimos en tu pantalla de registro).
-        // Lo dejamos pasar para que la pantalla de registro pueda mostrar un mensaje personalizado.
-        // No mostramos una alerta global aquí.
-        break;
-
-      case 401: // No autorizado (ej. login incorrecto)
-        // Similar al 409, este error es mejor manejarlo en la pantalla de Login
-        // para dar un mensaje específico como "Credenciales incorrectas".
-        // No hacemos nada aquí para que el .catch() de la pantalla lo reciba.
-        break;
-
-      // Puedes añadir más casos genéricos aquí (ej. 404, 403).
-    }
-
-    // Es CRUCIAL devolver `Promise.reject(error)`.
-    // Esto asegura que si una pantalla tiene su propio bloque .catch(),
-    // todavía pueda recibir el error y ejecutar su lógica específica.
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;
