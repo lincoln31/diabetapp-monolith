@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Entorno de desarrollo con el celular Android conectado por USB.
+# Entorno de desarrollo con el celular Android por WiFi (misma red que el PC).
 #
 # Lo usa el Makefile (make up, make logs...), pero también se puede ejecutar
 # directamente:  bash scripts/dev.sh <comando>
@@ -8,6 +8,12 @@
 # La lógica vive aquí y no en el Makefile porque `make` en Windows pasa los
 # textos a bash con la codificación equivocada (acentos y emojis salen rotos);
 # un archivo .sh bash lo lee bien.
+#
+# Por qué WiFi y no `adb reverse` (USB): se probó primero el túnel USB, pero
+# en esta máquina las conexiones se cortaban a medias (ERR_EMPTY_RESPONSE en
+# el celular) — típico de puertos/cables USB con ahorro de energía o de la
+# combinación adb+Windows con ciertos chipsets. `make reverse` se deja como
+# alternativa si el celular no puede unirse a la misma red que el PC.
 # =============================================================================
 set -euo pipefail
 
@@ -20,12 +26,24 @@ API_PORT=3000
 METRO_PORT=8081
 EXPO_GO=host.exp.exponent
 
-# Con el puente USB (adb reverse) el celular llega al PC como "localhost":
-# no hace falta WiFi ni conocer la IP de la red.
-API_URL="http://localhost:${API_PORT}/api"
-
 # adb: el del PATH, o el que instala Android Studio
 ADB="$(command -v adb 2>/dev/null || echo "${LOCALAPPDATA:-}/Android/Sdk/platform-tools/adb.exe")"
+
+# IP del PC en la red local (WiFi o Ethernet), para que el celular hable con el
+# backend y con Metro como si fueran otro dispositivo de la red. LAN_IP=<ip>
+# la fija a mano si la detección automática elige la interfaz equivocada
+# (varias tarjetas de red, VPN, etc.).
+detect_lan_ip() {
+  if [ -n "${LAN_IP:-}" ]; then
+    echo "$LAN_IP"
+    return 0
+  fi
+
+  powershell.exe -NoProfile -Command \
+    "(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | \
+      Where-Object { \$_.InterfaceAlias -notmatch 'Loopback|vEthernet|WSL' -and \$_.IPAddress -notlike '169.254.*' } | \
+      Select-Object -First 1 -ExpandProperty IPAddress)" 2>/dev/null | tr -d '\r'
+}
 
 # Con más de un celular conectado: SERIAL=<id> (ver `make devices`)
 SERIAL="${SERIAL:-}"
@@ -141,7 +159,16 @@ cmd_doctor() {
   [ -d "$BACKEND/node_modules" ] && ok "Dependencias del backend" || bad "Ejecuta: cd $BACKEND && npm install"
   [ -d "$FRONTEND/node_modules" ] && ok "Dependencias de la app" || bad "Ejecuta: cd $FRONTEND && npm install"
 
-  echo "Celular (USB)"
+  echo "Red"
+  local lan_ip
+  lan_ip="$(detect_lan_ip)"
+  if [ -n "$lan_ip" ]; then
+    ok "IP del PC en la red local: $lan_ip (asegúrate de que el celular esté en la misma WiFi)"
+  else
+    bad "No pude detectar la IP de red del PC. Fija LAN_IP=<tu-ip> (ver 'ipconfig')."
+  fi
+
+  echo "Celular (USB, para detectarlo y ver logs; la app usa WiFi)"
   if [ ! -e "$ADB" ]; then
     bad "No encuentro adb. Instala Android Studio o las «platform-tools» de Android."
   else
@@ -219,17 +246,24 @@ cmd_reverse() {
   adb_ reverse "tcp:${API_PORT}" "tcp:${API_PORT}" >/dev/null
   adb_ reverse "tcp:${METRO_PORT}" "tcp:${METRO_PORT}" >/dev/null
   echo "✅ Puente USB: el celular ve el backend (:${API_PORT}) y Metro (:${METRO_PORT}) como localhost"
+  echo "   (alternativa a WiFi; si el celular no puede unirse a la red del PC)"
 }
 
 cmd_app() {
-  cmd_reverse
-  echo "API para la app: $API_URL"
+  local lan_ip api_url
+  lan_ip="$(detect_lan_ip)"
+  [ -n "$lan_ip" ] || die "No pude detectar la IP de red del PC. Fija LAN_IP=<tu-ip> (ver 'ipconfig') o usa 'make reverse' + USB."
+  api_url="http://${lan_ip}:${API_PORT}/api"
+
+  echo "PC en la red local como $lan_ip — asegúrate de que el celular esté en la misma WiFi."
+  echo "API para la app: $api_url"
   echo "Si Expo pregunta por instalar Expo Go en el celular, responde Y (necesita la versión de su SDK)."
   cd "$FRONTEND"
+  # --lan hace que Metro escuche en todas las interfaces, no solo localhost.
   # La variable en la línea de comandos tiene prioridad sobre .env, pero Metro
   # cachea el bundle con la URL ya incrustada: sin --clear podría servir la de
-  # una ejecución anterior (p. ej. la IP WiFi de .env). Cuesta unos segundos.
-  EXPO_PUBLIC_API_URL="$API_URL" exec npx expo start --android --localhost --clear
+  # una ejecución anterior. Cuesta unos segundos.
+  EXPO_PUBLIC_API_URL="$api_url" exec npx expo start --android --lan --clear
 }
 
 cmd_up() {

@@ -32,7 +32,7 @@ make stop            # detiene backend y Metro (make down también apaga Postgre
 make help            # lista completa
 ```
 
-- El celular llega al PC por el puente **`adb reverse`** (backend y Metro como `localhost`): no hace falta WiFi ni conocer la IP. `make app` pasa `EXPO_PUBLIC_API_URL=http://localhost:3000/api` y arranca Metro con `--clear`, porque Metro cachea la URL ya incrustada en el bundle.
+- El celular se conecta por **WiFi**: debe estar en la misma red que el PC. `make doctor`/`make app` detectan la IP del PC en la red local (`Get-NetIPAddress`; se puede fijar con `LAN_IP=<ip>`) y arrancan Metro con `--lan`, pasando `EXPO_PUBLIC_API_URL=http://<ip-del-pc>:3000/api` y `--clear` (Metro cachea la URL ya incrustada en el bundle). Se eligió WiFi en vez de `adb reverse` porque el túnel USB fue inestable en pruebas (`ERR_EMPTY_RESPONSE` intermitente); `make reverse` queda como alternativa si el celular no puede unirse a la red del PC.
 - **Expo Go y el SDK**: Expo Go solo abre proyectos de su propio SDK y la Play Store instala siempre la última, así que el proyecto debe seguir al SDK más reciente (hoy 57). `make doctor` avisa si el Expo Go del celular es de otro SDK; en ese caso `make app` ofrece instalar la versión correcta (responde Y) y, si falla por ser una versión anterior, `make reinstall-expo-go` desinstala la actual.
 - **Depuración USB**: Android revoca la autorización tras un tiempo. Si `make doctor` dice `unauthorized`, desbloquea el celular y acepta «Permitir depuración USB» (marca «Permitir siempre»).
 - Con varios celulares conectados: `make up SERIAL=<id>` (el id sale de `make devices`).
