@@ -30,19 +30,30 @@ EXPO_GO=host.exp.exponent
 ADB="$(command -v adb 2>/dev/null || echo "${LOCALAPPDATA:-}/Android/Sdk/platform-tools/adb.exe")"
 
 # IP del PC en la red local (WiFi o Ethernet), para que el celular hable con el
-# backend y con Metro como si fueran otro dispositivo de la red. LAN_IP=<ip>
-# la fija a mano si la detección automática elige la interfaz equivocada
-# (varias tarjetas de red, VPN, etc.).
+# backend como si fuera otro dispositivo de la red. LAN_IP=<ip> la fija a mano
+# si la detección automática elige la interfaz equivocada (varias tarjetas de
+# red, VPN, etc.).
+#
+# Se usa Node (os.networkInterfaces), NO PowerShell (Get-NetIPAddress): Metro
+# también es un proceso Node y elige la IP con el mismo mecanismo, así que
+# usar otra vía puede devolver una IP distinta a la que Metro le anuncia al
+# celular (visto en producción: PowerShell devolvía una segunda IP en la
+# misma subred que Node ni siquiera veía, y la app cargaba pero no podía
+# hablar con el backend, aunque Metro y Expo Go sí se conectaban bien).
 detect_lan_ip() {
   if [ -n "${LAN_IP:-}" ]; then
     echo "$LAN_IP"
     return 0
   fi
 
-  powershell.exe -NoProfile -Command \
-    "(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | \
-      Where-Object { \$_.InterfaceAlias -notmatch 'Loopback|vEthernet|WSL' -and \$_.IPAddress -notlike '169.254.*' } | \
-      Select-Object -First 1 -ExpandProperty IPAddress)" 2>/dev/null | tr -d '\r'
+  node -e "
+    const os = require('os');
+    for (const addrs of Object.values(os.networkInterfaces())) {
+      for (const a of addrs || []) {
+        if (a.family === 'IPv4' && !a.internal) { console.log(a.address); process.exit(0); }
+      }
+    }
+  " 2>/dev/null
 }
 
 # Con más de un celular conectado: SERIAL=<id> (ver `make devices`)
