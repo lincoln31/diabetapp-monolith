@@ -122,9 +122,9 @@ check_expo_go() {
   major="${version%%.*}"
 
   # Las versiones nuevas de Expo Go se numeran igual que su SDK (57.x = SDK 57);
-  # las de SDK 53 y anteriores usan el esquema 2.x
+  # las de SDK 53 y anteriores usan el esquema 2.x (por eso el filtro > 10)
   if [ -n "$sdk" ] && [ "${major:-0}" -gt 10 ] && [ "$major" != "$sdk" ]; then
-    warn "Expo Go $version es de otro SDK; el proyecto usa SDK $sdk (necesita Expo Go 2.x)."
+    warn "Expo Go $version es de otro SDK; el proyecto usa SDK $sdk (Expo Go solo abre proyectos de su propio SDK)."
     warn "«make app» te ofrecerá instalar la versión correcta: responde Y. Si falla al instalar, ejecuta «make reinstall-expo-go» y luego «make app»."
   else
     ok "Expo Go ${version:-instalado}"

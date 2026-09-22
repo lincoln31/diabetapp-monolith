@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 DiabetApp es una app móvil para el seguimiento de la diabetes (lecturas de glucosa, perfil médico, metas). Monorepo con dos proyectos independientes, cada uno con su propio `package.json` y `node_modules` (no hay workspaces):
 
 - `diabetapp-backend/` — API REST: Express 5 + TypeScript (CommonJS) + Prisma + PostgreSQL, validación con Zod 4, JWT + bcrypt.
-- `diabetapp-frontend/` — App Expo (SDK 53, React Native 0.79, React 19) con Expo Router, Axios y AsyncStorage.
+- `diabetapp-frontend/` — App Expo (SDK 57, React Native 0.86, React 19.2) con Expo Router, Axios y AsyncStorage.
 
 El código, los comentarios y los mensajes al usuario están en español.
 
@@ -33,7 +33,8 @@ make help            # lista completa
 ```
 
 - El celular llega al PC por el puente **`adb reverse`** (backend y Metro como `localhost`): no hace falta WiFi ni conocer la IP. `make app` pasa `EXPO_PUBLIC_API_URL=http://localhost:3000/api` y arranca Metro con `--clear`, porque Metro cachea la URL ya incrustada en el bundle.
-- **Expo Go y el SDK**: Expo Go solo abre proyectos de su propio SDK y la Play Store instala siempre la última (57.x), mientras el proyecto es SDK 53 (necesita Expo Go 2.33.x). `make doctor` lo avisa; al ejecutar `make app`, Expo pregunta si instalar la versión correcta (responde Y). Si la instalación falla por ser una versión anterior, `make reinstall-expo-go` desinstala la actual y `make app` instala la correcta.
+- **Expo Go y el SDK**: Expo Go solo abre proyectos de su propio SDK y la Play Store instala siempre la última, así que el proyecto debe seguir al SDK más reciente (hoy 57). `make doctor` avisa si el Expo Go del celular es de otro SDK; en ese caso `make app` ofrece instalar la versión correcta (responde Y) y, si falla por ser una versión anterior, `make reinstall-expo-go` desinstala la actual.
+- **Depuración USB**: Android revoca la autorización tras un tiempo. Si `make doctor` dice `unauthorized`, desbloquea el celular y acepta «Permitir depuración USB» (marca «Permitir siempre»).
 - Con varios celulares conectados: `make up SERIAL=<id>` (el id sale de `make devices`).
 - La lógica vive en `scripts/dev.sh` (también usable sin make: `bash scripts/dev.sh doctor`); el Makefile solo enruta, porque `make` en Windows rompe acentos y emojis al pasar texto a bash. `.gitattributes` fuerza saltos de línea LF en ambos.
 - `adb logcat` se **cuelga** con un celular sin autorizar (no falla): por eso los comandos de logs comprueban antes el estado del dispositivo.
@@ -80,6 +81,14 @@ npm run format:check         # prettier
 ```
 
 Requiere `.env` con `EXPO_PUBLIC_API_URL` (parte de `.env.example`).
+
+**Actualizar el SDK de Expo** (se hizo 53 → 57): sube de uno en uno (`npm install expo@^N.0.0`, `npx expo install --fix`, `npx expo-doctor`), lee las notas de cada SDK y comprueba tipos, lint, tests y `npx expo export --platform android` en cada salto. Si el árbol queda mal hoisteado, borra `node_modules` y `package-lock.json` y reinstala. Particularidades vigentes:
+
+- `.npmrc` con `legacy-peer-deps=true`: `datetimepicker` declara un peer opcional (`react-native-windows`) que choca con el React fijado por Expo. Efecto colateral: npm **no instala los peers solos**, así que los que hagan falta van explícitos (`test-renderer`, `expo-asset`, `react-native-worklets`). `npx expo-doctor` valida la compatibilidad real.
+- `@react-native/jest-preset` debe tener **la misma versión que `react-native`** (se actualiza a mano con cada salto).
+- `tsconfig.json` declara `"types": ["jest"]`: TypeScript 6 ya no incluye automáticamente los `@types/*`.
+- No instalar `@react-navigation/*` (expo-router ya no es compatible) ni `expo-modules-core` (doctor lo rechaza).
+- Los tests con `waitFor` usan 5 s de margen: con la caché de Jest fría (siempre en la CI) el primer render supera el segundo por defecto.
 
 ## Arquitectura del backend
 
