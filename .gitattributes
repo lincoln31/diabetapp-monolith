@@ -1,0 +1,4 @@
+# Scripts de shell y Makefile siempre con saltos de línea LF: en Windows, Git los
+# convertiría a CRLF y bash fallaría al leer el carácter de retorno (scripts/dev.sh, Makefile).
+*.sh text eol=lf
+Makefile text eol=lf

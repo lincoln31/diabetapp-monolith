@@ -19,6 +19,26 @@ La CI (`.github/workflows/ci.yml`) ejecuta en cada PR hacia `Develop` o `main`: 
 
 ## Comandos
 
+### Probar en el celular por USB (desde la raíz)
+
+Requiere `make` (`winget install ezwinports.make`), Docker Desktop y la **depuración USB** activada en el celular Android. Se ejecuta desde Git Bash.
+
+```bash
+make doctor          # comprueba Node, Docker, dependencias y si el celular está listo
+make up              # PostgreSQL + backend + app en el celular (Metro queda en primer plano)
+make logs            # en otra terminal: logs del celular (JS y errores), también en .logs/device.log
+make report          # guarda .logs/report-<fecha>.txt con celular, backend y Docker
+make stop            # detiene backend y Metro (make down también apaga PostgreSQL)
+make help            # lista completa
+```
+
+- El celular llega al PC por el puente **`adb reverse`** (backend y Metro como `localhost`): no hace falta WiFi ni conocer la IP. `make app` pasa `EXPO_PUBLIC_API_URL=http://localhost:3000/api` y arranca Metro con `--clear`, porque Metro cachea la URL ya incrustada en el bundle.
+- **Expo Go y el SDK**: Expo Go solo abre proyectos de su propio SDK y la Play Store instala siempre la última (57.x), mientras el proyecto es SDK 53 (necesita Expo Go 2.33.x). `make doctor` lo avisa; al ejecutar `make app`, Expo pregunta si instalar la versión correcta (responde Y). Si la instalación falla por ser una versión anterior, `make reinstall-expo-go` desinstala la actual y `make app` instala la correcta.
+- Con varios celulares conectados: `make up SERIAL=<id>` (el id sale de `make devices`).
+- La lógica vive en `scripts/dev.sh` (también usable sin make: `bash scripts/dev.sh doctor`); el Makefile solo enruta, porque `make` en Windows rompe acentos y emojis al pasar texto a bash. `.gitattributes` fuerza saltos de línea LF en ambos.
+- `adb logcat` se **cuelga** con un celular sin autorizar (no falla): por eso los comandos de logs comprueban antes el estado del dispositivo.
+- Los logs quedan en `.logs/` (ignorado por git).
+
 ### Backend (`cd diabetapp-backend`)
 
 ```bash
