@@ -14,6 +14,10 @@ jest.mock('../AuthProvider', () => ({
   useSession: () => ({ signUp: mockSignUp, status: 'unauthenticated', user: null }),
 }));
 
+// Con la caché de Jest fría (siempre en la CI) el primer render tarda más del segundo
+// que espera waitFor por defecto
+const WAIT = { timeout: 5000 };
+
 describe('RegisterScreen', () => {
   beforeEach(() => mockSignUp.mockReset());
 
@@ -23,7 +27,7 @@ describe('RegisterScreen', () => {
 
     await waitFor(() => {
       expect(getByText('El nombre debe tener mínimo 2 caracteres')).toBeTruthy();
-    });
+    }, WAIT);
     expect(getByText('El apellido debe tener mínimo 2 caracteres')).toBeTruthy();
     expect(getByText('El correo electrónico es requerido')).toBeTruthy();
     expect(getByText('La contraseña debe tener mínimo 8 caracteres')).toBeTruthy();
@@ -36,10 +40,10 @@ describe('RegisterScreen', () => {
       <RegisterScreen />,
     );
     fireEvent.press(getByRole('button', { name: 'Crear Cuenta' }));
-    await waitFor(() => expect(getByText('El correo electrónico es requerido')).toBeTruthy());
+    await waitFor(() => expect(getByText('El correo electrónico es requerido')).toBeTruthy(), WAIT);
 
     fireEvent.changeText(getByPlaceholderText('Correo electrónico'), 'ana@test.com');
 
-    await waitFor(() => expect(queryByText('El correo electrónico es requerido')).toBeNull());
+    await waitFor(() => expect(queryByText('El correo electrónico es requerido')).toBeNull(), WAIT);
   });
 });
