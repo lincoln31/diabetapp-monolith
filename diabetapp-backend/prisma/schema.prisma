@@ -26,7 +26,7 @@ model User {
   phone           String?   // Teléfono de contacto (opcional)
   
   // Perfil específico de diabetes (según RF001)
-  typeOfDiabetes  String?   // "TYPE_1" | "TYPE_2" | "GESTACIONAL" | "PREDIABETES"
+  typeOfDiabetes  DiabetesType?
   diagnosedAt     DateTime? // Fecha del diagnóstico
   yearsWithDiabetes Int?    // Calculado o manual, importante para personalización
   
@@ -39,11 +39,11 @@ model User {
   birthDate       DateTime? // Para personalizar contenido educativo por edad
   weight          Float?    // Para calculadoras y recomendaciones
   height          Float?    // Para calculadoras de IMC
-  activityLevel   String?   // "SEDENTARY" | "LIGHT" | "MODERATE" | "ACTIVE"
+  activityLevel   ActivityLevel?
   
   // Configuración de medicamentos (según RF005)
   currentMedications String? // JSON o texto simple por ahora
-  insulinType     String?   // "RAPID" | "LONG_ACTING" | "MIXED" | "NONE"
+  insulinType     InsulinType?
   
   // Preferencias de notificaciones (según RF001)
   notificationPreferences Json? // Estructura flexible para diferentes tipos
@@ -82,7 +82,7 @@ model GlucoseReading {
 
   // Contexto del registro (según RF002)
   timestamp DateTime  // Fecha y hora exactas del registro, enviadas desde el móvil
-  momentOfDay String    // "BEFORE_BREAKFAST" | "AFTER_BREAKFAST" | "BEFORE_LUNCH" | "AFTER_LUNCH" | "BEFORE_DINNER" | "AFTER_DINNER" | "BEFORE_SLEEP" | "OTHER"
+  momentOfDay MomentOfDay @default(OTHER)
   notes     String?   // Notas opcionales del usuario, ej: "Comí pizza"
 
   // Relación con el usuario (¡LA PARTE MÁS IMPORTANTE!)
@@ -92,5 +92,39 @@ model GlucoseReading {
   // Metadata
   createdAt DateTime  @default(now())
 
+  @@index([userId, timestamp]) // Consulta principal: historial del usuario por fecha
   @@map("glucose_readings") // Nombre explícito para la tabla
+}
+// --- Enums (fase 1, RF-1.18): la base de datos rechaza valores fuera de estas listas ---
+
+enum DiabetesType {
+  TYPE_1
+  TYPE_2
+  GESTATIONAL
+  PREDIABETES
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHT
+  MODERATE
+  ACTIVE
+}
+
+enum InsulinType {
+  RAPID
+  LONG_ACTING
+  MIXED
+  NONE
+}
+
+enum MomentOfDay {
+  BEFORE_BREAKFAST
+  AFTER_BREAKFAST
+  BEFORE_LUNCH
+  AFTER_LUNCH
+  BEFORE_DINNER
+  AFTER_DINNER
+  BEFORE_SLEEP
+  OTHER
 }

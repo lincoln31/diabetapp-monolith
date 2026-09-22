@@ -165,10 +165,10 @@ Que el backend tenga **un contrato de API único**, **un único camino de errore
 | CA-1.19 | Un test (o script) que importa la app | Se importa | No se abre ningún puerto | RF-1.12 |
 | CA-1.20 | La app móvil | Login con contraseña incorrecta, registro con correo repetido, glucosa con valor 700 | Muestra el mensaje del backend correcto en cada caso | RF-1.25 |
 
-## 8. Decisiones pendientes
+## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** RF-1.18 renombra `GESTACIONAL` → `GESTATIONAL` para que todos los enums estén en inglés (principio P7). ¿Se acepta, o se prefiere mantener `GESTACIONAL` por compatibilidad?
-- **[NECESITA ACLARACIÓN]** ¿Hay datos reales en alguna BD compartida? Si solo existen BD locales de desarrollo, la migración de datos (RF-1.19) puede simplificarse a recrear la BD.
+- **Resuelta (2026-09-19):** se acepta `GESTACIONAL` → `GESTATIONAL` (RF-1.18): todos los enums quedan en inglés, según el principio P7.
+- **Resuelta (2026-09-19):** solo existen bases de datos locales de desarrollo. La migración de datos (RF-1.19) se mantiene con las conversiones `USING (CASE …)` porque cuesta lo mismo y deja la migración lista para cuando haya un entorno desplegado, pero **CA-1.15 se verifica con datos de ejemplo creados a mano**, no con un volcado real.
 
 ## 9. Definición de terminado
 

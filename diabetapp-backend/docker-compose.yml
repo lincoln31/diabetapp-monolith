@@ -1,7 +1,6 @@
-version: '3.8'
 services:
   db:
-    image: postgres
+    image: postgres:16
     restart: always
     environment:
       POSTGRES_USER: user
@@ -11,6 +10,11 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d diabetapp_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   postgres_data:

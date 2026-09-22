@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { config } from 'dotenv';
 
+// Único punto del backend que lee process.env (spec fase 1, RF-1.13)
 config();
-// Esquema para validar variables de entorno
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3000),
@@ -12,9 +13,14 @@ const envSchema = z.object({
   DATABASE_URL: z
     .string('DATABASE_URL debe ser una URL válida')
     .min(1, 'DATABASE_URL es obligatoria'),
+  CORS_ORIGIN: z.string().default('*'),
+  // Las consultas SQL solo se registran si se pide explícitamente (RF-1.22)
+  PRISMA_LOG_QUERIES: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
 });
 
-// Función para validar y cargar variables de entorno
 export function loadEnvConfig() {
   const result = envSchema.safeParse(process.env);
 
@@ -33,17 +39,8 @@ export function loadEnvConfig() {
     process.exit(1);
   }
 
-  const envConfig = result.data;
-
-  // Nunca se imprime el secreto, ni siquiera parcialmente
-  if (envConfig.NODE_ENV === 'development') {
-    console.log('✅ Configuración de entorno cargada correctamente');
-    console.log(`   NODE_ENV: ${envConfig.NODE_ENV}`);
-    console.log(`   PORT: ${envConfig.PORT}`);
-  }
-
-  return envConfig;
+  return result.data;
 }
 
-// Exportar la configuración validada
+/** Configuración validada; el resto del código la usa en lugar de process.env. */
 export const env = loadEnvConfig();

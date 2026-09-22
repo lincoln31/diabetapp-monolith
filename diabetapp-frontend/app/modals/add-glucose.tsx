@@ -12,7 +12,7 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { Card, Input, Button, Icon } from '../../src/components/ui';
-import apiClient from '../../src/api/apiClient';
+import apiClient, { getApiError, getFirstFieldMessage } from '../../src/api/apiClient';
 import { API_CONFIG, COLORS } from '../../src/constants/config';
 import { validateRequired } from '../../src/utils/validation';
 
@@ -112,15 +112,16 @@ const AddGlucoseScreen = () => {
           ]
         );
       }
-    } catch (error: any) {
-      let errorMessage = 'No se pudo guardar el registro. Revisa tu conexión a internet.';
-      if (error.response) {
-        if (error.response.status === 401) {
-          errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
-        } else if (error.response.status === 400) {
-          errorMessage = 'Datos inválidos. Verifica la información ingresada.';
-        }
+    } catch (error) {
+      const apiError = getApiError(error);
+      let errorMessage = apiError.message;
+
+      if (apiError.code === 'UNAUTHENTICATED' || apiError.code === 'TOKEN_EXPIRED') {
+        errorMessage = 'Tu sesión expiró. Inicia sesión nuevamente.';
+      } else if (apiError.code === 'VALIDATION_ERROR') {
+        errorMessage = getFirstFieldMessage(apiError) ?? apiError.message;
       }
+
       Alert.alert('Error', errorMessage);
     } finally {
       setIsLoading(false);

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import apiClient from '../api/apiClient';
+import apiClient, { getApiError, getFirstFieldMessage } from '../api/apiClient';
 import { API_CONFIG, TOKEN_STORAGE_KEY } from '../constants/config';
 import {
   validateEmail,
@@ -72,19 +72,19 @@ export const useAuth = () => {
       );
 
       return { user, token };
-    } catch (error: any) {
-      console.error('Error en el login:', error.response?.data || error.message);
+    } catch (error) {
+      const apiError = getApiError(error);
+      console.error('Error en el login:', apiError.code);
 
-      if (error.response?.status === 401) {
+      if (apiError.code === 'INVALID_CREDENTIALS') {
         Alert.alert(
           'Credenciales incorrectas',
           'El correo o contraseña no son válidos. Verifica e intenta nuevamente.'
         );
+      } else if (apiError.code === 'VALIDATION_ERROR') {
+        Alert.alert('Error en los datos', getFirstFieldMessage(apiError) ?? apiError.message);
       } else {
-        Alert.alert(
-          'Error de conexión',
-          'No se pudo conectar con el servidor. Verifica tu conexión a internet.'
-        );
+        Alert.alert('No se pudo iniciar sesión', apiError.message);
       }
 
       return null;
@@ -147,26 +147,20 @@ export const useAuth = () => {
       );
 
       return { user, token };
-    } catch (error: any) {
-      console.error('Error en el registro:', error.response?.data || error.message);
+    } catch (error) {
+      const apiError = getApiError(error);
+      console.error('Error en el registro:', apiError.code);
 
-      if (error.response?.status === 409) {
+      if (apiError.code === 'EMAIL_IN_USE') {
         Alert.alert(
           'Email ya registrado',
           'Ya existe una cuenta con este correo electrónico. Intenta iniciar sesión.'
         );
-      } else if (error.response?.status === 400) {
-        // Mostrar el primer error de campo que devuelve Zod, si existe
-        const message =
-          error.response.data?.errors?.[0]?.message ||
-          error.response.data?.message ||
-          'Datos inválidos. Revisa la información ingresada.';
-        Alert.alert('Error en los datos', message);
+      } else if (apiError.code === 'VALIDATION_ERROR') {
+        // Mostrar el primer error de campo que devuelve el backend
+        Alert.alert('Error en los datos', getFirstFieldMessage(apiError) ?? apiError.message);
       } else {
-        Alert.alert(
-          'Error de conexión',
-          'No se pudo conectar con el servidor. Verifica tu conexión a internet.'
-        );
+        Alert.alert('No se pudo crear la cuenta', apiError.message);
       }
 
       return null;
