@@ -118,9 +118,9 @@ Que cada funcionalidad del frontend viva en **una carpeta autocontenida con la m
 | CA-3.15 | La app instalada | Se ve en el lanzador del dispositivo | Nombre "DiabetApp" | RF-3.17 |
 | CA-3.16 | El proyecto | `npx tsc --noEmit` y `npm run lint` | 0 errores y 0 advertencias | RF-3.18, RNF-3.3 |
 
-## 8. Decisiones pendientes
+## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** Librería de formularios: el plan propone `react-hook-form` + `zod` (las mismas reglas de validación que el backend, errores por campo sin código a mano). La alternativa sin dependencias es un hook propio `useForm` sobre las funciones de `validation.ts`. ¿Se aprueba añadir las dos dependencias?
+- **Resuelta (2026-09-19):** se aprueba añadir `react-hook-form`, `@hookform/resolvers` y `zod` a la app: los formularios validan con las mismas reglas que el backend y muestran los errores por campo sin código a mano.
 - **Decisión tomada:** no se añade caché de datos del servidor en esta fase (ver alcance).
 
 ## 9. Definición de terminado

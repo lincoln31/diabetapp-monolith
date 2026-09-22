@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { AuthProvider, useSession } from '../src/session/AuthProvider';
+import { AuthProvider, useSession } from '@/src/features/auth';
 
 // La pantalla de carga se mantiene hasta saber si hay sesión (spec fase 2, RF-2.16)
 void SplashScreen.preventAutoHideAsync();
