@@ -6,8 +6,9 @@ declare global {
         id: string;
         email?: string;
       };
-      /** Datos de query/params ya validados por el middleware `validate`. */
+      /** Datos ya validados por el middleware `validate`. */
       validated?: {
+        body?: unknown;
         query?: unknown;
         params?: unknown;
       };

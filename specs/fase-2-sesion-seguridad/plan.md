@@ -73,24 +73,24 @@ Al arrancar se calcula una vez `DUMMY_HASH = bcrypt.hashSync(<cadena aleatoria>,
 
 ### D-2.7 Cambios en el catálogo de errores y en `env`
 
-| Nuevo `code` | HTTP |
-|---|---|
-| `RATE_LIMITED` | 429 |
-| `PAYLOAD_TOO_LARGE` | 413 |
+| Nuevo `code`        | HTTP |
+| ------------------- | ---- |
+| `RATE_LIMITED`      | 429  |
+| `PAYLOAD_TOO_LARGE` | 413  |
 
 Nuevas variables (todas con valor por defecto): `ACCESS_TOKEN_TTL=15m`, `REFRESH_TOKEN_TTL_DAYS=30`, `RATE_LIMIT_LOGIN_MAX=5`, `RATE_LIMIT_REGISTER_MAX=5`, `RATE_LIMIT_REFRESH_MAX=30`, `TRUST_PROXY=false`. Se añaden a `env.example`.
 
 ### D-2.8 Endpoints de `auth` tras la fase
 
-| Método y ruta | Auth | Límite | Body | Respuesta `data` |
-|---|---|---|---|---|
-| `POST /api/auth/register` | No | registro | `registerSchema` | `{ user, accessToken, refreshToken, requiresOnboarding }` (201) |
-| `POST /api/auth/login` | No | login | `loginSchema` | `{ user, accessToken, refreshToken, requiresOnboarding }` |
-| `POST /api/auth/refresh` | No | refresh | `{ refreshToken }` | `{ accessToken, refreshToken }` |
-| `POST /api/auth/logout` | No* | — | `{ refreshToken }` | `null` |
-| `GET /api/auth/me` | Sí | — | — | `{ user }` |
-| ~~`GET /api/auth/check-email`~~ | — | — | — | eliminado |
-| ~~`GET /api/auth/verify-token`~~ | — | — | — | eliminado (sustituido por `/me`) |
+| Método y ruta                    | Auth | Límite   | Body               | Respuesta `data`                                                |
+| -------------------------------- | ---- | -------- | ------------------ | --------------------------------------------------------------- |
+| `POST /api/auth/register`        | No   | registro | `registerSchema`   | `{ user, accessToken, refreshToken, requiresOnboarding }` (201) |
+| `POST /api/auth/login`           | No   | login    | `loginSchema`      | `{ user, accessToken, refreshToken, requiresOnboarding }`       |
+| `POST /api/auth/refresh`         | No   | refresh  | `{ refreshToken }` | `{ accessToken, refreshToken }`                                 |
+| `POST /api/auth/logout`          | No*  | —        | `{ refreshToken }` | `null`                                                          |
+| `GET /api/auth/me`               | Sí   | —        | —                  | `{ user }`                                                      |
+| ~~`GET /api/auth/check-email`~~  | —    | —        | —                  | eliminado                                                       |
+| ~~`GET /api/auth/verify-token`~~ | —    | —        | —                  | eliminado (sustituido por `/me`)                                |
 
 \* `logout` no exige token de acceso: debe funcionar aunque haya expirado. Solo puede revocar el token de renovación que se le presenta.
 
@@ -165,8 +165,10 @@ let refreshing: Promise<string> | null = null;
 // interceptor de respuesta
 if (code === 'TOKEN_EXPIRED' && !config._retry && !isAuthEndpoint(config.url)) {
   config._retry = true;
-  refreshing ??= doRefresh().finally(() => { refreshing = null; });
-  const newAccessToken = await refreshing;          // todas las peticiones esperan la misma promesa
+  refreshing ??= doRefresh().finally(() => {
+    refreshing = null;
+  });
+  const newAccessToken = await refreshing; // todas las peticiones esperan la misma promesa
   config.headers.Authorization = `Bearer ${newAccessToken}`;
   return apiClient(config);
 }
@@ -182,19 +184,19 @@ if (code === 'TOKEN_EXPIRED' && !config._retry && !isAuthEndpoint(config.url)) {
 
 ## 3. Verificación
 
-| CA | Cómo |
-|---|---|
-| CA-2.1 – CA-2.7, CA-2.9 – CA-2.12 | Nuevas peticiones en `requests.http`; consultas a `refresh_tokens` con `psql`. Para expiraciones, arrancar con `ACCESS_TOKEN_TTL=10s`. |
-| CA-2.8 | Script local `scripts/timing-login.ts` (100 + 100 peticiones, media y diferencia). |
-| CA-2.13 – CA-2.19 | Expo Go en un dispositivo; para CA-2.16 usar `ACCESS_TOKEN_TTL=10s` y la pantalla principal lanzando 3 peticiones; para CA-2.17 revocar el token con `psql`. |
-| CA-2.20 | `grep -rn "console.log" diabetapp-backend/src diabetapp-frontend/src diabetapp-frontend/app` y revisar cada aparición. |
+| CA                                | Cómo                                                                                                                                                         |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| CA-2.1 – CA-2.7, CA-2.9 – CA-2.12 | Nuevas peticiones en `requests.http`; consultas a `refresh_tokens` con `psql`. Para expiraciones, arrancar con `ACCESS_TOKEN_TTL=10s`.                       |
+| CA-2.8                            | Script local `scripts/timing-login.ts` (100 + 100 peticiones, media y diferencia).                                                                           |
+| CA-2.13 – CA-2.19                 | Expo Go en un dispositivo; para CA-2.16 usar `ACCESS_TOKEN_TTL=10s` y la pantalla principal lanzando 3 peticiones; para CA-2.17 revocar el token con `psql`. |
+| CA-2.20                           | `grep -rn "console.log" diabetapp-backend/src diabetapp-frontend/src diabetapp-frontend/app` y revisar cada aparición.                                       |
 
 ## 4. Riesgos
 
-| Riesgo | Mitigación |
-|---|---|
+| Riesgo                                                                                                                                                 | Mitigación                                                                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Dos renovaciones simultáneas con el mismo token (p. ej. dos pestañas o un reintento de red) disparan la detección de reutilización y cierran la sesión | La app garantiza una sola renovación en curso (D-2.12). Si en la práctica ocurre, añadir un periodo de gracia de 10 s en el que el token recién rotado devuelve el mismo par (cambio de spec). |
-| `express-rate-limit` en memoria no funciona con varias instancias | Anotado; al desplegar más de una instancia, usar `rate-limit-redis`. |
-| Cambio de nombre `token` → `accessToken` rompe versiones antiguas de la app | La app aún no está publicada; backend y app se actualizan en el mismo PR. |
-| `Stack.Protected` requiere Expo Router ≥ 5 | El proyecto usa `expo-router ^5.1.4` (SDK 53). Verificar antes de empezar (T2.14). |
-| SecureStore limita cada valor a ~2 KB | Los tokens ocupan < 300 bytes; el usuario guardado se limita a `id`, `email`, `firstName`, `lastName`, `onboardingCompleted`. |
+| `express-rate-limit` en memoria no funciona con varias instancias                                                                                      | Anotado; al desplegar más de una instancia, usar `rate-limit-redis`.                                                                                                                           |
+| Cambio de nombre `token` → `accessToken` rompe versiones antiguas de la app                                                                            | La app aún no está publicada; backend y app se actualizan en el mismo PR.                                                                                                                      |
+| `Stack.Protected` requiere Expo Router ≥ 5                                                                                                             | El proyecto usa `expo-router ^5.1.4` (SDK 53). Verificar antes de empezar (T2.14).                                                                                                             |
+| SecureStore limita cada valor a ~2 KB                                                                                                                  | Los tokens ocupan < 300 bytes; el usuario guardado se limita a `id`, `email`, `firstName`, `lastName`, `onboardingCompleted`.                                                                  |

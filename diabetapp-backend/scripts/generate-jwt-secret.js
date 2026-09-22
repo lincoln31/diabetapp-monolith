@@ -10,7 +10,7 @@ const crypto = require('crypto');
 function generateJWTSecret() {
   // Generar 32 bytes (256 bits) de entropía aleatoria
   const secret = crypto.randomBytes(32).toString('hex');
-  
+
   console.log('🔐 JWT_SECRET generado exitosamente!');
   console.log('');
   console.log('📋 Copia esta línea en tu archivo .env:');
@@ -25,7 +25,7 @@ function generateJWTSecret() {
   console.log('✅ El secreto cumple con los requisitos de seguridad:');
   console.log(`   - Longitud: ${secret.length} caracteres`);
   console.log(`   - Entropía: ${32 * 8} bits`);
-  
+
   return secret;
 }
 

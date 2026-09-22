@@ -15,29 +15,19 @@ const Header: React.FC<HeaderProps> = ({
   title = APP_CONFIG.name,
   subtitle = APP_CONFIG.description,
   showLogo = true,
-  size = 'medium'
+  size = 'medium',
 }) => {
   return (
     <View style={styles.header}>
       {showLogo && (
         <View style={styles.logoContainer}>
-          <Icon 
-            name="heart" 
-            size={32} 
-            color={COLORS.white}
-          />
+          <Icon name="heart" size={32} color={COLORS.white} />
         </View>
       )}
-      
-      <Text style={[styles.title, styles[`${size}Title`]]}>
-        {title}
-      </Text>
-      
-      {subtitle && (
-        <Text style={[styles.subtitle, styles[`${size}Subtitle`]]}>
-          {subtitle}
-        </Text>
-      )}
+
+      <Text style={[styles.title, styles[`${size}Title`]]}>{title}</Text>
+
+      {subtitle && <Text style={[styles.subtitle, styles[`${size}Subtitle`]]}>{subtitle}</Text>}
     </View>
   );
 };

@@ -1,6 +1,6 @@
 # Especificaciones de DiabetApp (SDD)
 
-Este directorio contiene las especificaciones del plan de mejora de arquitectura, escritas con **Desarrollo Guiado por Especificaciones (Spec-Driven Development, SDD)**: primero se define *qué* se construye y *por qué*, se aprueba, y solo después se decide *cómo* y se implementa.
+Este directorio contiene las especificaciones del plan de mejora de arquitectura, escritas con **Desarrollo Guiado por Especificaciones (Spec-Driven Development, SDD)**: primero se define _qué_ se construye y _por qué_, se aprueba, y solo después se decide _cómo_ y se implementa.
 
 ## Flujo de trabajo
 
@@ -9,13 +9,13 @@ Este directorio contiene las especificaciones del plan de mejora de arquitectura
    spec.md            plan.md             tasks.md                  (código + PR)      (criterios CA)
 ```
 
-| Paso | Artefacto | Qué contiene | Qué NO contiene |
-|---|---|---|---|
-| 1. Especificar | `spec.md` | Problema, objetivo, alcance, historias de usuario, requisitos (RF/RNF), criterios de aceptación | Librerías, nombres de archivos, código |
-| 2. Planificar | `plan.md` | Diseño técnico: decisiones, archivos afectados, contratos, migraciones, riesgos | Requisitos nuevos (si falta uno, se vuelve a `spec.md`) |
-| 3. Tareas | `tasks.md` | Lista ordenada de tareas pequeñas, con dependencias y trazabilidad a RF | Diseño nuevo |
-| 4. Implementar | Código | Una rama por fase (o por grupo de tareas), commits que citan IDs de tarea | Cambios fuera de la spec |
-| 5. Verificar | PR | Cada criterio de aceptación (CA) comprobado y marcado en el PR | — |
+| Paso           | Artefacto  | Qué contiene                                                                                    | Qué NO contiene                                         |
+| -------------- | ---------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| 1. Especificar | `spec.md`  | Problema, objetivo, alcance, historias de usuario, requisitos (RF/RNF), criterios de aceptación | Librerías, nombres de archivos, código                  |
+| 2. Planificar  | `plan.md`  | Diseño técnico: decisiones, archivos afectados, contratos, migraciones, riesgos                 | Requisitos nuevos (si falta uno, se vuelve a `spec.md`) |
+| 3. Tareas      | `tasks.md` | Lista ordenada de tareas pequeñas, con dependencias y trazabilidad a RF                         | Diseño nuevo                                            |
+| 4. Implementar | Código     | Una rama por fase (o por grupo de tareas), commits que citan IDs de tarea                       | Cambios fuera de la spec                                |
+| 5. Verificar   | PR         | Cada criterio de aceptación (CA) comprobado y marcado en el PR                                  | —                                                       |
 
 ### Reglas
 
@@ -31,35 +31,35 @@ Este directorio contiene las especificaciones del plan de mejora de arquitectura
 
 ### Convención de identificadores
 
-| Prefijo | Significado | Ejemplo |
-|---|---|---|
-| `HU-<fase>.<n>` | Historia de usuario | `HU-2.1` |
-| `RF-<fase>.<n>` | Requisito funcional | `RF-1.3` |
-| `RNF-<fase>.<n>` | Requisito no funcional | `RNF-1.2` |
-| `CA-<fase>.<n>` | Criterio de aceptación (Dado / Cuando / Entonces) | `CA-0.4` |
-| `D-<fase>.<n>` | Decisión técnica (en `plan.md`) | `D-2.1` |
-| `T<fase>.<n>` | Tarea (en `tasks.md`); `[P]` = paralelizable | `T3.7 [P]` |
+| Prefijo          | Significado                                       | Ejemplo    |
+| ---------------- | ------------------------------------------------- | ---------- |
+| `HU-<fase>.<n>`  | Historia de usuario                               | `HU-2.1`   |
+| `RF-<fase>.<n>`  | Requisito funcional                               | `RF-1.3`   |
+| `RNF-<fase>.<n>` | Requisito no funcional                            | `RNF-1.2`  |
+| `CA-<fase>.<n>`  | Criterio de aceptación (Dado / Cuando / Entonces) | `CA-0.4`   |
+| `D-<fase>.<n>`   | Decisión técnica (en `plan.md`)                   | `D-2.1`    |
+| `T<fase>.<n>`    | Tarea (en `tasks.md`); `[P]` = paralelizable      | `T3.7 [P]` |
 
 Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el sentido de RFC 2119 (obligatorio, prohibido, opcional).
 
 ## Índice de fases
 
-| Fase | Spec | Objetivo | Depende de | Issues | Estimación |
-|---|---|---|---|---|---|
-| 0 | [Correcciones urgentes](fase-0-correcciones-urgentes/spec.md) | Cerrar el secreto filtrado, bugs que rompen la app y código muerto | PR #74 fusionado | — | ½ día |
-| 1 | [Bases del backend](fase-1-bases-backend/spec.md) | Contrato de API único, manejo de errores, módulos homogéneos, BD robusta | Fase 0 | #19 (prepara) | 2–3 días |
-| 2 | [Sesión y seguridad](fase-2-sesion-seguridad/spec.md) | Sesiones que se renuevan, rutas protegidas, protección contra abuso | Fase 1 | #14, #15 (prepara) | 2 días |
-| 3 | [Arquitectura del frontend](fase-3-arquitectura-frontend/spec.md) | Estructura por funcionalidades, capa de servicios tipada, formularios con errores por campo | Fase 2 | #48 (prepara) | 2–3 días |
-| 4 | [Calidad continua](fase-4-calidad-continua/spec.md) | Tests, linters y CI que bloquea PRs rotos | Fase 1 (backend), Fase 3 (frontend) | #56, #57 | 2 días |
+| Fase | Spec                                                              | Objetivo                                                                                    | Depende de                          | Issues             | Estimación |
+| ---- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------- | ------------------ | ---------- |
+| 0    | [Correcciones urgentes](fase-0-correcciones-urgentes/spec.md)     | Cerrar el secreto filtrado, bugs que rompen la app y código muerto                          | PR #74 fusionado                    | —                  | ½ día      |
+| 1    | [Bases del backend](fase-1-bases-backend/spec.md)                 | Contrato de API único, manejo de errores, módulos homogéneos, BD robusta                    | Fase 0                              | #19 (prepara)      | 2–3 días   |
+| 2    | [Sesión y seguridad](fase-2-sesion-seguridad/spec.md)             | Sesiones que se renuevan, rutas protegidas, protección contra abuso                         | Fase 1                              | #14, #15 (prepara) | 2 días     |
+| 3    | [Arquitectura del frontend](fase-3-arquitectura-frontend/spec.md) | Estructura por funcionalidades, capa de servicios tipada, formularios con errores por campo | Fase 2                              | #48 (prepara)      | 2–3 días   |
+| 4    | [Calidad continua](fase-4-calidad-continua/spec.md)               | Tests, linters y CI que bloquea PRs rotos                                                   | Fase 1 (backend), Fase 3 (frontend) | #56, #57           | 2 días     |
 
 > La fase 4 puede empezar en paralelo para el backend en cuanto la fase 1 esté fusionada.
 
 ## Estado actual
 
-| Fase | Estado |
-|---|---|
-| 0 | En implementación (PR abierto; pendiente rotar el secreto en los servidores) |
-| 1 | En implementación (PR abierto; falta probar la app en dispositivo) |
-| 2 | En implementación (PR abierto; falta probar la app en dispositivo) |
-| 3 | En implementación (PR abierto; falta probar la app en dispositivo) |
-| 4 | Borrador |
+| Fase | Estado                                                                       |
+| ---- | ---------------------------------------------------------------------------- |
+| 0    | En implementación (PR abierto; pendiente rotar el secreto en los servidores) |
+| 1    | En implementación (PR abierto; falta probar la app en dispositivo)           |
+| 2    | En implementación (PR abierto; falta probar la app en dispositivo)           |
+| 3    | En implementación (PR abierto; falta probar la app en dispositivo)           |
+| 4    | En implementación (PR abierto; falta activar la protección de ramas)         |

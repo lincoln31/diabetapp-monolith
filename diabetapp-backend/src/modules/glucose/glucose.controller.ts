@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { ok } from '../../shared/http/respond';
-import { validatedParams, validatedQuery } from '../../shared/middleware/validate';
-import { GlucoseIdParams, ListGlucoseQuery } from './glucose.schemas';
+import { validatedBody, validatedParams, validatedQuery } from '../../shared/middleware/validate';
+import {
+  CreateGlucoseInput,
+  GlucoseIdParams,
+  ListGlucoseQuery,
+  UpdateGlucoseInput,
+} from './glucose.schemas';
 import { GlucoseService } from './glucose.service';
 
 const glucoseService = new GlucoseService();
@@ -22,7 +27,7 @@ export const getGlucoseReading = async (req: Request, res: Response) => {
 };
 
 export const createGlucoseReading = async (req: Request, res: Response) => {
-  const reading = await glucoseService.create(req.user!.id, req.body);
+  const reading = await glucoseService.create(req.user!.id, validatedBody<CreateGlucoseInput>(req));
 
   return ok(res, reading, { status: 201 });
 };
@@ -30,7 +35,10 @@ export const createGlucoseReading = async (req: Request, res: Response) => {
 export const updateGlucoseReading = async (req: Request, res: Response) => {
   const { id } = validatedParams<GlucoseIdParams>(req);
 
-  return ok(res, await glucoseService.update(id, req.user!.id, req.body));
+  return ok(
+    res,
+    await glucoseService.update(id, req.user!.id, validatedBody<UpdateGlucoseInput>(req)),
+  );
 };
 
 export const deleteGlucoseReading = async (req: Request, res: Response) => {

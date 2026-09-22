@@ -91,7 +91,7 @@ export const glucoseApi = {
 
 ```ts
 class ApiError extends Error {
-  code: ApiErrorCode | 'NETWORK_ERROR';   // códigos del catálogo de la fase 1/2
+  code: ApiErrorCode | 'NETWORK_ERROR'; // códigos del catálogo de la fase 1/2
   fields?: { field: string; message: string }[];
   status?: number;
 }
@@ -119,7 +119,10 @@ Se escriben a mano en `features/*/types.ts` siguiendo la tabla de endpoints de l
 ```ts
 // shared/config/env.ts
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
-if (!API_URL) throw new Error('Falta EXPO_PUBLIC_API_URL. Copia .env.example a .env y pon la IP de tu PC, p. ej. http://192.168.1.20:3000/api');
+if (!API_URL)
+  throw new Error(
+    'Falta EXPO_PUBLIC_API_URL. Copia .env.example a .env y pon la IP de tu PC, p. ej. http://192.168.1.20:3000/api',
+  );
 export const env = { API_URL, API_TIMEOUT_MS: 10000 };
 ```
 
@@ -129,18 +132,18 @@ Expo inyecta las variables `EXPO_PUBLIC_*` en el bundle al arrancar `expo start`
 
 `@expo/vector-icons` (ya instalado, viene con Expo) con **Ionicons**. `Icon` acepta `name: AppIconName`, una unión de nombres semánticos mapeados a Ionicons:
 
-| `AppIconName` | Ionicons |
-|---|---|
-| `email` | `mail-outline` |
-| `lock` | `lock-closed-outline` |
+| `AppIconName`     | Ionicons                          |
+| ----------------- | --------------------------------- |
+| `email`           | `mail-outline`                    |
+| `lock`            | `lock-closed-outline`             |
 | `eye` / `eye-off` | `eye-outline` / `eye-off-outline` |
-| `user` | `person-outline` |
-| `phone` | `call-outline` |
-| `calendar` | `calendar-outline` |
-| `clock` | `time-outline` |
-| `drop` | `water-outline` |
-| `notes` | `document-text-outline` |
-| `logout` | `log-out-outline` |
+| `user`            | `person-outline`                  |
+| `phone`           | `call-outline`                    |
+| `calendar`        | `calendar-outline`                |
+| `clock`           | `time-outline`                    |
+| `drop`            | `water-outline`                   |
+| `notes`           | `document-text-outline`           |
+| `logout`          | `log-out-outline`                 |
 
 (La lista final sale de revisar los nombres usados hoy en `Icon.tsx`; T3.14.) Se desinstala `react-native-vector-icons`.
 
@@ -154,37 +157,37 @@ Los arrays de estilo se tipan como `StyleProp<ViewStyle>[]` / `StyleProp<TextSty
 
 ## 2. Mapa de migración de archivos
 
-| Origen | Destino |
-|---|---|
-| `app/(auth)/login.tsx` (pantalla completa) | `src/features/auth/screens/LoginScreen.tsx` |
-| `app/(auth)/register.tsx` | `src/features/auth/screens/RegisterScreen.tsx` |
-| `app/(app)/index.tsx` | `src/features/home/screens/HomeScreen.tsx` |
-| `app/(app)/glucose/new.tsx` | `src/features/glucose/screens/AddGlucoseScreen.tsx` |
-| `src/session/AuthProvider.tsx` | `src/features/auth/AuthProvider.tsx` |
-| `src/session/tokenStorage.ts` | `src/shared/session/tokenStorage.ts` |
-| `src/api/apiClient.ts` | `src/shared/api/client.ts` (+ `errors.ts`, `types.ts`) |
-| `src/components/ui/*` | `src/shared/components/ui/*` |
-| `src/constants/config.ts` | `COLORS` → `shared/theme/colors.ts`; `API_CONFIG` → `shared/config/env.ts` + `features/*/api.ts`; `VALIDATION_CONFIG`/`APP_CONFIG` → esquemas |
-| `src/utils/validation.ts` | `features/*/schemas.ts` + `shared/utils/dates.ts` |
-| `components/`, `hooks/`, `constants/`, `scripts/` (raíz), `assets/images/*react-logo*` | Eliminados |
+| Origen                                                                                 | Destino                                                                                                                                       |
+| -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/(auth)/login.tsx` (pantalla completa)                                             | `src/features/auth/screens/LoginScreen.tsx`                                                                                                   |
+| `app/(auth)/register.tsx`                                                              | `src/features/auth/screens/RegisterScreen.tsx`                                                                                                |
+| `app/(app)/index.tsx`                                                                  | `src/features/home/screens/HomeScreen.tsx`                                                                                                    |
+| `app/(app)/glucose/new.tsx`                                                            | `src/features/glucose/screens/AddGlucoseScreen.tsx`                                                                                           |
+| `src/session/AuthProvider.tsx`                                                         | `src/features/auth/AuthProvider.tsx`                                                                                                          |
+| `src/session/tokenStorage.ts`                                                          | `src/shared/session/tokenStorage.ts`                                                                                                          |
+| `src/api/apiClient.ts`                                                                 | `src/shared/api/client.ts` (+ `errors.ts`, `types.ts`)                                                                                        |
+| `src/components/ui/*`                                                                  | `src/shared/components/ui/*`                                                                                                                  |
+| `src/constants/config.ts`                                                              | `COLORS` → `shared/theme/colors.ts`; `API_CONFIG` → `shared/config/env.ts` + `features/*/api.ts`; `VALIDATION_CONFIG`/`APP_CONFIG` → esquemas |
+| `src/utils/validation.ts`                                                              | `features/*/schemas.ts` + `shared/utils/dates.ts`                                                                                             |
+| `components/`, `hooks/`, `constants/`, `scripts/` (raíz), `assets/images/*react-logo*` | Eliminados                                                                                                                                    |
 
 Se mueven con `git mv` para conservar el historial de cada archivo.
 
 ## 3. Verificación
 
-| CA | Cómo |
-|---|---|
-| CA-3.1, CA-3.2 | Revisión de árbol (`git ls-files diabetapp-frontend`) y de `app/`. |
-| CA-3.3, CA-3.4 | `grep -rn "shared/api/client\|axios" src/features/*/screens`; regla ESLint de D-3.1 en verde. |
-| CA-3.5 – CA-3.10 | Expo Go en dispositivo (CA-3.9 con el backend apagado). |
-| CA-3.11, CA-3.12 | Arrancar sin `.env` y con `.env`, en Android e iOS (o un emulador de cada uno). |
-| CA-3.13 – CA-3.16 | Recorrido visual; `tsc`; `npm run lint`; build de desarrollo para ver el nombre. |
+| CA                | Cómo                                                                                          |
+| ----------------- | --------------------------------------------------------------------------------------------- |
+| CA-3.1, CA-3.2    | Revisión de árbol (`git ls-files diabetapp-frontend`) y de `app/`.                            |
+| CA-3.3, CA-3.4    | `grep -rn "shared/api/client\|axios" src/features/*/screens`; regla ESLint de D-3.1 en verde. |
+| CA-3.5 – CA-3.10  | Expo Go en dispositivo (CA-3.9 con el backend apagado).                                       |
+| CA-3.11, CA-3.12  | Arrancar sin `.env` y con `.env`, en Android e iOS (o un emulador de cada uno).               |
+| CA-3.13 – CA-3.16 | Recorrido visual; `tsc`; `npm run lint`; build de desarrollo para ver el nombre.              |
 
 ## 4. Riesgos
 
-| Riesgo | Mitigación |
-|---|---|
-| Mover muchos archivos rompe imports | Un commit por funcionalidad; `tsc` tras cada uno. |
-| La fase 2 aún no está fusionada al empezar | La fase 3 depende de la 2; no empezar hasta tenerla en `Develop`. |
-| `zod` en React Native aumenta el bundle | ~15 KB gzip; aceptable. Se reutiliza en backend y app. |
-| Olvidar reiniciar `expo start` tras editar `.env` | Documentado en `CLAUDE.md` y en `.env.example`. |
+| Riesgo                                            | Mitigación                                                        |
+| ------------------------------------------------- | ----------------------------------------------------------------- |
+| Mover muchos archivos rompe imports               | Un commit por funcionalidad; `tsc` tras cada uno.                 |
+| La fase 2 aún no está fusionada al empezar        | La fase 3 depende de la 2; no empezar hasta tenerla en `Develop`. |
+| `zod` en React Native aumenta el bundle           | ~15 KB gzip; aceptable. Se reutiliza en backend y app.            |
+| Olvidar reiniciar `expo start` tras editar `.env` | Documentado en `CLAUDE.md` y en `.env.example`.                   |

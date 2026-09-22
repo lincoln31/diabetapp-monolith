@@ -17,54 +17,49 @@ const Checkbox: React.FC<CheckboxProps> = ({
   label,
   labelStyle,
   containerStyle,
-  size = 'medium'
+  size = 'medium',
 }) => {
   const getCheckboxSize = () => {
     switch (size) {
-      case 'small': return 16;
-      case 'large': return 24;
-      default: return 20;
+      case 'small':
+        return 16;
+      case 'large':
+        return 24;
+      default:
+        return 20;
     }
   };
 
   const getCheckmarkSize = () => {
     switch (size) {
-      case 'small': return 10;
-      case 'large': return 16;
-      default: return 12;
+      case 'small':
+        return 10;
+      case 'large':
+        return 16;
+      default:
+        return 12;
     }
   };
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[
           styles.checkbox,
-          { 
+          {
             width: getCheckboxSize(),
             height: getCheckboxSize(),
             borderColor: checked ? COLORS.primary : COLORS.gray[300],
             backgroundColor: checked ? COLORS.primary : COLORS.white,
-          }
+          },
         ]}
         onPress={onPress}
         activeOpacity={0.7}
       >
-        {checked && (
-          <Text style={[
-            styles.checkmark,
-            { fontSize: getCheckmarkSize() }
-          ]}>
-            ✓
-          </Text>
-        )}
+        {checked && <Text style={[styles.checkmark, { fontSize: getCheckmarkSize() }]}>✓</Text>}
       </TouchableOpacity>
-      
-      {label && (
-        <Text style={[styles.label, labelStyle]}>
-          {label}
-        </Text>
-      )}
+
+      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
     </View>
   );
 };

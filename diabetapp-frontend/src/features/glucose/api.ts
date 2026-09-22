@@ -3,8 +3,7 @@ import { CreateGlucoseInput, GlucoseReading, ListGlucoseParams } from './types';
 
 /** Todas las llamadas de glucosa (spec fase 3, RF-3.6). */
 export const glucoseApi = {
-  list: (params: ListGlucoseParams = {}) =>
-    getPaginated<GlucoseReading>('/glucose', { params }),
+  list: (params: ListGlucoseParams = {}) => getPaginated<GlucoseReading>('/glucose', { params }),
 
   getById: (id: string) => get<GlucoseReading>(`/glucose/${id}`),
 

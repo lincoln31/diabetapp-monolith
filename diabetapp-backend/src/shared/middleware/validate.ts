@@ -29,8 +29,10 @@ export const validate =
 
     if (schemas.body) {
       const result = schemas.body.safeParse(req.body);
-      if (result.success) req.body = result.data;
-      else fields.push(...toFieldErrors(result.error));
+      if (result.success) {
+        req.body = result.data;
+        req.validated = { ...req.validated, body: result.data };
+      } else fields.push(...toFieldErrors(result.error));
     }
 
     if (schemas.query) {
@@ -54,5 +56,6 @@ export const validate =
   };
 
 /** Lee un valor validado con su tipo (el esquema es la fuente de verdad). */
+export const validatedBody = <T>(req: Request): T => req.validated?.body as T;
 export const validatedQuery = <T>(req: Request): T => req.validated?.query as T;
 export const validatedParams = <T>(req: Request): T => req.validated?.params as T;

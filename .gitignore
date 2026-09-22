@@ -69,6 +69,8 @@ web_modules/
 # .env* cubre también nombres como .env_prueba o .env.local (ver spec fase 0, RF-0.2)
 .env*
 !.env.example
+# Excepción: variables de tests, sin secretos reales (spec fase 4)
+!diabetapp-backend/.env.test
 !**/env.example
 
 # parcel-bundler cache (https://parceljs.org/)

@@ -6,12 +6,12 @@ Implementa: [spec.md](spec.md) · Tareas: [tasks.md](tasks.md)
 
 ### D-4.1 Herramientas
 
-| Necesidad | Backend | Frontend |
-|---|---|---|
-| Tests | Jest + `ts-jest` + `supertest` | `jest-expo` + `@testing-library/react-native` |
-| Lint | ESLint 9 (flat config) + `typescript-eslint` (con tipos) | `eslint-config-expo` (ya existe) |
-| Formato | Prettier (config compartida en la raíz) | Prettier |
-| Tipos | `tsc --noEmit` | `tsc --noEmit` |
+| Necesidad | Backend                                                  | Frontend                                      |
+| --------- | -------------------------------------------------------- | --------------------------------------------- |
+| Tests     | Jest + `ts-jest` + `supertest`                           | `jest-expo` + `@testing-library/react-native` |
+| Lint      | ESLint 9 (flat config) + `typescript-eslint` (con tipos) | `eslint-config-expo` (ya existe)              |
+| Formato   | Prettier (config compartida en la raíz)                  | Prettier                                      |
+| Tipos     | `tsc --noEmit`                                           | `tsc --noEmit`                                |
 
 ### D-4.2 Base de datos de pruebas
 
@@ -76,11 +76,16 @@ export default tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   { languageOptions: { parserOptions: { projectService: true } } },
-  { rules: {
+  {
+    rules: {
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { arguments: false } }], // handlers async de Express 5
-  } },
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        { checksVoidReturn: { arguments: false } },
+      ], // handlers async de Express 5
+    },
+  },
   { ignores: ['dist/', 'node_modules/', 'prisma/migrations/'] },
 );
 ```
@@ -127,7 +132,7 @@ on:
   push:
     branches: [Develop, main]
 
-concurrency:                                    # RF-4.14
+concurrency: # RF-4.14
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
@@ -149,7 +154,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version-file: .nvmrc, cache: npm, cache-dependency-path: diabetapp-backend/package-lock.json }
+        with:
+          {
+            node-version-file: .nvmrc,
+            cache: npm,
+            cache-dependency-path: diabetapp-backend/package-lock.json,
+          }
       - run: npm ci
       - run: npx prisma generate
       - run: npm run format:check
@@ -164,11 +174,16 @@ jobs:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: diabetapp-frontend } }
     env:
-      EXPO_PUBLIC_API_URL: http://localhost:3000/api   # solo para que config/env.ts no falle en los tests
+      EXPO_PUBLIC_API_URL: http://localhost:3000/api # solo para que config/env.ts no falle en los tests
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version-file: .nvmrc, cache: npm, cache-dependency-path: diabetapp-frontend/package-lock.json }
+        with:
+          {
+            node-version-file: .nvmrc,
+            cache: npm,
+            cache-dependency-path: diabetapp-frontend/package-lock.json,
+          }
       - run: npm ci
       - run: npm run format:check
       - run: npm run lint
@@ -181,9 +196,10 @@ Los secretos de la CI son valores de prueba escritos en el propio workflow (RNF-
 ### D-4.10 Protección de ramas (manual)
 
 En GitHub → Settings → Branches → reglas para `Develop` y `main`:
-- *Require a pull request before merging* (aprobaciones según la aclaración §8).
-- *Require status checks to pass*: `backend`, `frontend`; *Require branches to be up to date*.
-- *Do not allow bypassing the above settings*.
+
+- _Require a pull request before merging_ (aprobaciones según la aclaración §8).
+- _Require status checks to pass_: `backend`, `frontend`; _Require branches to be up to date_.
+- _Do not allow bypassing the above settings_.
 
 ### D-4.11 Plantilla de PR
 
@@ -191,10 +207,12 @@ En GitHub → Settings → Branches → reglas para `Develop` y `main`:
 
 ```markdown
 ## Spec
+
 - Spec: specs/fase-X-…/spec.md
 - Tareas: T?.?, T?.?
 
 ## Criterios de aceptación verificados
+
 - [ ] CA-?.? …
 
 ## Cómo se probó
@@ -204,27 +222,27 @@ En GitHub → Settings → Branches → reglas para `Develop` y `main`:
 
 ## 2. Scripts resultantes
 
-| Script | Backend | Frontend |
-|---|---|---|
-| `lint` | `eslint .` | `expo lint` |
-| `typecheck` | `tsc --noEmit` | `tsc --noEmit` |
-| `test` | `jest --runInBand` | `jest` |
-| `format` | `prettier --write .` | `prettier --write .` |
+| Script         | Backend              | Frontend             |
+| -------------- | -------------------- | -------------------- |
+| `lint`         | `eslint .`           | `expo lint`          |
+| `typecheck`    | `tsc --noEmit`       | `tsc --noEmit`       |
+| `test`         | `jest --runInBand`   | `jest`               |
+| `format`       | `prettier --write .` | `prettier --write .` |
 | `format:check` | `prettier --check .` | `prettier --check .` |
 
 ## 3. Verificación
 
-| CA | Cómo |
-|---|---|
-| CA-4.1 – CA-4.7 | En local, siguiendo cada caso de la spec. |
+| CA               | Cómo                                                                     |
+| ---------------- | ------------------------------------------------------------------------ |
+| CA-4.1 – CA-4.7  | En local, siguiendo cada caso de la spec.                                |
 | CA-4.8 – CA-4.12 | PR de prueba (rama `ci/prueba`) con cada situación; cerrar sin fusionar. |
-| CA-4.13 | Abrir cualquier PR tras fusionar la plantilla. |
+| CA-4.13          | Abrir cualquier PR tras fusionar la plantilla.                           |
 
 ## 4. Riesgos
 
-| Riesgo | Mitigación |
-|---|---|
-| El primer `format` genera un diff enorme | Commit aislado + `.git-blame-ignore-revs` (D-4.6). |
+| Riesgo                                                  | Mitigación                                                                                                                                            |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| El primer `format` genera un diff enorme                | Commit aislado + `.git-blame-ignore-revs` (D-4.6).                                                                                                    |
 | Lint con tipos marca muchos errores en código existente | Se corrigen en esta fase; si alguno exige un refactor grande, se desactiva esa regla **solo** en ese archivo con un comentario que enlace a un issue. |
-| Tests lentos por la BD real | `TRUNCATE` en lugar de migrar en cada test; `--runInBand`; bcrypt con coste bajo en tests (`BCRYPT_ROUNDS=4` vía `env`). |
-| `jest-expo` desalineado con el SDK de Expo | Instalar con `npx expo install jest-expo` para obtener la versión compatible. |
+| Tests lentos por la BD real                             | `TRUNCATE` en lugar de migrar en cada test; `--runInBand`; bcrypt con coste bajo en tests (`BCRYPT_ROUNDS=4` vía `env`).                              |
+| `jest-expo` desalineado con el SDK de Expo              | Instalar con `npx expo install jest-expo` para obtener la versión compatible.                                                                         |

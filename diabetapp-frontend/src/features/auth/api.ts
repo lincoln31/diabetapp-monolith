@@ -3,8 +3,7 @@ import { AuthResult, RegisterPayload, User } from './types';
 
 /** Todas las llamadas de autenticación (spec fase 3, RF-3.6). */
 export const authApi = {
-  login: (email: string, password: string) =>
-    post<AuthResult>('/auth/login', { email, password }),
+  login: (email: string, password: string) => post<AuthResult>('/auth/login', { email, password }),
 
   register: (payload: RegisterPayload) => post<AuthResult>('/auth/register', payload),
 

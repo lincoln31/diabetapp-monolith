@@ -71,14 +71,14 @@ export class AppError extends Error {
 
 `errorHandler(err, req, res, next)` decide en este orden:
 
-| Tipo de error | Respuesta |
-|---|---|
-| `AppError` | `status` y `code` del catálogo; `message` propio o el por defecto |
-| `ZodError` (por si algún servicio usa `parse`) | 400 `VALIDATION_ERROR` + `fields` |
-| `Prisma.PrismaClientKnownRequestError` `P2002` | 409 `CONFLICT` |
-| `Prisma.PrismaClientKnownRequestError` `P2025` | 404 `NOT_FOUND` |
-| `SyntaxError` de `express.json()` (body mal formado) | 400 `VALIDATION_ERROR` |
-| Cualquier otro | 500 `INTERNAL_ERROR`, mensaje genérico; `console.error(err)` completo |
+| Tipo de error                                        | Respuesta                                                             |
+| ---------------------------------------------------- | --------------------------------------------------------------------- |
+| `AppError`                                           | `status` y `code` del catálogo; `message` propio o el por defecto     |
+| `ZodError` (por si algún servicio usa `parse`)       | 400 `VALIDATION_ERROR` + `fields`                                     |
+| `Prisma.PrismaClientKnownRequestError` `P2002`       | 409 `CONFLICT`                                                        |
+| `Prisma.PrismaClientKnownRequestError` `P2025`       | 404 `NOT_FOUND`                                                       |
+| `SyntaxError` de `express.json()` (body mal formado) | 400 `VALIDATION_ERROR`                                                |
+| Cualquier otro                                       | 500 `INTERNAL_ERROR`, mensaje genérico; `console.error(err)` completo |
 
 **Express 5** propaga solo los errores de las funciones `async` rechazadas al `errorHandler`, así que los controladores **no** necesitan `try/catch` (RNF-1.1).
 
@@ -145,46 +145,46 @@ Se elige `page`/`limit` (offset) en lugar de cursor: el historial se consulta po
 
 ## 2. Cambios en el frontend (RF-1.25, RF-1.26)
 
-| Archivo | Cambio |
-|---|---|
-| `src/api/apiClient.ts` | Añadir el tipo `ApiErrorBody` y un helper `getApiError(error)` que devuelva `{ code, message, fields }` (o un error de red). El interceptor sigue igual en esta fase (la política de alertas cambia en la fase 3). |
-| `src/hooks/useAuth.ts` | Usar `getApiError`: `INVALID_CREDENTIALS` → "Credenciales incorrectas"; `EMAIL_IN_USE` → "Email ya registrado"; `VALIDATION_ERROR` → `fields[0].message`. |
-| `app/modals/add-glucose.tsx` | Igual: `VALIDATION_ERROR` → mensaje del campo; `UNAUTHENTICATED` / `TOKEN_EXPIRED` → "Sesión expirada". |
+| Archivo                      | Cambio                                                                                                                                                                                                             |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/api/apiClient.ts`       | Añadir el tipo `ApiErrorBody` y un helper `getApiError(error)` que devuelva `{ code, message, fields }` (o un error de red). El interceptor sigue igual en esta fase (la política de alertas cambia en la fase 3). |
+| `src/hooks/useAuth.ts`       | Usar `getApiError`: `INVALID_CREDENTIALS` → "Credenciales incorrectas"; `EMAIL_IN_USE` → "Email ya registrado"; `VALIDATION_ERROR` → `fields[0].message`.                                                          |
+| `app/modals/add-glucose.tsx` | Igual: `VALIDATION_ERROR` → mensaje del campo; `UNAUTHENTICATED` / `TOKEN_EXPIRED` → "Sesión expirada".                                                                                                            |
 
 ## 3. Contrato de endpoints tras la fase
 
-| Método y ruta | Auth | Entrada validada | Éxito |
-|---|---|---|---|
-| `GET /api/health` | No | — | 200 `{ status }` |
-| `POST /api/auth/register` | No | body `registerSchema` | 201 `{ user, token, requiresOnboarding }` |
-| `POST /api/auth/login` | No | body `loginSchema` | 200 `{ user, token, requiresOnboarding }` |
-| `GET /api/auth/check-email` | No | query `{ email }` | 200 `{ email, available }` *(se elimina en la fase 2)* |
-| `GET /api/auth/verify-token` | Sí | — | 200 `{ user, tokenInfo }` |
-| `GET /api/glucose` | Sí | query `{ from?, to?, page?, limit? }` | 200 `GlucoseReading[]` + `meta` |
-| `GET /api/glucose/:id` | Sí | params `{ id }` | 200 `GlucoseReading` |
-| `POST /api/glucose` | Sí | body `createGlucoseSchema` | 201 `GlucoseReading` |
-| `PUT /api/glucose/:id` | Sí | params + body `updateGlucoseSchema` (no vacío) | 200 `GlucoseReading` |
-| `DELETE /api/glucose/:id` | Sí | params `{ id }` | 200 `null` |
+| Método y ruta                | Auth | Entrada validada                               | Éxito                                                  |
+| ---------------------------- | ---- | ---------------------------------------------- | ------------------------------------------------------ |
+| `GET /api/health`            | No   | —                                              | 200 `{ status }`                                       |
+| `POST /api/auth/register`    | No   | body `registerSchema`                          | 201 `{ user, token, requiresOnboarding }`              |
+| `POST /api/auth/login`       | No   | body `loginSchema`                             | 200 `{ user, token, requiresOnboarding }`              |
+| `GET /api/auth/check-email`  | No   | query `{ email }`                              | 200 `{ email, available }` _(se elimina en la fase 2)_ |
+| `GET /api/auth/verify-token` | Sí   | —                                              | 200 `{ user, tokenInfo }`                              |
+| `GET /api/glucose`           | Sí   | query `{ from?, to?, page?, limit? }`          | 200 `GlucoseReading[]` + `meta`                        |
+| `GET /api/glucose/:id`       | Sí   | params `{ id }`                                | 200 `GlucoseReading`                                   |
+| `POST /api/glucose`          | Sí   | body `createGlucoseSchema`                     | 201 `GlucoseReading`                                   |
+| `PUT /api/glucose/:id`       | Sí   | params + body `updateGlucoseSchema` (no vacío) | 200 `GlucoseReading`                                   |
+| `DELETE /api/glucose/:id`    | Sí   | params `{ id }`                                | 200 `null`                                             |
 
 ## 4. Verificación
 
 Hasta que exista la suite de la fase 4, se añade `diabetapp-backend/requests.http` (formato REST Client / JetBrains HTTP Client) con una petición por CA para ejecutarlas a mano. Estas mismas peticiones serán la base de los tests de integración de la fase 4.
 
-| CA | Cómo |
-|---|---|
-| CA-1.1 – CA-1.13 | `requests.http` contra la BD local |
+| CA                | Cómo                                                                                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CA-1.1 – CA-1.13  | `requests.http` contra la BD local                                                                                                                                  |
 | CA-1.14 – CA-1.16 | `psql` sobre la BD local tras `prisma migrate dev`; para CA-1.15, cargar antes un volcado con datos de ejemplo (incluido `GESTACIONAL` y un `momentOfDay` inválido) |
-| CA-1.17 | `NODE_ENV=production npm start` y revisar la consola |
-| CA-1.18 | `grep -rn "process.env" src` → solo `config/env.ts` |
-| CA-1.19 | `node -e "require('./dist/app')"` termina sin quedarse escuchando |
-| CA-1.20 | Expo Go contra el backend local |
-| RNF-1.3 | Script `prisma/seed-perf.ts` (solo local) que inserta 10 000 lecturas y mide `GET /api/glucose` |
+| CA-1.17           | `NODE_ENV=production npm start` y revisar la consola                                                                                                                |
+| CA-1.18           | `grep -rn "process.env" src` → solo `config/env.ts`                                                                                                                 |
+| CA-1.19           | `node -e "require('./dist/app')"` termina sin quedarse escuchando                                                                                                   |
+| CA-1.20           | Expo Go contra el backend local                                                                                                                                     |
+| RNF-1.3           | Script `prisma/seed-perf.ts` (solo local) que inserta 10 000 lecturas y mide `GET /api/glucose`                                                                     |
 
 ## 5. Riesgos
 
-| Riesgo | Mitigación |
-|---|---|
-| Cambio de formato rompe la app | RF-1.25 se implementa en el mismo PR; se prueba CA-1.20 antes de fusionar. |
-| La migración de enums pierde datos | Migración editada a mano (D-1.6) y probada con un volcado (CA-1.15) antes de aplicarla en cualquier BD compartida. |
-| Refactor grande sin tests | PR dividido en commits por bloque de tareas; `requests.http` como red de seguridad; la fase 4 (backend) empieza justo después. |
-| `z.enum` con enums de Prisma | Zod 4 acepta enums nativos de TypeScript en `z.enum(...)`; si diera problemas, usar `z.nativeEnum` o `Object.values(MomentOfDay)`. |
+| Riesgo                             | Mitigación                                                                                                                         |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Cambio de formato rompe la app     | RF-1.25 se implementa en el mismo PR; se prueba CA-1.20 antes de fusionar.                                                         |
+| La migración de enums pierde datos | Migración editada a mano (D-1.6) y probada con un volcado (CA-1.15) antes de aplicarla en cualquier BD compartida.                 |
+| Refactor grande sin tests          | PR dividido en commits por bloque de tareas; `requests.http` como red de seguridad; la fase 4 (backend) empieza justo después.     |
+| `z.enum` con enums de Prisma       | Zod 4 acepta enums nativos de TypeScript en `z.enum(...)`; si diera problemas, usar `z.nativeEnum` o `Object.values(MomentOfDay)`. |

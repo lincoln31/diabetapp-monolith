@@ -64,7 +64,12 @@ http.interceptors.response.use(
     const config = error.config as (AxiosRequestConfig & { _retry?: boolean }) | undefined;
     const apiError = toApiError(error);
 
-    if (apiError.code === 'TOKEN_EXPIRED' && config && !config._retry && !isAuthEndpoint(config.url)) {
+    if (
+      apiError.code === 'TOKEN_EXPIRED' &&
+      config &&
+      !config._retry &&
+      !isAuthEndpoint(config.url)
+    ) {
       config._retry = true;
 
       try {

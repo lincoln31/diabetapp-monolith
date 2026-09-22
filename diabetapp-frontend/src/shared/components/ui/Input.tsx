@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  TextInputProps
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, TextInputProps } from 'react-native';
 import Icon, { AppIconName } from './Icon';
 import { COLORS } from '../../theme/colors';
 
@@ -43,20 +36,18 @@ const Input: React.FC<InputProps> = ({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <View style={[
-        styles.inputWrapper, 
-        isFocused && styles.inputFocused,
-        error && styles.inputError
-      ]}>
+      <View
+        style={[styles.inputWrapper, isFocused && styles.inputFocused, error && styles.inputError]}
+      >
         {icon && (
-          <Icon 
-            name={icon} 
-            size={18} 
+          <Icon
+            name={icon}
+            size={18}
             color={isFocused ? COLORS.primary : COLORS.gray[400]}
             style={styles.leftIcon}
           />
         )}
-        
+
         <TextInput
           style={[styles.textInput, style]}
           placeholderTextColor={COLORS.gray[400]}
@@ -64,25 +55,19 @@ const Input: React.FC<InputProps> = ({
           onBlur={handleBlur}
           {...props}
         />
-        
+
         {rightIcon && (
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={onRightIconPress}
             style={styles.rightIcon}
             disabled={!onRightIconPress}
           >
-            <Icon 
-              name={rightIcon} 
-              size={18} 
-              color={COLORS.gray[400]}
-            />
+            <Icon name={rightIcon} size={18} color={COLORS.gray[400]} />
           </TouchableOpacity>
         )}
       </View>
-      
-      {error && (
-        <Text style={styles.errorText}>{error}</Text>
-      )}
+
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 };

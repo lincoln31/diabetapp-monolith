@@ -146,11 +146,7 @@ const AddGlucoseScreen = () => {
                 render={({ field: { onChange, value } }) => (
                   <Picker selectedValue={value} onValueChange={onChange} style={styles.picker}>
                     {MOMENT_OF_DAY_OPTIONS.map((option) => (
-                      <Picker.Item
-                        key={option.value}
-                        label={option.label}
-                        value={option.value}
-                      />
+                      <Picker.Item key={option.value} label={option.label} value={option.value} />
                     ))}
                   </Picker>
                 )}
