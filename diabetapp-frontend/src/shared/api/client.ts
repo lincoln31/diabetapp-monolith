@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+import { create as createAxios, AxiosError, AxiosRequestConfig } from 'axios';
 import { env } from '../config/env';
 import { notifySessionExpired } from '../session/sessionEvents';
 import { clearTokens, getTokens, setTokens } from '../session/tokenStorage';
@@ -9,7 +9,7 @@ import { ApiSuccess, Paginated } from './types';
  * Cliente HTTP. No muestra alertas (spec fase 3, RF-3.9): cada pantalla decide
  * qué mostrar a partir del `ApiError` que recibe.
  */
-const http = axios.create({
+const http = createAxios({
   baseURL: env.API_URL,
   timeout: env.API_TIMEOUT_MS,
   headers: {
@@ -19,7 +19,7 @@ const http = axios.create({
 });
 
 /** Instancia sin interceptores: renovar no debe disparar otra renovación. */
-const plain = axios.create({ baseURL: env.API_URL, timeout: env.API_TIMEOUT_MS });
+const plain = createAxios({ baseURL: env.API_URL, timeout: env.API_TIMEOUT_MS });
 
 http.interceptors.request.use(async (config) => {
   const tokens = await getTokens();

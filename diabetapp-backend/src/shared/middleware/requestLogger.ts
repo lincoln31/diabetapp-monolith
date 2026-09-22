@@ -8,7 +8,10 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
   const startedAt = Date.now();
 
   res.on('finish', () => {
-    console.log(`${req.method} ${req.path} → ${res.statusCode} (${Date.now() - startedAt}ms)`);
+    // originalUrl es la ruta completa (req.path solo trae la parte relativa al router);
+    // se descarta el query string porque puede llevar datos del usuario
+    const path = req.originalUrl.split('?')[0];
+    console.log(`${req.method} ${path} → ${res.statusCode} (${Date.now() - startedAt}ms)`);
   });
 
   next();

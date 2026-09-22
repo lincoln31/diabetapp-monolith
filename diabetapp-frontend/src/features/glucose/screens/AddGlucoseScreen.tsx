@@ -11,7 +11,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Card, FormError, Input } from '@/src/shared/components/ui';
 import { toApiError } from '@/src/shared/api/errors';
@@ -41,7 +41,6 @@ const AddGlucoseScreen = () => {
     handleSubmit,
     setError,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<CreateGlucoseFormValues>({
     resolver: zodResolver(createGlucoseFormSchema),
@@ -55,8 +54,8 @@ const AddGlucoseScreen = () => {
     reValidateMode: 'onChange',
   });
 
-  const timestamp = watch('timestamp');
-  const notes = watch('notes');
+  const timestamp = useWatch({ control, name: 'timestamp' });
+  const notes = useWatch({ control, name: 'notes' });
 
   // El selector de fecha solo cambia el día; el de hora, la hora
   const onDateChange = (_event: unknown, selectedDate?: Date) => {
