@@ -13,7 +13,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { Card, Input, Button, Icon } from '../../src/components/ui';
 import apiClient from '../../src/api/apiClient';
-import { COLORS } from '../../src/constants/config';
+import { API_CONFIG, COLORS } from '../../src/constants/config';
 import { validateRequired } from '../../src/utils/validation';
 
 const AddGlucoseScreen = () => {
@@ -21,7 +21,7 @@ const AddGlucoseScreen = () => {
 
   // Estados del formulario
   const [glucoseValue, setGlucoseValue] = useState('');
-  const [momentOfDay, setMomentOfDay] = useState('ayunas');
+  const [momentOfDay, setMomentOfDay] = useState('BEFORE_BREAKFAST');
   const [notes, setNotes] = useState('');
   const [timestamp, setTimestamp] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
@@ -30,21 +30,23 @@ const AddGlucoseScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  // Opciones para momento del día
+  // Opciones para momento del día (los valores deben coincidir con el enum del backend)
   const momentOptions = [
-    { label: 'En ayunas', value: 'ayunas' },
-    { label: 'Después del desayuno', value: 'desayuno' },
-    { label: 'Después del almuerzo', value: 'almuerzo' },
-    { label: 'Después de la cena', value: 'cena' },
-    { label: 'Antes de dormir', value: 'nocturna' },
-    { label: 'Otro momento', value: 'otro' },
+    { label: 'En ayunas', value: 'BEFORE_BREAKFAST' },
+    { label: 'Después del desayuno', value: 'AFTER_BREAKFAST' },
+    { label: 'Antes del almuerzo', value: 'BEFORE_LUNCH' },
+    { label: 'Después del almuerzo', value: 'AFTER_LUNCH' },
+    { label: 'Antes de la cena', value: 'BEFORE_DINNER' },
+    { label: 'Después de la cena', value: 'AFTER_DINNER' },
+    { label: 'Antes de dormir', value: 'BEFORE_SLEEP' },
+    { label: 'Otro momento', value: 'OTHER' },
   ];
 
   // Validar el valor de glucosa
   const validateGlucoseValue = (value: string): string | null => {
-    const numValue = parseFloat(value);
-    if (isNaN(numValue)) {
-      return 'El valor debe ser un número válido';
+    const numValue = Number(value);
+    if (!Number.isInteger(numValue)) {
+      return 'El valor debe ser un número entero';
     }
     if (numValue < 20 || numValue > 600) {
       return 'El valor debe estar entre 20 y 600 mg/dL';
@@ -91,13 +93,13 @@ const AddGlucoseScreen = () => {
     try {
       // Preparar el objeto de datos
       const payload = {
-        value: parseFloat(glucoseValue),
+        value: Number(glucoseValue),
         momentOfDay,
-        notes: notes.trim(),
+        notes: notes.trim() || undefined,
         timestamp: timestamp.toISOString(),
       };
       // Llamada a la API del backend (el token se agrega automáticamente)
-      const response = await apiClient.post('/glucose/add', payload);
+      const response = await apiClient.post(API_CONFIG.endpoints.glucose.add, payload);
       if (response.status === 201 || response.status === 200) {
         Alert.alert(
           '¡Éxito!',

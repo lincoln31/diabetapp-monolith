@@ -1,8 +1,19 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiClient from '../api/apiClient';
-import { API_CONFIG } from '../constants/config';
-import { validateEmail, validatePassword } from '../utils/validation';
+import { API_CONFIG, TOKEN_STORAGE_KEY } from '../constants/config';
+import {
+  validateEmail,
+  validatePassword,
+  validateNewPassword,
+  validatePasswordConfirmation,
+  validateRequired,
+  validatePhone,
+  validateDateOfBirth,
+  dateOfBirthToISO,
+  ValidationResult,
+} from '../utils/validation';
 
 interface LoginData {
   email: string;
@@ -51,6 +62,9 @@ export const useAuth = () => {
 
       const { user, token } = response.data.data;
 
+      // Guardar el token para que apiClient lo envíe en las siguientes peticiones
+      await AsyncStorage.setItem(TOKEN_STORAGE_KEY, token);
+
       Alert.alert(
         '¡Bienvenido! 🎉',
         `Hola ${user.firstName || user.email}, estamos listos para ayudarte a cuidar tu salud.`,
@@ -80,21 +94,43 @@ export const useAuth = () => {
   };
 
   const register = async (data: RegisterData): Promise<AuthResponse | null> => {
+    const phone = data.phone.replace(/\s/g, '');
+
+    // Validaciones (se muestra el primer error encontrado)
+    const validations: ValidationResult[] = [
+      validateRequired(data.firstName, 'El nombre'),
+      validateRequired(data.lastName, 'El apellido'),
+      validateEmail(data.email),
+      phone ? validatePhone(phone) : { isValid: true }, // El teléfono es opcional
+      validateDateOfBirth(data.dateOfBirth.trim()),
+      validateNewPassword(data.password.trim()),
+      validatePasswordConfirmation(data.password.trim(), data.confirmPassword.trim()),
+    ];
+    const firstError = validations.find(v => !v.isValid);
+    if (firstError) {
+      Alert.alert('Error', firstError.message);
+      return null;
+    }
+
     setIsLoading(true);
 
     try {
+      // Nombres de campos y formatos que espera el backend (registerSchema)
       const registrationData = {
         firstName: data.firstName.trim(),
         lastName: data.lastName.trim(),
         email: data.email.trim().toLowerCase(),
-        phone: data.phone.trim(),
-        dateOfBirth: data.dateOfBirth.trim(),
+        phone: phone || undefined,
+        birthDate: dateOfBirthToISO(data.dateOfBirth.trim()),
         password: data.password.trim(),
       };
 
       const response = await apiClient.post(API_CONFIG.endpoints.auth.register, registrationData);
 
       const { user, token } = response.data.data;
+
+      // El backend inicia sesión al registrar: guardar el token como en el login
+      await AsyncStorage.setItem(TOKEN_STORAGE_KEY, token);
 
       Alert.alert(
         '¡Registro exitoso! 🎉',
@@ -120,7 +156,11 @@ export const useAuth = () => {
           'Ya existe una cuenta con este correo electrónico. Intenta iniciar sesión.'
         );
       } else if (error.response?.status === 400) {
-        const message = error.response.data?.message || 'Datos inválidos. Revisa la información ingresada.';
+        // Mostrar el primer error de campo que devuelve Zod, si existe
+        const message =
+          error.response.data?.errors?.[0]?.message ||
+          error.response.data?.message ||
+          'Datos inválidos. Revisa la información ingresada.';
         Alert.alert('Error en los datos', message);
       } else {
         Alert.alert(
@@ -137,7 +177,8 @@ export const useAuth = () => {
 
   const logout = async (): Promise<void> => {
     try {
-      await apiClient.post(API_CONFIG.endpoints.auth.logout);
+      // El backend aún no expone /auth/logout (JWT sin estado): basta con borrar el token local
+      await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
       console.log('Sesión cerrada exitosamente');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);

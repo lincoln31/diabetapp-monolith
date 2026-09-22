@@ -1,7 +1,20 @@
 import { Request, Response } from 'express';
+import { ZodError } from 'zod';
 import { GlucoseService } from '../services/glucoseService';
+import { createGlucoseSchema, updateGlucoseSchema } from '../validation/glucoseValidation';
 
 const glucoseService = new GlucoseService();
+
+const validationErrorResponse = (res: Response, error: ZodError) =>
+  res.status(400).json({
+    success: false,
+    error: 'VALIDATION_ERROR',
+    message: 'Datos de entrada inválidos',
+    errors: error.issues.map(err => ({
+      field: err.path.join('.'),
+      message: err.message
+    }))
+  });
 
 // Controlador para obtener todas las lecturas de glucosa del usuario autenticado
 export const getAllGlucoseReadings = async (req: Request, res: Response) => {
@@ -59,9 +72,13 @@ export const getGlucoseReadingById = async (req: Request, res: Response) => {
 export const createGlucoseReading = async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
-    const readingData = { ...req.body, userId };
-    
-    const newReading = await glucoseService.createGlucoseReading(readingData);
+
+    const validationResult = createGlucoseSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return validationErrorResponse(res, validationResult.error);
+    }
+
+    const newReading = await glucoseService.createGlucoseReading({ ...validationResult.data, userId });
     
     res.status(201).json({
       success: true,
@@ -92,9 +109,13 @@ export const updateGlucoseReading = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user!.id;
-    const updateData = req.body;
-    
-    const updatedReading = await glucoseService.updateGlucoseReading(id, userId, updateData);
+
+    const validationResult = updateGlucoseSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return validationErrorResponse(res, validationResult.error);
+    }
+
+    const updatedReading = await glucoseService.updateGlucoseReading(id, userId, validationResult.data);
     
     if (!updatedReading) {
       return res.status(404).json({

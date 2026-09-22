@@ -23,6 +23,7 @@ model User {
   password        String
   firstName       String?   
   lastName        String?
+  phone           String?   // Teléfono de contacto (opcional)
   
   // Perfil específico de diabetes (según RF001)
   typeOfDiabetes  String?   // "TYPE_1" | "TYPE_2" | "GESTACIONAL" | "PREDIABETES"
@@ -81,7 +82,7 @@ model GlucoseReading {
 
   // Contexto del registro (según RF002)
   timestamp DateTime  // Fecha y hora exactas del registro, enviadas desde el móvil
-  momentOfDay String    // "AYUNAS", "ANTES_COMIDA", "DESPUES_COMIDA", "NOCTURNA"
+  momentOfDay String    // "BEFORE_BREAKFAST" | "AFTER_BREAKFAST" | "BEFORE_LUNCH" | "AFTER_LUNCH" | "BEFORE_DINNER" | "AFTER_DINNER" | "BEFORE_SLEEP" | "OTHER"
   notes     String?   // Notas opcionales del usuario, ej: "Comí pizza"
 
   // Relación con el usuario (¡LA PARTE MÁS IMPORTANTE!)

@@ -3,7 +3,7 @@
 import axios, { AxiosError } from 'axios';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_CONFIG } from '../constants/config';
+import { API_CONFIG, TOKEN_STORAGE_KEY } from '../constants/config';
 
 // Creamos la instancia de Axios con la configuración centralizada
 const apiClient = axios.create({
@@ -19,7 +19,7 @@ apiClient.interceptors.request.use(
   async (config) => {
     try {
       // Obtener el token del almacenamiento local
-      const token = await AsyncStorage.getItem('userToken');
+      const token = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }

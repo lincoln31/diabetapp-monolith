@@ -17,25 +17,28 @@ export const API_CONFIG = {
       update: '/user/update',
     },
     glucose: {
-      readings: '/glucose/readings',
-      add: '/glucose/add',
+      readings: '/glucose',
+      add: '/glucose',
     }
   }
 };
+
+// Clave de AsyncStorage donde se guarda el JWT de la sesión
+export const TOKEN_STORAGE_KEY = 'userToken';
 
 // Configuración de la aplicación
 export const APP_CONFIG = {
   name: 'DiabetApp',
   version: '1.0.0',
   description: 'Tu compañero para una mejor hemoglobina',
-  minPasswordLength: 6,
+  minPasswordLength: 8,
   minAge: 13,
 };
 
 // Configuración de validación
 export const VALIDATION_CONFIG = {
   email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  phone: /^[0-9+\-\s()]{10,}$/,
+  phone: /^[0-9+\-\s()]{10,20}$/,
   date: /^(\d{2})\/(\d{2})\/(\d{4})$/,
 };
 

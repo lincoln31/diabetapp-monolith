@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { 
   View, 
   Text, 
@@ -39,6 +39,7 @@ const RegisterScreen = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   
   const { register, isLoading } = useAuth();
+  const router = useRouter();
 
   // Función para actualizar los campos del formulario
   const updateField = (field: keyof typeof formData, value: string) => {
@@ -56,9 +57,9 @@ const RegisterScreen = () => {
 
     const result = await register(formData);
     if (result) {
-      // Aquí navegarías a la pantalla principal o tutorial
-      // navigation.navigate('Home') o navigation.navigate('Onboarding')
-      console.log('Registro exitoso, navegando...');
+      // El usuario ya queda con sesión iniciada: ir a la pantalla principal
+      // (replace para que "atrás" no regrese al formulario de registro)
+      router.replace('/home');
     }
   };
 
@@ -124,7 +125,7 @@ const RegisterScreen = () => {
           {/* Teléfono */}
           <Input
             icon="phone"
-            placeholder="Teléfono"
+            placeholder="Teléfono (opcional)"
             value={formData.phone}
             onChangeText={(text) => updateField('phone', text)}
             keyboardType="phone-pad"
@@ -143,7 +144,7 @@ const RegisterScreen = () => {
           {/* Contraseña */}
           <Input
             icon="lock"
-            placeholder="Contraseña (mínimo 6 caracteres)"
+            placeholder="Contraseña (8+ caracteres, mayúscula, minúscula y número)"
             value={formData.password}
             onChangeText={(text) => updateField('password', text)}
             secureTextEntry={!showPassword}

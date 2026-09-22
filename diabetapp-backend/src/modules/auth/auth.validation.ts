@@ -21,6 +21,11 @@ export const registerSchema = z.object({
       .string()
       .min(2, 'Apellido debe tener mínimo 2 caracteres')
       .optional(),
+
+    phone: z
+      .string()
+      .regex(/^[0-9+\-\s()]{10,20}$/, 'Teléfono debe tener un formato válido')
+      .optional(),
     
     typeOfDiabetes: z
       .enum(['TYPE_1', 'TYPE_2', 'GESTACIONAL', 'PREDIABETES'])
