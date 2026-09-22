@@ -4,12 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Visión general
 
-DiabetApp es una app móvil para el seguimiento de la diabetes (lecturas de glucosa, perfil médico, metas). Monorepo con dos proyectos independientes, cada uno con su propio `package.json` y `node_modules` (el `package.json` de la raíz es residual; no hay workspaces):
+DiabetApp es una app móvil para el seguimiento de la diabetes (lecturas de glucosa, perfil médico, metas). Monorepo con dos proyectos independientes, cada uno con su propio `package.json` y `node_modules` (no hay workspaces):
 
 - `diabetapp-backend/` — API REST: Express 5 + TypeScript (CommonJS) + Prisma + PostgreSQL, validación con Zod 4, JWT + bcrypt.
 - `diabetapp-frontend/` — App Expo (SDK 53, React Native 0.79, React 19) con Expo Router, Axios y AsyncStorage.
 
 El código, los comentarios y los mensajes al usuario están en español.
+
+## Proceso de trabajo
+
+El plan de mejora se sigue con especificaciones (SDD) en `specs/`: `specs/README.md` explica el flujo (spec → plan → tareas → implementación → verificación) y `specs/constitucion.md` los principios obligatorios. Antes de cambiar arquitectura, contrato de API o estructura de carpetas, consulta la spec de la fase correspondiente; si el cambio no está previsto, actualiza primero la spec.
 
 ## Comandos
 
@@ -25,7 +29,7 @@ npx prisma generate         # regenerar el cliente
 npx prisma studio
 ```
 
-Requiere `.env` (ignorado por git) con `DATABASE_URL` (p. ej. `postgresql://user:password@localhost:5433/diabetapp_dev`) y `JWT_SECRET`.
+Requiere `.env` (ignorado por git; parte de `env.example`) con `DATABASE_URL` (p. ej. `postgresql://user:password@localhost:5433/diabetapp_dev`) y `JWT_SECRET`.
 
 No hay framework de tests configurado (`npm test` solo falla).
 
@@ -46,7 +50,7 @@ No hay tests en el frontend.
 - Módulos por dominio en `src/modules/<dominio>/` con la separación: `*.routes.ts` → `*.controller.ts` → `*.service.ts` (clase con acceso a Prisma), más `*.validation.ts` (esquemas Zod) y `*.types.ts`. Existen `auth` (`register`, `login`, `check-email`, `verify-token`) y `glucose` (CRUD en `/api/glucose`; este módulo usa subcarpetas `controllers/`, `routes/`, `services/`, `validation/`).
 - Convención de errores: el servicio lanza `new Error('CODIGO_EN_MAYUSCULAS')` (p. ej. `USER_ALREADY_EXISTS`, `INVALID_CREDENTIALS`, `DATABASE_ERROR`) y el controlador hace `switch (error.message)` para mapearlo a status HTTP. Las respuestas siguen el formato `{ success, message, data? | code? | errors? }`; los errores de Zod se devuelven como `errors: [{ field, message }]`.
 - `src/config/db.ts` exporta un `PrismaClient` singleton (cacheado en `global` fuera de producción).
-- Modelos Prisma (`prisma/schema.prisma`): `User` (tabla `users`, id `cuid`, muchos campos opcionales de perfil/metas; los "enums" como `typeOfDiabetes` son `String`) y `GlucoseReading` (tabla `glucose_readings`, relación con `User` con `onDelete: Cascade`). `diabetapp-backend/migration.sql` es un script suelto, no parte de las migraciones de Prisma.
+- Modelos Prisma (`prisma/schema.prisma`): `User` (tabla `users`, id `cuid`, muchos campos opcionales de perfil/metas; los "enums" como `typeOfDiabetes` son `String`) y `GlucoseReading` (tabla `glucose_readings`, relación con `User` con `onDelete: Cascade`).
 - `src/config/env.ts` valida las variables de entorno con Zod al arrancar (`JWT_SECRET` de 32+ caracteres; si falta algo el proceso termina). `npm run generate-secret` genera uno.
 - Rutas protegidas: `authenticateToken` (`src/middleware/auth.middleware.ts`) verifica el JWT y deja `req.user.id` (tipado en `src/types/express.d.ts`).
 - `momentOfDay` de las lecturas es un enum validado en `glucoseValidation.ts` (`BEFORE_BREAKFAST`, `AFTER_LUNCH`, …); el frontend debe enviar esos mismos valores. `value` es entero (20–600 mg/dL).
@@ -59,7 +63,7 @@ No hay tests en el frontend.
   - `src/api/apiClient.ts` — instancia Axios que inyecta `Authorization: Bearer <token>` desde AsyncStorage (clave `TOKEN_STORAGE_KEY`, que `useAuth` guarda al hacer login y borra en logout) y muestra `Alert` globales para errores de red/500; deja pasar 401 y 409 para que la pantalla los maneje.
   - `src/hooks/useAuth.ts` — login/registro/logout con validación y alertas.
   - `src/components/ui/` — componentes base (`Button`, `Input`, `Card`, `Header`, `Icon`, `Checkbox`) exportados desde `index.ts`. Usar estos y `COLORS` en vez de estilos ad hoc.
-- `src/app.tsx` y `src/screens/LoginScreen.tsx` son restos anteriores a Expo Router; no están enrutados. Las carpetas raíz `components/`, `hooks/`, `constants/` son del template de Expo (tema claro/oscuro) y la app actual usa principalmente `src/`.
+- Las carpetas raíz `components/`, `hooks/`, `constants/` son del template de Expo (tema claro/oscuro) y la app actual usa principalmente `src/`.
 - Las rutas se importan con paths relativos (`../src/...`); existe el alias `@/*` → raíz del frontend.
 
 ## Contrato frontend ↔ backend

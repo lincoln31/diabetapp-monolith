@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  TextInputProps 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  TextInputProps
 } from 'react-native';
 import Icon from './Icon';
 import { COLORS } from '../../constants/config';

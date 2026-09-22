@@ -4,7 +4,6 @@ import prisma from '../../config/db';
 import { RegisterUserInput , LoginUserInput, AuthResponse } from './auth.types';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
-import { string } from 'zod';
 
 
 // Genera el JWT de sesión (usado en login y en registro)
@@ -102,24 +101,31 @@ export class AuthService {
             typeOfDiabetes: true,
             onboardingCompleted: true,
             password: true, // Necesario para comparar contraseñas
+            isActive: true, // Un usuario desactivado no puede iniciar sesión
             createdAt: true
           }
         });
-  
+
         if (!user) {
           throw new Error('USER_NOT_FOUND');
         }
-  
+
         // 2. Verificar contraseña
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordValid) {
           throw new Error('INVALID_PASSWORD');
         }
-  
-        // 3. Generar token JWT
+
+        // 3. Rechazar usuarios desactivados con la misma respuesta que unas credenciales
+        // incorrectas, para no revelar que la cuenta existe
+        if (!user.isActive) {
+          throw new Error('USER_NOT_FOUND');
+        }
+
+        // 4. Generar token JWT
         const token = signToken(user.id, user.email);
   
-        // 4. Preparar respuesta
+        // 5. Preparar respuesta
         const authResponse: AuthResponse = {
           user: {
             id: user.id,
