@@ -42,9 +42,9 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-6-reportes-hba1c`
 
 ## Bloque E — Verificación y cierre
 
-- [ ] **T6.22** ⏳ (requiere dispositivo) Recorrido en dispositivo: cuenta con datos suficientes (CA-6.7), cuenta con datos insuficientes (CA-6.8), exportar CSV y PDF (CA-6.9), backend apagado al exportar (CA-6.10).
+- [x] **T6.22** Recorrido en dispositivo (moto g34 5G, Android 15): cuenta con datos suficientes (CA-6.7), cuenta con datos insuficientes (CA-6.8), exportar CSV y PDF (CA-6.9), backend apagado al exportar (CA-6.10). Encontrado y corregido en el camino: el deslizar-para-refrescar del dashboard no refrescaba la tarjeta de HbA1c (`useHba1cProjection` no exponía `refresh`).
 - [x] **T6.23** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
-- [~] **T6.24** (parcial: falta el recorrido en dispositivo) Marcar CA-6.1 … CA-6.10 en el PR; cerrar #46, #47, #49 y #50; actualizar `CLAUDE.md` y el estado en `specs/README.md`.
+- [x] **T6.24** Marcar CA-6.1 … CA-6.10 en el PR; cerrar #46, #47, #49 y #50; actualizar `CLAUDE.md` y el estado en `specs/README.md`.
 
 ## Trazabilidad
 
