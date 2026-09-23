@@ -2,7 +2,8 @@ import { Prisma } from '@prisma/client';
 import prisma from '../../config/db';
 import { AppError } from '../../shared/errors/AppError';
 import { PaginationMeta } from '../../shared/http/respond';
-import { CreateGlucoseInput, ListGlucoseQuery, UpdateGlucoseInput } from './glucose.schemas';
+import { CreateGlucoseInput, GlucoseStats, ListGlucoseQuery, UpdateGlucoseInput } from './glucose.schemas';
+import { summarize } from './glucose.stats';
 
 /** Campos que la API devuelve de una lectura. */
 const readingFields = {
@@ -89,5 +90,35 @@ export class GlucoseService {
     if (count === 0) {
       throw new AppError('NOT_FOUND', 'Lectura de glucosa no encontrada');
     }
+  }
+
+  /**
+   * Promedios de 7/14/30 días para el dashboard (spec fase 5, RF-5.1 – RF-5.6).
+   * Una sola consulta trae los 30 días y cada ventana se calcula en memoria (D-5.2).
+   */
+  async getStats(userId: string): Promise<GlucoseStats> {
+    const now = new Date();
+    const windowStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const [readings, user] = await prisma.$transaction([
+      prisma.glucoseReading.findMany({
+        where: { userId, timestamp: { gte: windowStart, lte: now } },
+        orderBy: { timestamp: 'asc' },
+        select: { value: true, timestamp: true },
+      }),
+      prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: { targetGlucoseMin: true, targetGlucoseMax: true },
+      }),
+    ]);
+
+    return {
+      target: { min: user.targetGlucoseMin, max: user.targetGlucoseMax },
+      periods: {
+        '7': summarize(readings, 7, now),
+        '14': summarize(readings, 14, now),
+        '30': summarize(readings, 30, now),
+      },
+    };
   }
 }

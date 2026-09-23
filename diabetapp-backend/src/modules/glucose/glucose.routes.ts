@@ -5,6 +5,7 @@ import {
   createGlucoseReading,
   deleteGlucoseReading,
   getGlucoseReading,
+  getGlucoseStats,
   listGlucoseReadings,
   updateGlucoseReading,
 } from './glucose.controller';
@@ -21,6 +22,8 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/', validate({ query: listGlucoseQuerySchema }), listGlucoseReadings);
+// Antes de "/:id" (spec fase 5, D-5.4): si no, Express trata "stats" como un id.
+router.get('/stats', getGlucoseStats);
 router.get('/:id', validate({ params: glucoseIdParamsSchema }), getGlucoseReading);
 router.post('/', validate({ body: createGlucoseSchema }), createGlucoseReading);
 router.put(
