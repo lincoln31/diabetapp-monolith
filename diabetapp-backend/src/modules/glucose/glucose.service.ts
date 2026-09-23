@@ -2,7 +2,14 @@ import { Prisma } from '@prisma/client';
 import prisma from '../../config/db';
 import { AppError } from '../../shared/errors/AppError';
 import { PaginationMeta } from '../../shared/http/respond';
-import { CreateGlucoseInput, GlucoseStats, ListGlucoseQuery, UpdateGlucoseInput } from './glucose.schemas';
+import {
+  CreateGlucoseInput,
+  GlucoseStats,
+  Hba1cProjection,
+  ListGlucoseQuery,
+  UpdateGlucoseInput,
+} from './glucose.schemas';
+import { projectHba1c } from './glucose.hba1c';
 import { summarize } from './glucose.stats';
 
 /** Campos que la API devuelve de una lectura. */
@@ -120,5 +127,46 @@ export class GlucoseService {
         '30': summarize(readings, 30, now),
       },
     };
+  }
+
+  /**
+   * Proyección de HbA1c sobre el promedio de 90 días (spec fase 6, RF-6.1 – RF-6.3).
+   * Una sola consulta trae los 90 días y la fórmula ADAG se aplica en memoria (D-6.3).
+   */
+  async getHba1cProjection(userId: string): Promise<Hba1cProjection> {
+    const since90 = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+
+    const [readings, user] = await prisma.$transaction([
+      prisma.glucoseReading.findMany({
+        where: { userId, timestamp: { gte: since90 } },
+        select: { value: true },
+      }),
+      prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: { targetHba1c: true },
+      }),
+    ]);
+
+    return {
+      ...projectHba1c(readings.map((r) => r.value)),
+      targetHba1c: user.targetHba1c,
+    };
+  }
+
+  /** Historial completo para exportar (spec fase 6, RF-6.5 – RF-6.8): sin paginar. */
+  async getAllForExport(userId: string) {
+    const [readings, user] = await prisma.$transaction([
+      prisma.glucoseReading.findMany({
+        where: { userId },
+        orderBy: { timestamp: 'asc' },
+        select: { value: true, timestamp: true, momentOfDay: true, notes: true },
+      }),
+      prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: { firstName: true, lastName: true },
+      }),
+    ]);
+
+    return { readings, patientName: [user.firstName, user.lastName].filter(Boolean).join(' ') };
   }
 }

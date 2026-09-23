@@ -192,3 +192,118 @@ describe('/api/glucose/stats', () => {
     expect(response.body.data.periods['7'].average).toBe(100);
   });
 });
+
+describe('/api/glucose/hba1c', () => {
+  it('exige sesión', async () => {
+    const response = await api().get('/api/glucose/hba1c');
+
+    expect(response.status).toBe(401);
+  });
+
+  it('devuelve datos insuficientes con menos de 10 lecturas', async () => {
+    const { accessToken, user } = await registerUser();
+
+    await createReading(user.id, { value: 120, timestamp: new Date() });
+
+    const response = await api().get('/api/glucose/hba1c').set(authHeader(accessToken));
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toEqual({
+      average90: null,
+      sampleCount: 1,
+      sufficientData: false,
+      projectedHba1c: null,
+      targetHba1c: null,
+    });
+  });
+
+  it('proyecta HbA1c con al menos 10 lecturas en 90 días y no mezcla lecturas de otro usuario', async () => {
+    const { accessToken, user } = await registerUser();
+    const otro = await registerUser();
+
+    const ahora = Date.now();
+    const haceDias = (dias: number) => new Date(ahora - dias * 24 * 60 * 60 * 1000);
+
+    for (let i = 0; i < 10; i++) {
+      await createReading(user.id, { value: 120, timestamp: haceDias(i * 5) });
+    }
+    await createReading(user.id, { value: 999, timestamp: haceDias(200) }); // fuera de la ventana de 90
+    await createReading(otro.user.id, { value: 300, timestamp: haceDias(1) });
+
+    const response = await api().get('/api/glucose/hba1c').set(authHeader(accessToken));
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.sampleCount).toBe(10);
+    expect(response.body.data.sufficientData).toBe(true);
+    expect(response.body.data.average90).toBe(120);
+    expect(response.body.data.projectedHba1c).toBe(5.8);
+  });
+});
+
+describe('/api/glucose/export', () => {
+  it('exige sesión en ambos formatos', async () => {
+    const csv = await api().get('/api/glucose/export/csv');
+    const pdf = await api().get('/api/glucose/export/pdf');
+
+    expect(csv.status).toBe(401);
+    expect(pdf.status).toBe(401);
+  });
+
+  it('devuelve un CSV con una fila por lectura', async () => {
+    const { accessToken, user } = await registerUser();
+    await createReading(user.id, { value: 110, timestamp: new Date('2026-09-19T10:00:00.000Z') });
+
+    const response = await api().get('/api/glucose/export/csv').set(authHeader(accessToken));
+
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toContain('text/csv');
+    const lines = response.text.trim().split('\r\n');
+    expect(lines).toHaveLength(2);
+    expect(lines[1]).toContain('110');
+  });
+
+  it('devuelve un CSV solo con encabezados sin lecturas', async () => {
+    const { accessToken } = await registerUser();
+
+    const response = await api().get('/api/glucose/export/csv').set(authHeader(accessToken));
+
+    expect(response.status).toBe(200);
+    expect(response.text.trim().split('\r\n')).toHaveLength(1);
+  });
+
+  it('devuelve un PDF válido con lecturas', async () => {
+    const { accessToken, user } = await registerUser();
+    await createReading(user.id);
+
+    const response = await api()
+      .get('/api/glucose/export/pdf')
+      .set(authHeader(accessToken))
+      .buffer(true)
+      .parse((res, callback) => {
+        const chunks: Buffer[] = [];
+        res.on('data', (chunk: Buffer) => chunks.push(chunk));
+        res.on('end', () => callback(null, Buffer.concat(chunks)));
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toBe('application/pdf');
+    expect((response.body as Buffer).subarray(0, 5).toString()).toBe('%PDF-');
+  });
+
+  it('devuelve un PDF válido sin lecturas', async () => {
+    const { accessToken } = await registerUser();
+
+    const response = await api()
+      .get('/api/glucose/export/pdf')
+      .set(authHeader(accessToken))
+      .buffer(true)
+      .parse((res, callback) => {
+        const chunks: Buffer[] = [];
+        res.on('data', (chunk: Buffer) => chunks.push(chunk));
+        res.on('end', () => callback(null, Buffer.concat(chunks)));
+      });
+
+    expect(response.status).toBe(200);
+    expect((response.body as Buffer).subarray(0, 5).toString()).toBe('%PDF-');
+  });
+});

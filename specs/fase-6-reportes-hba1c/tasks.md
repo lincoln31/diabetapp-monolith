@@ -10,20 +10,20 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-6-reportes-hba1c`
 
 ## Bloque A — Backend: proyección de HbA1c
 
-- [ ] **T6.2** Función pura `projectHba1c(readings)` en `glucose.hba1c.ts` (D-6.2), con tests unitarios: sin lecturas, por debajo del umbral, exactamente en el umbral, por encima, y el redondeo a un decimal. — RF-6.1, RF-6.2 · depende de T6.1
-- [ ] **T6.3** `GlucoseService.getHba1cProjection(userId)` (D-6.3): una consulta de 90 días + `targetHba1c` del usuario. — RF-6.1, RF-6.3, RNF-6.1 · depende de T6.2
-- [ ] **T6.4** `getHba1cProjectionController` + ruta `GET /glucose/hba1c` **antes** de `GET /glucose/:id` (D-6.5). — RF-6.4 · depende de T6.3
-- [ ] **T6.5 [P]** Tests de integración: con lecturas suficientes, por debajo del umbral, aislamiento entre usuarios. — CA-6.1, CA-6.2, CA-6.3 · depende de T6.4
+- [x] **T6.2** Función pura `projectHba1c(readings)` en `glucose.hba1c.ts` (D-6.2), con tests unitarios: sin lecturas, por debajo del umbral, exactamente en el umbral, por encima, y el redondeo a un decimal. — RF-6.1, RF-6.2 · depende de T6.1
+- [x] **T6.3** `GlucoseService.getHba1cProjection(userId)` (D-6.3): una consulta de 90 días + `targetHba1c` del usuario. — RF-6.1, RF-6.3, RNF-6.1 · depende de T6.2
+- [x] **T6.4** `getHba1cProjectionController` + ruta `GET /glucose/hba1c` **antes** de `GET /glucose/:id` (D-6.5). — RF-6.4 · depende de T6.3
+- [x] **T6.5 [P]** Tests de integración: con lecturas suficientes, por debajo del umbral, aislamiento entre usuarios. — CA-6.1, CA-6.2, CA-6.3 · depende de T6.4
 
 ## Bloque B — Backend: exportar reportes
 
-- [ ] **T6.6** `npm install pdfkit @types/pdfkit` en el backend (D-6.4). — depende de T6.1
-- [ ] **T6.7 [P]** `GlucoseService.getAllForExport(userId)`: todas las lecturas del usuario ordenadas por fecha, más nombre del paciente. — depende de T6.4
-- [ ] **T6.8 [P]** Generador de CSV (`glucose.export.csv.ts`) con tests: encabezados, una fila por lectura, escapado de comas/comillas en notas, caso sin lecturas. — RF-6.5, RF-6.8 · depende de T6.7
-- [ ] **T6.9 [P]** Generador de PDF (`glucose.export.pdf.ts` con `pdfkit`): cabecera con nombre y rango de fechas, tabla de lecturas, caso sin lecturas. — RF-6.6, RF-6.8 · depende de T6.6, T6.7
-- [ ] **T6.10** Controladores + rutas `GET /glucose/export/csv` y `GET /glucose/export/pdf`, con `Content-Type`/`Content-Disposition` correctos, **antes** de `GET /glucose/:id` (D-6.5). — RF-6.7 · depende de T6.8, T6.9
-- [ ] **T6.11 [P]** Tests de integración de ambos endpoints (`Content-Type`, primera fila del CSV, cabecera `%PDF-` del PDF, caso sin lecturas). — CA-6.4, CA-6.5, CA-6.6 · depende de T6.10
-- [ ] **T6.12 [P]** Añadir las tres rutas nuevas a `requests.http`. — depende de T6.4, T6.10
+- [x] **T6.6** `npm install pdfkit @types/pdfkit` en el backend (D-6.4). — depende de T6.1
+- [x] **T6.7 [P]** `GlucoseService.getAllForExport(userId)`: todas las lecturas del usuario ordenadas por fecha, más nombre del paciente. — depende de T6.4
+- [x] **T6.8 [P]** Generador de CSV (`glucose.export.csv.ts`) con tests: encabezados, una fila por lectura, escapado de comas/comillas en notas, caso sin lecturas. — RF-6.5, RF-6.8 · depende de T6.7
+- [x] **T6.9 [P]** Generador de PDF (`glucose.export.pdf.ts` con `pdfkit`): cabecera con nombre y rango de fechas, tabla de lecturas, caso sin lecturas. — RF-6.6, RF-6.8 · depende de T6.6, T6.7
+- [x] **T6.10** Controladores + rutas `GET /glucose/export/csv` y `GET /glucose/export/pdf`, con `Content-Type`/`Content-Disposition` correctos, **antes** de `GET /glucose/:id` (D-6.5). — RF-6.7 · depende de T6.8, T6.9
+- [x] **T6.11 [P]** Tests de integración de ambos endpoints (`Content-Type`, primera fila del CSV, cabecera `%PDF-` del PDF, caso sin lecturas). — CA-6.4, CA-6.5, CA-6.6 · depende de T6.10
+- [x] **T6.12 [P]** Añadir las tres rutas nuevas a `requests.http`. — depende de T6.4, T6.10
 
 ## Bloque C — Frontend: tarjeta de HbA1c
 
