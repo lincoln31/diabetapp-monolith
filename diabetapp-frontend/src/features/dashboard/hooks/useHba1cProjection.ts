@@ -38,5 +38,5 @@ export const useHba1cProjection = () => {
     }, [load]),
   );
 
-  return state;
+  return { ...state, refresh: load };
 };

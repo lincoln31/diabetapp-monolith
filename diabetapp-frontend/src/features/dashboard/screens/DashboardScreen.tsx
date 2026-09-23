@@ -20,6 +20,10 @@ const DashboardScreen = () => {
 
   const goToRegister = () => router.push('/glucose/new');
 
+  // Deslizar hacia abajo refresca todas las tarjetas, no solo la de promedios
+  // (spec fase 6, D-6.7 / RF-5.13 de la fase 5).
+  const refreshAll = () => Promise.all([refresh(), hba1c.refresh()]);
+
   const handleSignOut = () => {
     Alert.alert('Cerrar sesión', '¿Seguro que quieres salir de tu cuenta?', [
       { text: 'Cancelar', style: 'cancel' },
@@ -31,7 +35,7 @@ const DashboardScreen = () => {
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
     >
       <Text style={styles.greeting}>Hola{user?.firstName ? `, ${user.firstName}` : ''} 👋</Text>
 
