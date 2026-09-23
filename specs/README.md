@@ -52,6 +52,7 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 3    | [Arquitectura del frontend](fase-3-arquitectura-frontend/spec.md) | Estructura por funcionalidades, capa de servicios tipada, formularios con errores por campo | Fase 2                              | #48 (prepara)      | 2–3 días   |
 | 4    | [Calidad continua](fase-4-calidad-continua/spec.md)               | Tests, linters y CI que bloquea PRs rotos                                                   | Fase 1 (backend), Fase 3 (frontend) | #56, #57           | 2 días     |
 | 5    | [Dashboard con promedios de glucosa](fase-5-dashboard-glucosa/spec.md) | Endpoint de estadísticas (7/14/30 días) y pantalla principal que las muestra | Fase 1, Fase 3 | #19, #20, #48 | 2–3 días |
+| 6    | [Reportes exportables y proyección de HbA1c](fase-6-reportes-hba1c/spec.md) | Proyección de HbA1c en el dashboard y exportar el historial en CSV/PDF | Fase 1, Fase 5 | #46, #47, #49, #50 | 2–3 días |
 
 > La fase 4 puede empezar en paralelo para el backend en cuanto la fase 1 esté fusionada.
 
@@ -64,4 +65,5 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 2    | Implementada (fusionada en Develop) |
 | 3    | Implementada (fusionada en Develop) |
 | 4    | Implementada (fusionada en Develop) |
-| 5    | En implementación (falta el recorrido en dispositivo, T5.16) |
+| 5    | En implementación (PR #82 abierto; falta el recorrido en dispositivo, T5.16) |
+| 6    | En implementación |
