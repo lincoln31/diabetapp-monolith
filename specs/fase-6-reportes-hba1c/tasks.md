@@ -6,7 +6,7 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-6-reportes-hba1c`
 
 ## Bloque 0 — Aclaraciones
 
-- [ ] **T6.1** Confirmar las 4 aclaraciones de la spec (§8: librería de PDF, librerías de guardar/compartir, umbral de lecturas para HbA1c, alcance del export), o ajustarlas si el usuario prefiere otra opción.
+- [x] **T6.1** Confirmar las 4 aclaraciones de la spec (§8: librería de PDF, librerías de guardar/compartir, umbral de lecturas para HbA1c, alcance del export), o ajustarlas si el usuario prefiere otra opción.
 
 ## Bloque A — Backend: proyección de HbA1c
 

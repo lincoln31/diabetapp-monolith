@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 6 |
-| Estado | Borrador |
+| Estado | Aprobada |
 | Fecha | 2026-09-23 |
 | Depende de | Fase 1 (contrato de API, índice `(userId, timestamp)`), Fase 5 (dashboard extensible por tarjetas, `/glucose/stats`) |
 | Issues relacionados | Cierra #46, #47, #49, #50 |
@@ -92,10 +92,10 @@ Que el paciente vea en el dashboard una proyección aproximada de su HbA1c (comp
 
 ## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** Librería para generar el PDF en el backend: se propone `pdfkit` (madura, sin dependencias nativas, genera PDF por streaming). Detalle en el plan (D-6.4).
-- **[NECESITA ACLARACIÓN]** Librerías nuevas en el frontend para guardar/compartir el archivo descargado: se proponen `expo-file-system` + `expo-sharing` (patrón estándar de Expo; el proyecto no tiene hoy ninguna forma de guardar/compartir archivos). Detalle en el plan (D-6.6).
-- **[NECESITA ACLARACIÓN]** Umbral mínimo de lecturas para considerar la proyección de HbA1c confiable: se propone **10 lecturas en la ventana de 90 días**. Detalle en el plan (D-6.2).
-- **[NECESITA ACLARACIÓN]** Alcance del reporte exportado: se propone exportar siempre el **historial completo** (sin filtro de fechas) en esta primera versión, por simplicidad (principio P8).
+- **Resuelta (2026-09-23):** se aprueba `pdfkit` como librería para generar el PDF en el backend (madura, sin dependencias nativas, genera PDF por streaming). Detalle en el plan (D-6.4).
+- **Resuelta (2026-09-23):** se aprueban `expo-file-system` + `expo-sharing` como las dos dependencias nuevas del frontend para guardar/compartir el archivo descargado (patrón estándar de Expo; el proyecto no tenía hasta ahora ninguna forma de guardar/compartir archivos). Detalle en el plan (D-6.6).
+- **Resuelta (2026-09-23):** se aprueba el umbral de **10 lecturas en la ventana de 90 días** para considerar la proyección de HbA1c confiable. Detalle en el plan (D-6.2).
+- **Resuelta (2026-09-23):** se aprueba exportar siempre el **historial completo** (sin filtro de fechas) en esta primera versión, por simplicidad (principio P8).
 
 ## 9. Definición de terminado
 
