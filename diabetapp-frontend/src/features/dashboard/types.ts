@@ -19,3 +19,14 @@ export interface GlucoseStats {
     '30': PeriodStats;
   };
 }
+
+/** Proyección de HbA1c (spec fase 6, D-6.1). */
+export interface Hba1cProjection {
+  average90: number | null;
+  sampleCount: number;
+  sufficientData: boolean;
+  projectedHba1c: number | null;
+  targetHba1c: number | null;
+}
+
+export type ExportFormat = 'csv' | 'pdf';

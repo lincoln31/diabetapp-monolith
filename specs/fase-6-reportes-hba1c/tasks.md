@@ -27,24 +27,24 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-6-reportes-hba1c`
 
 ## Bloque C — Frontend: tarjeta de HbA1c
 
-- [ ] **T6.13** `hba1cApi.getProjection()` y tipo `Hba1cProjection` en `dashboard/{api,types}.ts` (D-6.1). — depende de T6.4
-- [ ] **T6.14** Hook `useHba1cProjection()`, mismo patrón que `useDashboardStats` (D-6.7). — depende de T6.13
-- [ ] **T6.15 [P]** `Hba1cCard`: proyección destacada, comparación con `targetHba1c` si existe, mensaje de datos insuficientes (RF-6.9 – RF-6.11); no se muestra si el dashboard general está en estado `empty`. — depende de T6.14
-- [ ] **T6.16** Sumar `<Hba1cCard />` a la lista de tarjetas de `DashboardScreen`. — depende de T6.15
+- [x] **T6.13** `hba1cApi.getProjection()` y tipo `Hba1cProjection` en `dashboard/{api,types}.ts` (D-6.1). — depende de T6.4
+- [x] **T6.14** Hook `useHba1cProjection()`, mismo patrón que `useDashboardStats` (D-6.7). — depende de T6.13
+- [x] **T6.15 [P]** `Hba1cCard`: proyección destacada, comparación con `targetHba1c` si existe, mensaje de datos insuficientes (RF-6.9 – RF-6.11); no se muestra si el dashboard general está en estado `empty`. — depende de T6.14
+- [x] **T6.16** Sumar `<Hba1cCard />` a la lista de tarjetas de `DashboardScreen`. — depende de T6.15
 
 ## Bloque D — Frontend: exportar reporte
 
-- [ ] **T6.17** `npx expo install expo-file-system expo-sharing` (D-6.6). — depende de T6.1
-- [ ] **T6.18** `getFile()` en `shared/api/client.ts`: variante de `get()` para respuesta de texto/binaria (D-6.6), sin tocar el contrato tipado existente. — depende de T6.17
-- [ ] **T6.19** `exportApi.download(format)` en `dashboard/api.ts` + hook `useExportReport()` (estado `idle/loading/error`) que escribe el archivo con `expo-file-system` y lo comparte con `expo-sharing` (D-6.6). — RF-6.12 – RF-6.14 · depende de T6.18
-- [ ] **T6.20 [P]** `ExportReportButton`: elegir CSV/PDF, señal de carga, error legible si falla. — RF-6.12 – RF-6.14 · depende de T6.19
-- [ ] **T6.21** Sumar `<ExportReportButton />` a `DashboardScreen`, junto a «Registrar glucosa»/«Cerrar sesión». — depende de T6.20
+- [x] **T6.17** `npx expo install expo-file-system expo-sharing` (D-6.6). — depende de T6.1
+- [x] **T6.18** `getFile()` en `shared/api/client.ts`: variante de `get()` para respuesta de texto/binaria (D-6.6), sin tocar el contrato tipado existente. — depende de T6.17
+- [x] **T6.19** `exportApi.download(format)` en `dashboard/api.ts` + hook `useExportReport()` (estado `idle/loading/error`) que escribe el archivo con `expo-file-system` y lo comparte con `expo-sharing` (D-6.6). — RF-6.12 – RF-6.14 · depende de T6.18
+- [x] **T6.20 [P]** `ExportReportButton`: elegir CSV/PDF, señal de carga, error legible si falla. — RF-6.12 – RF-6.14 · depende de T6.19
+- [x] **T6.21** Sumar `<ExportReportButton />` a `DashboardScreen`, junto a «Registrar glucosa»/«Cerrar sesión». — depende de T6.20
 
 ## Bloque E — Verificación y cierre
 
-- [ ] **T6.22** Recorrido en dispositivo: cuenta con datos suficientes (CA-6.7), cuenta con datos insuficientes (CA-6.8), exportar CSV y PDF (CA-6.9), backend apagado al exportar (CA-6.10).
-- [ ] **T6.23** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
-- [ ] **T6.24** Marcar CA-6.1 … CA-6.10 en el PR; cerrar #46, #47, #49 y #50; actualizar `CLAUDE.md` y el estado en `specs/README.md`.
+- [ ] **T6.22** ⏳ (requiere dispositivo) Recorrido en dispositivo: cuenta con datos suficientes (CA-6.7), cuenta con datos insuficientes (CA-6.8), exportar CSV y PDF (CA-6.9), backend apagado al exportar (CA-6.10).
+- [x] **T6.23** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
+- [~] **T6.24** (parcial: falta el recorrido en dispositivo) Marcar CA-6.1 … CA-6.10 en el PR; cerrar #46, #47, #49 y #50; actualizar `CLAUDE.md` y el estado en `specs/README.md`.
 
 ## Trazabilidad
 

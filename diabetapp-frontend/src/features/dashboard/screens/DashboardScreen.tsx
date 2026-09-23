@@ -5,14 +5,18 @@ import { useSession } from '@/src/features/auth';
 import { Button } from '@/src/shared/components/ui';
 import { COLORS } from '@/src/shared/theme/colors';
 import EmptyState from '../components/EmptyState';
+import ExportReportButton from '../components/ExportReportButton';
 import GlucoseAveragesCard from '../components/GlucoseAveragesCard';
+import Hba1cCard from '../components/Hba1cCard';
 import { useDashboardStats } from '../hooks/useDashboardStats';
+import { useHba1cProjection } from '../hooks/useHba1cProjection';
 
 /** Pantalla principal tras iniciar sesión (spec fase 5, RF-5.7, D-5.5/D-5.6). */
 const DashboardScreen = () => {
   const { user, signOut } = useSession();
   const router = useRouter();
   const { status, stats, errorMessage, refreshing, refresh } = useDashboardStats();
+  const hba1c = useHba1cProjection();
 
   const goToRegister = () => router.push('/glucose/new');
 
@@ -46,9 +50,15 @@ const DashboardScreen = () => {
 
       {status === 'empty' && <EmptyState onRegister={goToRegister} />}
 
-      {status === 'success' && stats && <GlucoseAveragesCard stats={stats} />}
+      {status === 'success' && stats && (
+        <>
+          <GlucoseAveragesCard stats={stats} />
+          {hba1c.status === 'success' && hba1c.projection && <Hba1cCard projection={hba1c.projection} />}
+        </>
+      )}
 
       <Button title="Registrar glucosa" onPress={goToRegister} style={styles.action} />
+      <ExportReportButton style={styles.action} />
       <Button title="Cerrar sesión" variant="outline" onPress={handleSignOut} style={styles.action} />
     </ScrollView>
   );

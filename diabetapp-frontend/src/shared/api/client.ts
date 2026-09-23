@@ -116,3 +116,13 @@ export const put = async <T>(url: string, body?: unknown): Promise<T> =>
 
 export const del = async <T>(url: string): Promise<T> =>
   (await http.delete<ApiSuccess<T>>(url)).data.data;
+
+/**
+ * Descarga un archivo (no sigue el contrato `{ success, data }`: el body es
+ * el archivo tal cual) — spec fase 6, D-6.6. `'text'` para CSV, `'arraybuffer'`
+ * para binarios como PDF.
+ */
+export const getFile = async (
+  url: string,
+  responseType: 'text' | 'arraybuffer',
+): Promise<string | ArrayBuffer> => (await http.get(url, { responseType })).data;
