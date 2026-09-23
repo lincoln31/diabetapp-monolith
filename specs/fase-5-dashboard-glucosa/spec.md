@@ -95,9 +95,9 @@ Que el paciente, al abrir la app, vea de un vistazo cómo está su control de gl
 | CA-5.11 | El backend caído | Se abre el Dashboard | Se ve un mensaje de error claro, no una pantalla en blanco ni la app cerrada | RNF de manejo de errores ya vigente (fase 3) |
 | CA-5.12 | 10 000 lecturas de un usuario | Se piden sus estadísticas | Responde en menos de 300 ms | RNF-5.3 |
 
-## 8. Decisiones pendientes
+## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** El criterio exacto de «tendencia» (RF-5.4) es una decisión técnica razonable que se deja propuesta en el plan (comparar la primera mitad del periodo contra la segunda, con un margen de ±5 % para considerarla «estable»). Se aprueba junto con el plan, salvo que el usuario prefiera otro criterio (por ejemplo, pendiente de una regresión lineal).
+- **Resuelta (2026-09-22):** se aprueba el criterio de «tendencia» propuesto en el plan (D-5.3): comparar el promedio de la primera mitad del periodo contra la segunda, con ±5 % de margen para considerarla «estable».
 - **Decisión tomada:** el Dashboard **reemplaza** a `HomeScreen` como pantalla principal (RF-5.7); no queda una pantalla intermedia entre el login y el dashboard.
 - **Decisión tomada:** no se agrega aquí una pantalla de historial completo (lista o gráfico de todas las lecturas); no hay issue del backlog que la pida todavía. Si se necesita, será una spec aparte.
 
