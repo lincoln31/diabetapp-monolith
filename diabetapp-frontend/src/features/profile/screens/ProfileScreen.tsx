@@ -71,24 +71,27 @@ const ProfileForm = ({ profile }: { profile: Profile }) => {
 
   const numberInput = (
     name: 'targetGlucoseMin' | 'targetGlucoseMax' | 'targetHba1c' | 'weight' | 'height',
-    placeholder: string,
+    label: string,
     keyboardType: 'numeric' | 'decimal-pad',
   ) => (
-    <Controller
-      control={control}
-      name={name}
-      render={({ field: { onChange, onBlur, value } }) => (
-        <Input
-          placeholder={placeholder}
-          value={value}
-          onChangeText={onChange}
-          onBlur={onBlur}
-          error={errors[name]?.message}
-          keyboardType={keyboardType}
-          maxLength={6}
-        />
-      )}
-    />
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            placeholder={label}
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            error={errors[name]?.message}
+            keyboardType={keyboardType}
+            maxLength={6}
+          />
+        )}
+      />
+    </View>
   );
 
   return (

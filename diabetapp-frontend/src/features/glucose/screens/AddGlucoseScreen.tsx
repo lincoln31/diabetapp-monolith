@@ -59,6 +59,17 @@ const AddGlucoseScreen = () => {
 
   const timestamp = useWatch({ control, name: 'timestamp' });
   const notes = useWatch({ control, name: 'notes' });
+  const glucoseValue = useWatch({ control, name: 'value' });
+
+  // Si el perfil no carga, no hay rango y el aviso simplemente no aparece (spec fase 7, RF-7.12)
+  const { profile } = useProfile();
+  const min = profile?.targetGlucoseMin ?? null;
+  const max = profile?.targetGlucoseMax ?? null;
+  const rangeStatus = getRangeStatus(
+    glucoseValue.trim() === '' ? NaN : Number(glucoseValue),
+    min,
+    max,
+  );
 
   // El selector de fecha solo cambia el día; el de hora, la hora
   const onDateChange = (_event: unknown, selectedDate?: Date) => {
@@ -138,6 +149,8 @@ const AddGlucoseScreen = () => {
               />
             )}
           />
+
+          <RangeAlert status={rangeStatus} min={min} max={max} />
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Momento del día</Text>

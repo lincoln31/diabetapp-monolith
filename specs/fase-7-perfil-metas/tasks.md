@@ -34,9 +34,9 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-7-perfil-metas`
 
 ## Bloque D — Verificación y cierre
 
-- [ ] **T7.17** ⏳ (requiere dispositivo) Recorrido en dispositivo: CA-7.9 – CA-7.15.
+- [x] **T7.17** Recorrido en dispositivo (moto g34 5G): CA-7.9 – CA-7.15. Encontrado y corregido: `AddGlucoseScreen` tenía los `import` pero no el uso de `useProfile`/`RangeAlert` (el aviso no aparecía; lo delataban los warnings de lint por imports sin usar), y los campos numéricos del perfil no tenían etiqueta una vez llenos.
 - [x] **T7.18** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
-- [ ] **T7.19** Marcar CA-7.1 … CA-7.15 en el PR; cerrar #14, #15 y #21; cerrar #13, #17 y #18 con un comentario que apunte al código que ya los cubre; actualizar `CLAUDE.md` y el estado en `specs/README.md`.
+- [~] **T7.19** (parcial: #14, #15 y #21 se cierran al fusionar el PR) Marcar CA-7.1 … CA-7.15 en el PR; cerrar #14, #15 y #21; cerrar #13, #17 y #18 con un comentario que apunte al código que ya los cubre; actualizar `CLAUDE.md` y el estado en `specs/README.md`.
 
 ## Trazabilidad
 
