@@ -179,4 +179,25 @@ Authorization: Bearer {{token}}
 ### CA-6.5, CA-6.6 · Reporte PDF del historial completo
 GET {{host}}/glucose/export/pdf
 Authorization: Bearer {{token}}
+
+### ---------------------------------------------------------------------------
+### Fase 7 · perfil diabético y metas
+### ---------------------------------------------------------------------------
+
+### CA-7.1 · Perfil propio (sin id, sin contraseña)
+GET {{host}}/profile
 Authorization: Bearer {{token}}
+
+### CA-7.2, CA-7.3 · Actualización parcial (null borra el campo)
+PUT {{host}}/profile
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "targetGlucoseMin": 90, "targetGlucoseMax": 140, "targetHba1c": 6.5, "typeOfDiabetes": "TYPE_2" }
+
+### CA-7.6 · Rango incoherente contra el valor guardado → 400 en targetGlucoseMin
+PUT {{host}}/profile
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "targetGlucoseMin": 500 }

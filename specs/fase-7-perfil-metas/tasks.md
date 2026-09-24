@@ -10,12 +10,12 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-7-perfil-metas`
 
 ## Bloque A — Backend
 
-- [ ] **T7.2** `profile.schemas.ts`: `updateProfileSchema` y tipos (D-7.2). — RF-7.2, RF-7.3 · depende de T7.1
-- [ ] **T7.3** `ProfileService.get` y `update`, con la regla cruzada del rango y `onboardingCompleted` (D-7.2, D-7.3). — RF-7.1, RF-7.4, RF-7.13 · depende de T7.2
-- [ ] **T7.4** Controlador, rutas `GET`/`PUT /profile` con `authenticate`, y registro en `modules/index.ts`. — RF-7.5 · depende de T7.3
-- [ ] **T7.5 [P]** Tests de integración `test/profile.test.ts`: perfil propio, parcial, `null`, cuerpo vacío, límites y enums, rango incoherente con valor guardado, sin sesión, y `/glucose/stats` con el rango nuevo. — CA-7.1 – CA-7.8 · depende de T7.4
-- [ ] **T7.6 [P]** Añadir `GET`/`PUT /profile` a `requests.http`. — depende de T7.4
-- [ ] **T7.7** Revisar que ningún log imprima valores de salud del perfil. — RNF-7.2 · depende de T7.4
+- [x] **T7.2** `profile.schemas.ts`: `updateProfileSchema` y tipos (D-7.2). — RF-7.2, RF-7.3 · depende de T7.1
+- [x] **T7.3** `ProfileService.get` y `update`, con la regla cruzada del rango y `onboardingCompleted` (D-7.2, D-7.3). — RF-7.1, RF-7.4, RF-7.13 · depende de T7.2
+- [x] **T7.4** Controlador, rutas `GET`/`PUT /profile` con `authenticate`, y registro en `modules/index.ts`. — RF-7.5 · depende de T7.3
+- [x] **T7.5 [P]** Tests de integración `test/profile.test.ts`: perfil propio, parcial, `null`, cuerpo vacío, límites y enums, rango incoherente con valor guardado, sin sesión, y `/glucose/stats` con el rango nuevo. — CA-7.1 – CA-7.8 · depende de T7.4
+- [x] **T7.6 [P]** Añadir `GET`/`PUT /profile` a `requests.http`. — depende de T7.4
+- [x] **T7.7** Revisar que ningún log imprima valores de salud del perfil. — RNF-7.2 · depende de T7.4
 
 ## Bloque B — Frontend: perfil
 
