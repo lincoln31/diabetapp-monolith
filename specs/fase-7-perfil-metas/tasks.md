@@ -19,23 +19,23 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-7-perfil-metas`
 
 ## Bloque B — Frontend: perfil
 
-- [ ] **T7.8** Funcionalidad `profile/`: `types.ts`, `api.ts`, `constants.ts` (etiquetas en español) y `index.ts` (D-7.5). — RF-7.7 · depende de T7.4
-- [ ] **T7.9** `schemas.ts` (`profileFormSchema`, mismas reglas que el backend, campos vacíos → `null`) con tests unitarios: rango incoherente, límites, vacíos. — RF-7.8, RF-7.9 · depende de T7.8
-- [ ] **T7.10** Hook `useProfile()` (loading/success/error). — RF-7.7, RF-7.12 · depende de T7.8
-- [ ] **T7.11** `ProfileScreen`: formulario precargado, `Picker` de tipo de diabetes y actividad, guardado, confirmación y `router.back()`. — RF-7.7 – RF-7.10 · depende de T7.9, T7.10
-- [ ] **T7.12** Ruta `app/(app)/profile.tsx`, entrada en `(app)/_layout.tsx` y botón «Mi perfil» en `DashboardScreen`. — RF-7.7 · depende de T7.11
-- [ ] **T7.13** Zona de ESLint `glucose → profile` (solo `index.ts`) en `eslint.config.js` (D-7.6). — depende de T7.8
+- [x] **T7.8** Funcionalidad `profile/`: `types.ts`, `api.ts`, `constants.ts` (etiquetas en español) y `index.ts` (D-7.5). — RF-7.7 · depende de T7.4
+- [x] **T7.9** `schemas.ts` (`profileFormSchema`, mismas reglas que el backend, campos vacíos → `null`) con tests unitarios: rango incoherente, límites, vacíos. — RF-7.8, RF-7.9 · depende de T7.8
+- [x] **T7.10** Hook `useProfile()` (loading/success/error). Sin test propio: `renderHook` no funciona en este proyecto (ver T5.15); la lógica testeable vive en `schemas.ts`. — RF-7.7, RF-7.12 · depende de T7.8
+- [x] **T7.11** `ProfileScreen`: formulario precargado, `Picker` de tipo de diabetes y actividad, guardado, confirmación y `router.back()`. — RF-7.7 – RF-7.10 · depende de T7.9, T7.10
+- [x] **T7.12** Ruta `app/(app)/profile.tsx`, entrada en `(app)/_layout.tsx` y botón «Mi perfil» en `DashboardScreen`. — RF-7.7 · depende de T7.11
+- [x] **T7.13** Zona de ESLint `glucose → profile` (solo `index.ts`) en `eslint.config.js` (D-7.6). — depende de T7.8
 
 ## Bloque C — Frontend: alerta de rango (#21)
 
-- [ ] **T7.14** `getRangeStatus` en `glucose/rangeStatus.ts` con tests unitarios: bordes exactos, `null`/`null`, un solo límite, valor no numérico. — RF-7.11, RF-7.12 · depende de T7.1
-- [ ] **T7.15** Aviso de rango en `AddGlucoseScreen` con `useWatch` + `useProfile()`; no bloquea el guardado. — RF-7.11, RF-7.12 · depende de T7.10, T7.13, T7.14
-- [ ] **T7.16 [P]** Test de componente del bloque de aviso (bajo / alto / dentro / sin rango). — CA-7.12 – CA-7.14 · depende de T7.15
+- [x] **T7.14** `getRangeStatus` en `glucose/rangeStatus.ts` con tests unitarios: bordes exactos, `null`/`null`, un solo límite, valor no numérico. — RF-7.11, RF-7.12 · depende de T7.1
+- [x] **T7.15** Aviso de rango en `AddGlucoseScreen` con `useWatch` + `useProfile()`; no bloquea el guardado. — RF-7.11, RF-7.12 · depende de T7.10, T7.13, T7.14
+- [x] **T7.16 [P]** Test de componente del bloque de aviso (bajo / alto / dentro / sin rango). — CA-7.12 – CA-7.14 · depende de T7.15
 
 ## Bloque D — Verificación y cierre
 
 - [ ] **T7.17** ⏳ (requiere dispositivo) Recorrido en dispositivo: CA-7.9 – CA-7.15.
-- [ ] **T7.18** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
+- [x] **T7.18** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
 - [ ] **T7.19** Marcar CA-7.1 … CA-7.15 en el PR; cerrar #14, #15 y #21; cerrar #13, #17 y #18 con un comentario que apunte al código que ya los cubre; actualizar `CLAUDE.md` y el estado en `specs/README.md`.
 
 ## Trazabilidad
