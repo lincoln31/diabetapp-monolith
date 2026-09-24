@@ -17,8 +17,11 @@ import { Button, Card, FormError, Input } from '@/src/shared/components/ui';
 import { toApiError } from '@/src/shared/api/errors';
 import { applyServerErrors } from '@/src/shared/forms/applyServerErrors';
 import { COLORS } from '@/src/shared/theme/colors';
+import { useProfile } from '@/src/features/profile';
 import { glucoseApi } from '../api';
+import RangeAlert from '../components/RangeAlert';
 import { MOMENT_OF_DAY_OPTIONS, NOTES_MAX_LENGTH } from '../constants';
+import { getRangeStatus } from '../rangeStatus';
 import { CreateGlucoseFormValues, createGlucoseFormSchema } from '../schemas';
 
 const FIELDS = ['value', 'momentOfDay', 'notes', 'timestamp'] as const;

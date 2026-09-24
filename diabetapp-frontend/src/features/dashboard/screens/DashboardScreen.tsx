@@ -1,5 +1,13 @@
 import React from 'react';
-import { ActivityIndicator, Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSession } from '@/src/features/auth';
 import { Button } from '@/src/shared/components/ui';
@@ -48,7 +56,12 @@ const DashboardScreen = () => {
       {status === 'error' && (
         <View style={styles.centered}>
           <Text style={styles.errorText}>{errorMessage}</Text>
-          <Button title="Reintentar" variant="outline" onPress={refresh} style={styles.retryButton} />
+          <Button
+            title="Reintentar"
+            variant="outline"
+            onPress={refresh}
+            style={styles.retryButton}
+          />
         </View>
       )}
 
@@ -57,13 +70,26 @@ const DashboardScreen = () => {
       {status === 'success' && stats && (
         <>
           <GlucoseAveragesCard stats={stats} />
-          {hba1c.status === 'success' && hba1c.projection && <Hba1cCard projection={hba1c.projection} />}
+          {hba1c.status === 'success' && hba1c.projection && (
+            <Hba1cCard projection={hba1c.projection} />
+          )}
         </>
       )}
 
       <Button title="Registrar glucosa" onPress={goToRegister} style={styles.action} />
+      <Button
+        title="Mi perfil"
+        variant="outline"
+        onPress={() => router.push('/profile')}
+        style={styles.action}
+      />
       <ExportReportButton style={styles.action} />
-      <Button title="Cerrar sesión" variant="outline" onPress={handleSignOut} style={styles.action} />
+      <Button
+        title="Cerrar sesión"
+        variant="outline"
+        onPress={handleSignOut}
+        style={styles.action}
+      />
     </ScrollView>
   );
 };
