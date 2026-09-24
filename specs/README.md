@@ -53,6 +53,7 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 4    | [Calidad continua](fase-4-calidad-continua/spec.md)               | Tests, linters y CI que bloquea PRs rotos                                                   | Fase 1 (backend), Fase 3 (frontend) | #56, #57           | 2 días     |
 | 5    | [Dashboard con promedios de glucosa](fase-5-dashboard-glucosa/spec.md) | Endpoint de estadísticas (7/14/30 días) y pantalla principal que las muestra | Fase 1, Fase 3 | #19, #20, #48 | 2–3 días |
 | 6    | [Reportes exportables y proyección de HbA1c](fase-6-reportes-hba1c/spec.md) | Proyección de HbA1c en el dashboard y exportar el historial en CSV/PDF | Fase 1, Fase 5 | #46, #47, #49, #50 | 2–3 días |
+| 7    | [Perfil diabético y metas personales](fase-7-perfil-metas/spec.md) | Editar metas (rango de glucosa, HbA1c) y perfil, y avisar al registrar un valor fuera de rango | Fase 3, 5, 6 | #14, #15, #21 (cierra también #13, #17, #18) | 2–3 días |
 
 > La fase 4 puede empezar en paralelo para el backend en cuanto la fase 1 esté fusionada.
 
@@ -67,3 +68,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 4    | Implementada (fusionada en Develop) |
 | 5    | Implementada (verificada en dispositivo; pendiente fusionar #82) |
 | 6    | Implementada (verificada en dispositivo; pendiente fusionar #84) |
+| 7    | Borrador (pendiente de aprobar las aclaraciones de la spec §8) |
