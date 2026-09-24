@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 7 |
-| Estado | Borrador |
+| Estado | Aprobada |
 | Fecha | 2026-09-23 |
 | Depende de | Fase 2 (sesión), Fase 3 (estructura por funcionalidades y formularios), Fase 5 (dashboard que lee el rango meta), Fase 6 (proyección de HbA1c que lee `targetHba1c`) |
 | Issues relacionados | Cierra #14, #15, #21. Se cierran por ya estar entregados (verificado en código): #13, #17, #18. Fuera de esta fase: #16 |
@@ -99,7 +99,7 @@ Que el paciente pueda **definir sus propias metas** (rango de glucosa y HbA1c) y
 
 - **[NECESITA ACLARACIÓN]** ¿Los avisos de la alerta (RF-7.11) usan **solo el rango del usuario**, o también umbrales fijos de alerta grave (p. ej. < 54 y > 250 mg/dL, con un texto de «busca atención médica»)? Propuesta: **solo el rango del usuario**, dos estados (bajo / alto) y una línea neutra «Consulta a tu médico si se repite». Los umbrales fijos son una decisión clínica que conviene validar con un profesional antes de mostrarlos como consejo.
 - **[NECESITA ACLARACIÓN]** RF-7.13: ¿el primer guardado del perfil marca `onboardingCompleted`? Propuesta: **sí**, y no se construye un flujo de onboarding aparte; el perfil es la pantalla de onboarding. Alternativa: dejar `onboardingCompleted` sin tocar hasta que exista un onboarding real.
-- **[NECESITA ACLARACIÓN]** Límites de validación propuestos (plan D-7.2): glucosa meta 40–400 mg/dL, HbA1c 4–14 %, peso 20–400 kg, altura 50–250 cm. ¿Ajustas alguno?
+- **Resuelta (2026-09-23):** se aprueban los límites del plan D-7.2: glucosa meta 40–400 mg/dL, HbA1c 4–14 %, peso 20–400 kg, altura 50–250 cm.
 - **Decisión tomada:** el perfil es un recurso propio (`/api/profile`, sin id) en un módulo nuevo, en vez de ampliar `/auth/me`: `me` es el usuario de la sesión (identidad mínima, RF-2.7); el perfil es dato de salud editable y crece con el tiempo.
 
 ## 9. Definición de terminado

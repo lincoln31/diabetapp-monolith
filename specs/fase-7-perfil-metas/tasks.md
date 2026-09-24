@@ -6,7 +6,7 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-7-perfil-metas`
 
 ## Bloque 0 — Aclaraciones
 
-- [ ] **T7.1** Resolver las aclaraciones de la spec (§8: umbrales de la alerta, `onboardingCompleted`, límites de validación) y anotarlas.
+- [x] **T7.1** Resolver las aclaraciones de la spec (§8: umbrales de la alerta, `onboardingCompleted`, límites de validación) y anotarlas.
 
 ## Bloque A — Backend
 

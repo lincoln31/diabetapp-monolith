@@ -68,4 +68,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 4    | Implementada (fusionada en Develop) |
 | 5    | Implementada (verificada en dispositivo; pendiente fusionar #82) |
 | 6    | Implementada (verificada en dispositivo; pendiente fusionar #84) |
-| 7    | Borrador (pendiente de aprobar las aclaraciones de la spec §8) |
+| 7    | En implementación |
