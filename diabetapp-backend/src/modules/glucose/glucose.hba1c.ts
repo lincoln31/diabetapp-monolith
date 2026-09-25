@@ -12,9 +12,7 @@ export const MIN_READINGS_FOR_PROJECTION = 10;
  * Por debajo del umbral mínimo de lecturas, la proyección no se considera
  * confiable y se devuelve en null (nunca un número inventado).
  */
-export const projectHba1c = (
-  values: number[],
-): Omit<Hba1cProjection, 'targetHba1c'> => {
+export const projectHba1c = (values: number[]): Omit<Hba1cProjection, 'targetHba1c'> => {
   const sampleCount = values.length;
 
   if (sampleCount < MIN_READINGS_FOR_PROJECTION) {

@@ -30,9 +30,9 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-5-dashboard-glucosa`
 
 ## Bloque C — Verificación y cierre
 
-- [ ] **T5.16** ⏳ (requiere dispositivo) Recorrido en dispositivo: cuenta nueva (CA-5.7), cuenta con datos (CA-5.8), registrar y volver (CA-5.9), deslizar para refrescar (CA-5.10), backend apagado (CA-5.11).
+- [x] **T5.16** Recorrido en dispositivo (moto g34 5G, Android 15): cuenta nueva (CA-5.7), cuenta con datos (CA-5.8), registrar y volver (CA-5.9), deslizar para refrescar (CA-5.10), backend apagado (CA-5.11). Encontrado y corregido en el camino: `Button.tsx` mostraba `loadingText` en vez de `title` cuando no estaba cargando (bug de la fase 3, nunca antes visible).
 - [x] **T5.17** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
-- [~] **T5.18** (parcial: falta el recorrido en dispositivo) Marcar CA-5.1 … CA-5.12 en el PR; cerrar #19, #20, #48; actualizar `CLAUDE.md` y el estado en `specs/README.md`.
+- [x] **T5.18** Marcar CA-5.1 … CA-5.12 en el PR; cerrar #19, #20, #48; actualizar `CLAUDE.md` y el estado en `specs/README.md`.
 
 ## Trazabilidad
 

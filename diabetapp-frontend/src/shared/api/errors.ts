@@ -53,9 +53,7 @@ export const toApiError = (error: unknown): ApiError => {
   if (isAxiosError(error)) {
     const rawData = error.response?.data;
     const body = (
-      rawData instanceof ArrayBuffer
-        ? safeJsonParse(decodeArrayBuffer(rawData))
-        : rawData
+      rawData instanceof ArrayBuffer ? safeJsonParse(decodeArrayBuffer(rawData)) : rawData
     ) as ApiErrorBody | undefined;
 
     if (body?.error?.code) {

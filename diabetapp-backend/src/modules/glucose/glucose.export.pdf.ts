@@ -39,7 +39,10 @@ const drawTableHeader = (doc: PDFKit.PDFDocument, y: number): void => {
 };
 
 /** Reporte PDF del historial completo (spec fase 6, RF-6.6, RF-6.8, D-6.4). */
-export const buildGlucosePdf = (patientName: string, readings: ExportReading[]): PDFKit.PDFDocument => {
+export const buildGlucosePdf = (
+  patientName: string,
+  readings: ExportReading[],
+): PDFKit.PDFDocument => {
   const doc = new PDFDocument({ margin: 40, size: 'A4' });
 
   doc.fontSize(18).text('Historial de glucosa', { align: 'center' });
@@ -72,10 +75,16 @@ export const buildGlucosePdf = (patientName: string, readings: ExportReading[]):
       y += ROW_HEIGHT;
     }
 
-    doc.text(reading.timestamp.toISOString().slice(0, 10), COLUMNS[0].x, y, { width: COLUMNS[0].width });
-    doc.text(reading.timestamp.toISOString().slice(11, 16), COLUMNS[1].x, y, { width: COLUMNS[1].width });
+    doc.text(reading.timestamp.toISOString().slice(0, 10), COLUMNS[0].x, y, {
+      width: COLUMNS[0].width,
+    });
+    doc.text(reading.timestamp.toISOString().slice(11, 16), COLUMNS[1].x, y, {
+      width: COLUMNS[1].width,
+    });
     doc.text(String(reading.value), COLUMNS[2].x, y, { width: COLUMNS[2].width });
-    doc.text(MOMENT_OF_DAY_LABELS[reading.momentOfDay], COLUMNS[3].x, y, { width: COLUMNS[3].width });
+    doc.text(MOMENT_OF_DAY_LABELS[reading.momentOfDay], COLUMNS[3].x, y, {
+      width: COLUMNS[3].width,
+    });
     doc.text(reading.notes ?? '', COLUMNS[4].x, y, { width: COLUMNS[4].width });
 
     y += ROW_HEIGHT;
