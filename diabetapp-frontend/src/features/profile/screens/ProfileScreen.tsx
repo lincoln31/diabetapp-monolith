@@ -34,6 +34,7 @@ const FIELDS = [
   'targetGlucoseMin',
   'targetGlucoseMax',
   'targetHba1c',
+  'dailyGlucoseChecks',
   'weight',
   'height',
 ] as const;
@@ -70,7 +71,13 @@ const ProfileForm = ({ profile }: { profile: Profile }) => {
   });
 
   const numberInput = (
-    name: 'targetGlucoseMin' | 'targetGlucoseMax' | 'targetHba1c' | 'weight' | 'height',
+    name:
+      | 'targetGlucoseMin'
+      | 'targetGlucoseMax'
+      | 'targetHba1c'
+      | 'dailyGlucoseChecks'
+      | 'weight'
+      | 'height',
     label: string,
     keyboardType: 'numeric' | 'decimal-pad',
   ) => (
@@ -102,6 +109,7 @@ const ProfileForm = ({ profile }: { profile: Profile }) => {
       {numberInput('targetGlucoseMin', 'Glucosa mínima (mg/dL)', 'numeric')}
       {numberInput('targetGlucoseMax', 'Glucosa máxima (mg/dL)', 'numeric')}
       {numberInput('targetHba1c', 'Meta de HbA1c (%)', 'decimal-pad')}
+      {numberInput('dailyGlucoseChecks', 'Lecturas por día (meta diaria)', 'numeric')}
 
       <Text style={styles.section}>Mi perfil diabético</Text>
       <View style={styles.inputGroup}>

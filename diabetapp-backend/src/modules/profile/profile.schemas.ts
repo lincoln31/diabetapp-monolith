@@ -24,6 +24,12 @@ export const updateProfileSchema = z
       .min(4, 'La meta de HbA1c debe estar entre 4 y 14 %')
       .max(14, 'La meta de HbA1c debe estar entre 4 y 14 %')
       .nullable(),
+    // La meta diaria no se puede borrar: sin meta no hay avance que mostrar (spec fase 8, RF-8.8)
+    dailyGlucoseChecks: z
+      .number('La meta diaria debe ser un número')
+      .int('La meta diaria debe ser un número entero')
+      .min(1, 'La meta diaria debe estar entre 1 y 20 lecturas')
+      .max(20, 'La meta diaria debe estar entre 1 y 20 lecturas'),
     weight: z
       .number('El peso debe ser un número')
       .min(20, 'El peso debe estar entre 20 y 400 kg')

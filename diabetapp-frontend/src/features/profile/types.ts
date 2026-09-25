@@ -9,6 +9,7 @@ export interface Profile {
   targetGlucoseMin: number | null;
   targetGlucoseMax: number | null;
   targetHba1c: number | null;
+  dailyGlucoseChecks: number;
   weight: number | null;
   height: number | null;
   activityLevel: ActivityLevel | null;

@@ -52,6 +52,10 @@ export const exportGlucosePdf = async (req: Request, res: Response) => {
   buildGlucosePdf(patientName, readings).pipe(res);
 };
 
+export const getGlucoseStreak = async (req: Request, res: Response) => {
+  return ok(res, await glucoseService.getStreak(req.user!.id));
+};
+
 export const getGlucoseReading = async (req: Request, res: Response) => {
   const { id } = validatedParams<GlucoseIdParams>(req);
 

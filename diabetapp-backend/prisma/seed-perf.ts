@@ -53,6 +53,14 @@ async function main() {
 
   console.log(`Estadísticas del dashboard en ${statsMs.toFixed(1)} ms`);
   console.log(statsMs < 300 ? '✅ Cumple RNF-5.3 (< 300 ms)' : '❌ Por encima de 300 ms');
+
+  // RNF-8.2: racha y meta diaria (spec fase 8) con las mismas 10 000 lecturas
+  const t2 = performance.now();
+  await new GlucoseService().getStreak(user.id);
+  const streakMs = performance.now() - t2;
+
+  console.log(`Racha en ${streakMs.toFixed(1)} ms`);
+  console.log(streakMs < 300 ? '✅ Cumple RNF-8.2 (< 300 ms)' : '❌ Por encima de 300 ms');
 }
 
 void main().finally(() => prisma.$disconnect());

@@ -16,8 +16,10 @@ import EmptyState from '../components/EmptyState';
 import ExportReportButton from '../components/ExportReportButton';
 import GlucoseAveragesCard from '../components/GlucoseAveragesCard';
 import Hba1cCard from '../components/Hba1cCard';
+import StreakCard from '../components/StreakCard';
 import { useDashboardStats } from '../hooks/useDashboardStats';
 import { useHba1cProjection } from '../hooks/useHba1cProjection';
+import { useStreak } from '../hooks/useStreak';
 
 /** Pantalla principal tras iniciar sesión (spec fase 5, RF-5.7, D-5.5/D-5.6). */
 const DashboardScreen = () => {
@@ -25,12 +27,13 @@ const DashboardScreen = () => {
   const router = useRouter();
   const { status, stats, errorMessage, refreshing, refresh } = useDashboardStats();
   const hba1c = useHba1cProjection();
+  const streak = useStreak();
 
   const goToRegister = () => router.push('/glucose/new');
 
   // Deslizar hacia abajo refresca todas las tarjetas, no solo la de promedios
   // (spec fase 6, D-6.7 / RF-5.13 de la fase 5).
-  const refreshAll = () => Promise.all([refresh(), hba1c.refresh()]);
+  const refreshAll = () => Promise.all([refresh(), hba1c.refresh(), streak.refresh()]);
 
   const handleSignOut = () => {
     Alert.alert('Cerrar sesión', '¿Seguro que quieres salir de tu cuenta?', [
@@ -70,6 +73,7 @@ const DashboardScreen = () => {
       {status === 'success' && stats && (
         <>
           <GlucoseAveragesCard stats={stats} />
+          {streak.status === 'success' && streak.streak && <StreakCard streak={streak.streak} />}
           {hba1c.status === 'success' && hba1c.projection && (
             <Hba1cCard projection={hba1c.projection} />
           )}

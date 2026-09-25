@@ -29,6 +29,23 @@ const optionalNumber = (label: string, min: number, max: number, unit: string, i
       `${label} debe estar entre ${min} y ${max} ${unit}`,
     );
 
+/** Como `optionalNumber`, pero obligatorio: la meta diaria no se puede borrar (spec fase 8, RF-8.8). */
+const requiredInteger = (label: string, min: number, max: number, unit: string) =>
+  z
+    .string()
+    .refine((raw) => raw.trim() !== '', `Indica ${label.toLowerCase()}`)
+    .refine(
+      (raw) => raw.trim() === '' || Number.isInteger(toNumber(raw)),
+      `${label} debe ser un número entero`,
+    )
+    .refine(
+      (raw) =>
+        raw.trim() === '' ||
+        !Number.isInteger(toNumber(raw)) ||
+        (toNumber(raw) >= min && toNumber(raw) <= max),
+      `${label} debe estar entre ${min} y ${max} ${unit}`,
+    );
+
 const toNumber = (raw: string): number => Number(raw.trim().replace(',', '.'));
 
 export const profileFormSchema = z
@@ -38,6 +55,7 @@ export const profileFormSchema = z
     targetGlucoseMin: optionalNumber('El mínimo', 40, 400, 'mg/dL', true),
     targetGlucoseMax: optionalNumber('El máximo', 40, 400, 'mg/dL', true),
     targetHba1c: optionalNumber('La meta de HbA1c', 4, 14, '%'),
+    dailyGlucoseChecks: requiredInteger('La meta diaria', 1, 20, 'lecturas'),
     weight: optionalNumber('El peso', 20, 400, 'kg'),
     height: optionalNumber('La altura', 50, 250, 'cm'),
   })
@@ -68,6 +86,7 @@ export const profileToFormValues = (profile: Profile): ProfileFormValues => ({
   targetGlucoseMin: numberToText(profile.targetGlucoseMin),
   targetGlucoseMax: numberToText(profile.targetGlucoseMax),
   targetHba1c: numberToText(profile.targetHba1c),
+  dailyGlucoseChecks: String(profile.dailyGlucoseChecks),
   weight: numberToText(profile.weight),
   height: numberToText(profile.height),
 });
@@ -81,6 +100,7 @@ export const formValuesToInput = (values: ProfileFormValues): UpdateProfileInput
   targetGlucoseMin: textToNumber(values.targetGlucoseMin),
   targetGlucoseMax: textToNumber(values.targetGlucoseMax),
   targetHba1c: textToNumber(values.targetHba1c),
+  dailyGlucoseChecks: toNumber(values.dailyGlucoseChecks),
   weight: textToNumber(values.weight),
   height: textToNumber(values.height),
 });

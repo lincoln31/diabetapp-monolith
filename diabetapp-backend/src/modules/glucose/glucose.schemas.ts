@@ -80,3 +80,12 @@ export interface Hba1cProjection {
   projectedHba1c: number | null;
   targetHba1c: number | null;
 }
+
+// Racha y meta diaria del dashboard (spec fase 8, D-8.1).
+export interface StreakStats {
+  current: number;
+  longest: number;
+  todayCount: number;
+  dailyGoal: number;
+  goalReachedToday: boolean;
+}
