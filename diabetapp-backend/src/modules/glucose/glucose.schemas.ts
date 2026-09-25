@@ -71,3 +71,12 @@ export interface GlucoseStats {
     '30': PeriodStats;
   };
 }
+
+// Proyección de HbA1c del dashboard (spec fase 6, D-6.1): tampoco hay entrada que validar.
+export interface Hba1cProjection {
+  average90: number | null;
+  sampleCount: number;
+  sufficientData: boolean;
+  projectedHba1c: number | null;
+  targetHba1c: number | null;
+}

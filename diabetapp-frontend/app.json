@@ -37,7 +37,8 @@
       "@react-native-community/datetimepicker",
       "expo-font",
       "expo-status-bar",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true

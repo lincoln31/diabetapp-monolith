@@ -3,6 +3,7 @@ import {
   TouchableOpacity,
   Text,
   ActivityIndicator,
+  View,
   StyleSheet,
   TouchableOpacityProps,
   StyleProp,
@@ -56,18 +57,26 @@ const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={variant === 'outline' ? COLORS.primary : COLORS.white}
-        />
+        <View style={styles.loadingRow}>
+          <ActivityIndicator
+            size="small"
+            color={variant === 'outline' ? COLORS.primary : COLORS.white}
+          />
+          {loadingText && <Text style={getTextStyle()}>{loadingText}</Text>}
+        </View>
       ) : (
-        <Text style={getTextStyle()}>{loadingText || title}</Text>
+        <Text style={getTextStyle()}>{title}</Text>
       )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  loadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 8,
+  },
   button: {
     borderRadius: 12,
     justifyContent: 'center',

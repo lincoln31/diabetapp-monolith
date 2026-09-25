@@ -17,7 +17,10 @@ describe('calculateTrend', () => {
   });
 
   it('devuelve no_data si una de las mitades queda vacía', () => {
-    const readings = [reading(120, '2026-09-01T01:00:00.000Z'), reading(130, '2026-09-01T02:00:00.000Z')];
+    const readings = [
+      reading(120, '2026-09-01T01:00:00.000Z'),
+      reading(130, '2026-09-01T02:00:00.000Z'),
+    ];
 
     expect(calculateTrend(readings, windowStart, windowEnd)).toBe('no_data');
   });

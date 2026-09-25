@@ -28,13 +28,22 @@ export const useDashboardStats = () => {
   const loadedOnce = useRef(false);
 
   const load = useCallback(async (isRefresh: boolean) => {
-    setState((prev) => ({ ...prev, refreshing: isRefresh, status: isRefresh ? prev.status : 'loading' }));
+    setState((prev) => ({
+      ...prev,
+      refreshing: isRefresh,
+      status: isRefresh ? prev.status : 'loading',
+    }));
 
     try {
       const stats = await dashboardApi.getStats();
       const isEmpty = stats.periods['30'].count === 0;
 
-      setState({ status: isEmpty ? 'empty' : 'success', stats, errorMessage: null, refreshing: false });
+      setState({
+        status: isEmpty ? 'empty' : 'success',
+        stats,
+        errorMessage: null,
+        refreshing: false,
+      });
     } catch (error) {
       setState({
         status: 'error',

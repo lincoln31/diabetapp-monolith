@@ -21,6 +21,29 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Decodifica un `ArrayBuffer` a texto sin depender de `TextDecoder` (no está
+ * garantizado en todos los motores de React Native). Solo se usa para leer el
+ * cuerpo de un error cuando la petición pidió una respuesta binaria (spec
+ * fase 6, D-6.6: exportar el PDF con `responseType: 'arraybuffer'`).
+ */
+const decodeArrayBuffer = (buffer: ArrayBuffer): string => {
+  const bytes = new Uint8Array(buffer);
+  let raw = '';
+  for (let i = 0; i < bytes.length; i++) {
+    raw += String.fromCharCode(bytes[i]);
+  }
+  return decodeURIComponent(escape(raw));
+};
+
+const safeJsonParse = (text: string): unknown => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+};
+
 /** Convierte cualquier error (axios, red, inesperado) en un `ApiError`. */
 export const toApiError = (error: unknown): ApiError => {
   if (error instanceof ApiError) {
@@ -28,7 +51,10 @@ export const toApiError = (error: unknown): ApiError => {
   }
 
   if (isAxiosError(error)) {
-    const body = error.response?.data as ApiErrorBody | undefined;
+    const rawData = error.response?.data;
+    const body = (
+      rawData instanceof ArrayBuffer ? safeJsonParse(decodeArrayBuffer(rawData)) : rawData
+    ) as ApiErrorBody | undefined;
 
     if (body?.error?.code) {
       return new ApiError(
