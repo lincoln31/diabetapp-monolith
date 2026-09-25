@@ -30,9 +30,9 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-8-rachas-meta-diaria
 
 ## Bloque C — Verificación y cierre
 
-- [ ] **T8.16** ⏳ (requiere dispositivo) Recorrido en dispositivo: CA-8.12 – CA-8.16.
+- [x] **T8.16** Recorrido en dispositivo (moto g34 5G): CA-8.12, CA-8.14, CA-8.15, CA-8.16 (racha de 5 días con avance de hoy; registrar y volver actualiza el avance solo; cambiar la meta diaria en el perfil se refleja al volver, incluida la marca de meta cumplida; backend apagado no rompe el dashboard). CA-8.13 (invitación sin racha) no se recorrió en dispositivo por tiempo; queda cubierta por el test de integración CA-8.3 y el test de componente de `StreakCard`.
 - [x] **T8.17** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
-- [ ] **T8.18** Marcar CA-8.1 … CA-8.17 en el PR; cerrar #25 y #26; cerrar #22, #23, #24 con el comentario de §8; actualizar `CLAUDE.md` y `specs/README.md`.
+- [~] **T8.18** (parcial: #25 y #26 se cierran al fusionar el PR) Marcar CA-8.1 … CA-8.17 en el PR; cerrar #25 y #26; cerrar #22, #23, #24 con el comentario de §8; actualizar `CLAUDE.md` y `specs/README.md`.
 
 ## Trazabilidad
 
