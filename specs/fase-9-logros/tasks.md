@@ -6,7 +6,7 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-9-logros`
 
 ## Bloque 0 — Aclaraciones
 
-- [ ] **T9.1** Resolver las aclaraciones de la spec (§8: sin tabla de logros, catálogo de 6 logros, pantalla dedicada en vez de tarjeta) y anotarlas.
+- [x] **T9.1** Resolver las aclaraciones de la spec (§8: sin tabla de logros, catálogo de 6 logros, pantalla dedicada en vez de tarjeta) y anotarlas.
 
 ## Bloque A — Backend
 
