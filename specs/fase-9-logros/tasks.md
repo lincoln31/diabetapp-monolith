@@ -20,16 +20,16 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-9-logros`
 
 ## Bloque B — Frontend
 
-- [ ] **T9.9** Funcionalidad `achievements/`: `types.ts`, `api.ts`, `index.ts` (D-9.5). — RF-9.1 · depende de T9.5
-- [ ] **T9.10** Hook `useAchievements()` (loading/success/error), mismo patrón que `useProfile`. — RF-9.9 · depende de T9.9
-- [ ] **T9.11** Ícono `trophy` en `Icon.tsx` y `AchievementsScreen`: lista con desbloqueados distinguidos visualmente y «X de Y» en los bloqueados. — RF-9.6 – RF-9.9 · depende de T9.10
-- [ ] **T9.12** Ruta `app/(app)/achievements.tsx`, entrada en `(app)/_layout.tsx` y botón «Mis Logros» en `DashboardScreen`. — RF-9.6 · depende de T9.11
-- [ ] **T9.13 [P]** Test de componente de la lista de logros (desbloqueado, bloqueado con progreso). — CA-9.6, CA-9.7 · depende de T9.11
+- [x] **T9.9** Funcionalidad `achievements/`: `types.ts`, `api.ts`, `index.ts` (D-9.5). — RF-9.1 · depende de T9.5
+- [x] **T9.10** Hook `useAchievements()` (loading/success/error), mismo patrón que `useProfile`. — RF-9.9 · depende de T9.9
+- [x] **T9.11** Ícono `trophy` en `Icon.tsx` y `AchievementsScreen`: lista con desbloqueados distinguidos visualmente y «X de Y» en los bloqueados. — RF-9.6 – RF-9.9 · depende de T9.10
+- [x] **T9.12** Ruta `app/(app)/achievements.tsx`, entrada en `(app)/_layout.tsx` y botón «Mis Logros» en `DashboardScreen`. — RF-9.6 · depende de T9.11
+- [x] **T9.13 [P]** Test de componente de la lista de logros (desbloqueado, bloqueado con progreso). — CA-9.6, CA-9.7 · depende de T9.11
 
 ## Bloque C — Verificación y cierre
 
 - [ ] **T9.14** ⏳ (requiere dispositivo) Recorrido en dispositivo: CA-9.6 – CA-9.8.
-- [ ] **T9.15** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
+- [x] **T9.15** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
 - [ ] **T9.16** Marcar CA-9.1 … CA-9.9 en el PR; cerrar #28; cerrar #27 con el comentario de §8; actualizar `CLAUDE.md` y `specs/README.md`.
 
 ## Trazabilidad

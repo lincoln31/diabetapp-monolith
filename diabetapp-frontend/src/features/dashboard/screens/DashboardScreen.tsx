@@ -87,6 +87,12 @@ const DashboardScreen = () => {
         onPress={() => router.push('/profile')}
         style={styles.action}
       />
+      <Button
+        title="Mis Logros"
+        variant="outline"
+        onPress={() => router.push('/achievements')}
+        style={styles.action}
+      />
       <ExportReportButton style={styles.action} />
       <Button
         title="Cerrar sesión"

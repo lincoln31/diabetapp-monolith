@@ -32,6 +32,7 @@ const ICONS = {
   'arrow-right': 'arrow-forward-outline',
   'arrow-left': 'arrow-back-outline',
   flame: 'flame-outline',
+  trophy: 'trophy-outline',
   'trend-up': 'trending-up-outline',
   'trend-down': 'trending-down-outline',
   'trend-flat': 'remove-outline',
