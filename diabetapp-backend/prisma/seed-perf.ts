@@ -6,6 +6,7 @@
  */
 import { MomentOfDay } from '@prisma/client';
 import prisma from '../src/config/db';
+import { GlucoseService } from '../src/modules/glucose/glucose.service';
 
 const TOTAL = 10_000;
 
@@ -44,6 +45,14 @@ async function main() {
 
   console.log(`Listado de ${page.length} de ${total} lecturas en ${ms.toFixed(1)} ms`);
   console.log(ms < 200 ? '✅ Cumple RNF-1.3 (< 200 ms)' : '❌ Por encima de 200 ms');
+
+  // RNF-5.3: estadísticas del dashboard (spec fase 5) con las mismas 10 000 lecturas
+  const t1 = performance.now();
+  await new GlucoseService().getStats(user.id);
+  const statsMs = performance.now() - t1;
+
+  console.log(`Estadísticas del dashboard en ${statsMs.toFixed(1)} ms`);
+  console.log(statsMs < 300 ? '✅ Cumple RNF-5.3 (< 300 ms)' : '❌ Por encima de 300 ms');
 }
 
 void main().finally(() => prisma.$disconnect());

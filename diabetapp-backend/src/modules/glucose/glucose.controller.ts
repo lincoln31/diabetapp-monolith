@@ -20,6 +20,10 @@ export const listGlucoseReadings = async (req: Request, res: Response) => {
   return ok(res, readings, { meta });
 };
 
+export const getGlucoseStats = async (req: Request, res: Response) => {
+  return ok(res, await glucoseService.getStats(req.user!.id));
+};
+
 export const getGlucoseReading = async (req: Request, res: Response) => {
   const { id } = validatedParams<GlucoseIdParams>(req);
 
