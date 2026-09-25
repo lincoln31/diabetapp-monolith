@@ -13,7 +13,9 @@ const EmptyState = ({ onRegister }: EmptyStateProps) => (
   <View style={styles.container}>
     <Icon name="drop" size={48} color={COLORS.blue[500]} />
     <Text style={styles.title}>Todavía no tienes lecturas</Text>
-    <Text style={styles.subtitle}>Registra tu primera glucosa para empezar a ver tus promedios aquí</Text>
+    <Text style={styles.subtitle}>
+      Registra tu primera glucosa para empezar a ver tus promedios aquí
+    </Text>
     <Button title="Registrar glucosa" onPress={onRegister} style={styles.action} />
   </View>
 );

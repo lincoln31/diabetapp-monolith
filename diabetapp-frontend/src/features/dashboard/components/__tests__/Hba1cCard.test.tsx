@@ -15,7 +15,9 @@ const projection = (overrides: Partial<Hba1cProjection> = {}): Hba1cProjection =
 describe('Hba1cCard', () => {
   it('muestra el mensaje de datos insuficientes cuando sufficientData es false', async () => {
     const { getByText, queryByText } = await render(
-      <Hba1cCard projection={projection({ sufficientData: false, sampleCount: 3, projectedHba1c: null })} />,
+      <Hba1cCard
+        projection={projection({ sufficientData: false, sampleCount: 3, projectedHba1c: null })}
+      />,
     );
 
     expect(getByText(/Necesitas más lecturas/)).toBeTruthy();

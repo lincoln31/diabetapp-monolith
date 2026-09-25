@@ -20,14 +20,15 @@ const Hba1cCard = ({ projection }: Hba1cCardProps) => {
       <Card padding="large" style={styles.card}>
         <Text style={styles.title}>Proyección de HbA1c</Text>
         <Text style={styles.insufficientText}>
-          Necesitas más lecturas de los últimos 90 días para una proyección confiable
-          ({sampleCount} de {MIN_READINGS_FOR_PROJECTION}).
+          Necesitas más lecturas de los últimos 90 días para una proyección confiable ({sampleCount}{' '}
+          de {MIN_READINGS_FOR_PROJECTION}).
         </Text>
       </Card>
     );
   }
 
-  const withinTarget = targetHba1c !== null && projectedHba1c !== null && projectedHba1c <= targetHba1c;
+  const withinTarget =
+    targetHba1c !== null && projectedHba1c !== null && projectedHba1c <= targetHba1c;
 
   return (
     <Card padding="large" style={styles.card}>
@@ -41,7 +42,9 @@ const Hba1cCard = ({ projection }: Hba1cCardProps) => {
 
         {targetHba1c !== null && (
           <View style={[styles.badge, withinTarget ? styles.badgeIn : styles.badgeOut]}>
-            <Text style={[styles.badgeText, withinTarget ? styles.badgeTextIn : styles.badgeTextOut]}>
+            <Text
+              style={[styles.badgeText, withinTarget ? styles.badgeTextIn : styles.badgeTextOut]}
+            >
               {withinTarget ? 'Dentro de tu meta' : 'Por encima de tu meta'}
             </Text>
           </View>
@@ -51,8 +54,8 @@ const Hba1cCard = ({ projection }: Hba1cCardProps) => {
       {targetHba1c !== null && <Text style={styles.targetText}>Tu meta: {targetHba1c} %</Text>}
 
       <Text style={styles.disclaimer}>
-        Estimación a partir de tu promedio de glucosa de los últimos 90 días — no reemplaza un examen
-        de laboratorio.
+        Estimación a partir de tu promedio de glucosa de los últimos 90 días — no reemplaza un
+        examen de laboratorio.
       </Text>
     </Card>
   );

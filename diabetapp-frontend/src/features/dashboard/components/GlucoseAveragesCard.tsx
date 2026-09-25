@@ -66,7 +66,9 @@ const GlucoseAveragesCard = ({ stats }: GlucoseAveragesCardProps) => {
 
         {inRange !== null && (
           <View style={[styles.rangeBadge, inRange ? styles.rangeBadgeIn : styles.rangeBadgeOut]}>
-            <Text style={[styles.rangeBadgeText, inRange ? styles.rangeTextIn : styles.rangeTextOut]}>
+            <Text
+              style={[styles.rangeBadgeText, inRange ? styles.rangeTextIn : styles.rangeTextOut]}
+            >
               {inRange ? 'Dentro del rango' : 'Fuera del rango'}
             </Text>
           </View>

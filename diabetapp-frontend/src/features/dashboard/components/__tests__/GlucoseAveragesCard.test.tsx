@@ -27,7 +27,9 @@ describe('GlucoseAveragesCard', () => {
   });
 
   it('marca el promedio como fuera del rango cuando lo supera', async () => {
-    const data = stats({ periods: { '7': period({ average: 200 }), '14': period(), '30': period() } });
+    const data = stats({
+      periods: { '7': period({ average: 200 }), '14': period(), '30': period() },
+    });
 
     const { getByText } = await render(<GlucoseAveragesCard stats={data} />);
 

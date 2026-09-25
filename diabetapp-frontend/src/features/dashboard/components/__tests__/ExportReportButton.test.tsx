@@ -8,7 +8,11 @@ let mockStatus: 'idle' | 'loading' | 'error' = 'idle';
 let mockErrorMessage: string | null = null;
 
 jest.mock('../../hooks/useExportReport', () => ({
-  useExportReport: () => ({ status: mockStatus, errorMessage: mockErrorMessage, download: mockDownload }),
+  useExportReport: () => ({
+    status: mockStatus,
+    errorMessage: mockErrorMessage,
+    download: mockDownload,
+  }),
 }));
 
 describe('ExportReportButton', () => {
