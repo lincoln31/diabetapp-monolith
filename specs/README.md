@@ -55,6 +55,7 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 6    | [Reportes exportables y proyección de HbA1c](fase-6-reportes-hba1c/spec.md) | Proyección de HbA1c en el dashboard y exportar el historial en CSV/PDF | Fase 1, Fase 5 | #46, #47, #49, #50 | 2–3 días |
 | 7    | [Perfil diabético y metas personales](fase-7-perfil-metas/spec.md) | Editar metas (rango de glucosa, HbA1c) y perfil, y avisar al registrar un valor fuera de rango | Fase 3, 5, 6 | #14, #15, #21 (cierra también #13, #17, #18) | 2–3 días |
 | 8    | [Rachas y meta diaria de glucometrías](fase-8-rachas-meta-diaria/spec.md) | Racha de días seguidos registrando glucosa, avance de hoy y meta diaria editable | Fase 5, 7 | #25, #26 (cierra también #22, #23, #24, #56, #57) | 2 días |
+| 9    | [Logros](fase-9-logros/spec.md) | Catálogo de logros por racha y volumen de lecturas, con una pantalla "Mis Logros" | Fase 3, 8 | #28 (cierra también #27) | 1–2 días |
 
 > La fase 4 puede empezar en paralelo para el backend en cuanto la fase 1 esté fusionada.
 
@@ -71,3 +72,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 6    | Implementada (verificada en dispositivo; pendiente fusionar #84) |
 | 7    | Implementada (verificada en dispositivo; pendiente fusionar #86) |
 | 8    | Implementada (verificada en dispositivo; pendiente fusionar #88) |
+| 9    | Borrador (pendiente de aprobar las aclaraciones de la spec §8) |
