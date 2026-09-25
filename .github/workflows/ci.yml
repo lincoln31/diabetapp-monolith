@@ -1,0 +1,114 @@
+name: CI
+
+# Comprueba formato, lint, tipos, migraciones y tests (spec fase 4, RF-4.12).
+on:
+  pull_request:
+    branches: [Develop, main]
+  push:
+    branches: [Develop, main]
+
+# Un push nuevo al PR cancela la ejecución anterior (RF-4.14)
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: diabetapp-backend
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: diabetapp_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: test
+      # Valores de prueba, sin secretos reales (RNF-4.2)
+      DATABASE_URL: postgresql://user:password@localhost:5433/diabetapp_test
+      SHADOW_DATABASE_URL: postgresql://user:password@localhost:5433/diabetapp_shadow
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: diabetapp-backend/package-lock.json
+
+      - run: npm ci
+      - run: npx prisma generate
+
+      - name: Formato
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Base de datos de sombra
+        run: psql "postgresql://user:password@localhost:5433/postgres" -c 'CREATE DATABASE diabetapp_shadow'
+
+      - name: Aplicar migraciones
+        run: npx prisma migrate deploy
+
+      - name: El esquema coincide con las migraciones
+        run: |
+          npx prisma migrate diff \
+            --from-migrations prisma/migrations \
+            --to-schema-datamodel prisma/schema.prisma \
+            --shadow-database-url "$SHADOW_DATABASE_URL" \
+            --exit-code
+
+      - name: Tests
+        run: npm test -- --ci --coverage
+
+  frontend:
+    name: frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: diabetapp-frontend
+
+    env:
+      # Solo para que la configuración no falle al cargar en los tests
+      EXPO_PUBLIC_API_URL: http://localhost:3000/api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: diabetapp-frontend/package-lock.json
+
+      - run: npm ci
+
+      - name: Formato
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test -- --ci

@@ -23,9 +23,10 @@ model User {
   password        String
   firstName       String?   
   lastName        String?
+  phone           String?   // Teléfono de contacto (opcional)
   
   // Perfil específico de diabetes (según RF001)
-  typeOfDiabetes  String?   // "TYPE_1" | "TYPE_2" | "GESTACIONAL" | "PREDIABETES"
+  typeOfDiabetes  DiabetesType?
   diagnosedAt     DateTime? // Fecha del diagnóstico
   yearsWithDiabetes Int?    // Calculado o manual, importante para personalización
   
@@ -38,11 +39,11 @@ model User {
   birthDate       DateTime? // Para personalizar contenido educativo por edad
   weight          Float?    // Para calculadoras y recomendaciones
   height          Float?    // Para calculadoras de IMC
-  activityLevel   String?   // "SEDENTARY" | "LIGHT" | "MODERATE" | "ACTIVE"
+  activityLevel   ActivityLevel?
   
   // Configuración de medicamentos (según RF005)
   currentMedications String? // JSON o texto simple por ahora
-  insulinType     String?   // "RAPID" | "LONG_ACTING" | "MIXED" | "NONE"
+  insulinType     InsulinType?
   
   // Preferencias de notificaciones (según RF001)
   notificationPreferences Json? // Estructura flexible para diferentes tipos
@@ -67,6 +68,7 @@ model User {
   
   // Relaciones futuras (preparación para Fase 2-3)
    glucoseReadings GlucoseReading[]
+  refreshTokens   RefreshToken[]
   // medications     Medication[]
   // achievements    Achievement[]
   // dailyGoals      DailyGoal[]
@@ -81,7 +83,7 @@ model GlucoseReading {
 
   // Contexto del registro (según RF002)
   timestamp DateTime  // Fecha y hora exactas del registro, enviadas desde el móvil
-  momentOfDay String    // "AYUNAS", "ANTES_COMIDA", "DESPUES_COMIDA", "NOCTURNA"
+  momentOfDay MomentOfDay @default(OTHER)
   notes     String?   // Notas opcionales del usuario, ej: "Comí pizza"
 
   // Relación con el usuario (¡LA PARTE MÁS IMPORTANTE!)
@@ -91,5 +93,57 @@ model GlucoseReading {
   // Metadata
   createdAt DateTime  @default(now())
 
+  @@index([userId, timestamp]) // Consulta principal: historial del usuario por fecha
   @@map("glucose_readings") // Nombre explícito para la tabla
+}
+/// Token de renovación de sesión (spec fase 2, RF-2.2): se guarda solo su hash.
+model RefreshToken {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash    String    @unique // SHA-256 del token; el valor nunca se guarda
+  familyId     String    // Cadena de sesión: un login = una familia de tokens
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?   // Token que lo sustituyó al rotar
+  createdAt    DateTime  @default(now())
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+// --- Enums (fase 1, RF-1.18): la base de datos rechaza valores fuera de estas listas ---
+
+enum DiabetesType {
+  TYPE_1
+  TYPE_2
+  GESTATIONAL
+  PREDIABETES
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHT
+  MODERATE
+  ACTIVE
+}
+
+enum InsulinType {
+  RAPID
+  LONG_ACTING
+  MIXED
+  NONE
+}
+
+enum MomentOfDay {
+  BEFORE_BREAKFAST
+  AFTER_BREAKFAST
+  BEFORE_LUNCH
+  AFTER_LUNCH
+  BEFORE_DINNER
+  AFTER_DINNER
+  BEFORE_SLEEP
+  OTHER
 }
