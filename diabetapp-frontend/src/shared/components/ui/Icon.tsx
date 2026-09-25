@@ -31,6 +31,9 @@ const ICONS = {
   close: 'close-outline',
   'arrow-right': 'arrow-forward-outline',
   'arrow-left': 'arrow-back-outline',
+  'trend-up': 'trending-up-outline',
+  'trend-down': 'trending-down-outline',
+  'trend-flat': 'remove-outline',
 } as const satisfies Record<string, React.ComponentProps<typeof Ionicons>['name']>;
 
 export type AppIconName = keyof typeof ICONS;

@@ -131,3 +131,64 @@ describe('/api/glucose', () => {
     expect(despues.status).toBe(404);
   });
 });
+
+describe('/api/glucose/stats', () => {
+  it('exige sesión', async () => {
+    const response = await api().get('/api/glucose/stats');
+
+    expect(response.status).toBe(401);
+  });
+
+  it('devuelve no_data y valores nulos sin lecturas', async () => {
+    const { accessToken } = await registerUser();
+
+    const response = await api().get('/api/glucose/stats').set(authHeader(accessToken));
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.periods['7']).toEqual({
+      days: 7,
+      count: 0,
+      average: null,
+      min: null,
+      max: null,
+      trend: 'no_data',
+    });
+    expect(response.body.data.target).toEqual({ min: 80, max: 180 });
+  });
+
+  it('calcula los promedios de las tres ventanas y no mezcla lecturas de otro usuario', async () => {
+    const { accessToken, user } = await registerUser();
+    const otro = await registerUser();
+
+    const ahora = Date.now();
+    const haceDias = (dias: number) => new Date(ahora - dias * 24 * 60 * 60 * 1000);
+
+    await createReading(user.id, { value: 100, timestamp: haceDias(1) });
+    await createReading(user.id, { value: 120, timestamp: haceDias(5) });
+    await createReading(user.id, { value: 200, timestamp: haceDias(20) }); // solo entra en la ventana de 30
+    await createReading(otro.user.id, { value: 999, timestamp: haceDias(1) });
+
+    const response = await api().get('/api/glucose/stats').set(authHeader(accessToken));
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.periods['7'].count).toBe(2);
+    expect(response.body.data.periods['7'].average).toBe(110);
+    expect(response.body.data.periods['14'].count).toBe(2);
+    expect(response.body.data.periods['30'].count).toBe(3);
+  });
+
+  it('respeta el límite exacto de la ventana de 7 días (día 6 sí, día 8 no)', async () => {
+    const { accessToken, user } = await registerUser();
+
+    const ahora = Date.now();
+    const haceDias = (dias: number) => new Date(ahora - dias * 24 * 60 * 60 * 1000);
+
+    await createReading(user.id, { value: 100, timestamp: haceDias(6) });
+    await createReading(user.id, { value: 150, timestamp: haceDias(8) });
+
+    const response = await api().get('/api/glucose/stats').set(authHeader(accessToken));
+
+    expect(response.body.data.periods['7'].count).toBe(1);
+    expect(response.body.data.periods['7'].average).toBe(100);
+  });
+});

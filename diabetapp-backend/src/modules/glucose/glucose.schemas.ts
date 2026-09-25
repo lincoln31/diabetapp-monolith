@@ -50,3 +50,24 @@ export type CreateGlucoseInput = z.infer<typeof createGlucoseSchema>;
 export type UpdateGlucoseInput = z.infer<typeof updateGlucoseSchema>;
 export type ListGlucoseQuery = z.infer<typeof listGlucoseQuerySchema>;
 export type GlucoseIdParams = z.infer<typeof glucoseIdParamsSchema>;
+
+// Estadísticas del dashboard (spec fase 5, D-5.1, D-5.8): no hay entrada que validar, son tipos simples.
+export type Trend = 'improving' | 'worsening' | 'stable' | 'no_data';
+
+export interface PeriodStats {
+  days: number;
+  count: number;
+  average: number | null;
+  min: number | null;
+  max: number | null;
+  trend: Trend;
+}
+
+export interface GlucoseStats {
+  target: { min: number | null; max: number | null };
+  periods: {
+    '7': PeriodStats;
+    '14': PeriodStats;
+    '30': PeriodStats;
+  };
+}

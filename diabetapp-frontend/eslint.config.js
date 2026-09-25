@@ -34,13 +34,13 @@ module.exports = defineConfig([
               message: 'Importa otra funcionalidad solo desde su index.ts.',
             },
             {
-              target: './src/features/home',
+              target: './src/features/dashboard',
               from: './src/features/auth',
               except: ['./index.ts'],
               message: 'Importa otra funcionalidad solo desde su index.ts.',
             },
             {
-              target: './src/features/home',
+              target: './src/features/dashboard',
               from: './src/features/glucose',
               except: ['./index.ts'],
               message: 'Importa otra funcionalidad solo desde su index.ts.',
