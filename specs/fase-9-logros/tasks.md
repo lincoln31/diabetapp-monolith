@@ -28,9 +28,9 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-9-logros`
 
 ## Bloque C — Verificación y cierre
 
-- [ ] **T9.14** ⏳ (requiere dispositivo) Recorrido en dispositivo: CA-9.6 – CA-9.8.
+- [x] **T9.14** Recorrido en dispositivo (moto g34 5G): CA-9.6, CA-9.7 y CA-9.8. Con una racha de 10 días y 10 lecturas en total, los 6 logros mostraron exactamente el estado esperado (3 desbloqueados, 3 con "X de Y"); con el backend apagado, mensaje de error con "Reintentar", sin pantalla en blanco.
 - [x] **T9.15** `npx tsc --noEmit`, lint y tests completos en ambos proyectos.
-- [ ] **T9.16** Marcar CA-9.1 … CA-9.9 en el PR; cerrar #28; cerrar #27 con el comentario de §8; actualizar `CLAUDE.md` y `specs/README.md`.
+- [~] **T9.16** (parcial: #28 se cierra al fusionar el PR) Marcar CA-9.1 … CA-9.9 en el PR; cerrar #28; cerrar #27 con el comentario de §8; actualizar `CLAUDE.md` y `specs/README.md`.
 
 ## Trazabilidad
 
