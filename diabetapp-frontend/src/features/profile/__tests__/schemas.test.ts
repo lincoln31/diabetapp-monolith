@@ -7,6 +7,7 @@ const valid = {
   targetGlucoseMin: '',
   targetGlucoseMax: '',
   targetHba1c: '',
+  dailyGlucoseChecks: '4',
   weight: '',
   height: '',
 };
@@ -30,6 +31,7 @@ describe('profileFormSchema', () => {
       targetGlucoseMin: '90',
       targetGlucoseMax: '140',
       targetHba1c: '6,5',
+      dailyGlucoseChecks: '5',
       weight: '72.5',
       height: '170',
     });
@@ -60,6 +62,25 @@ describe('profileFormSchema', () => {
     expect(messagesFor({ ...valid, weight: 'abc' }, 'weight')).toHaveLength(1);
   });
 
+  it('permite elegir la meta diaria (4, 5, 1…) y exige un entero entre 1 y 20', () => {
+    for (const ok of ['1', '4', '5', '20']) {
+      expect(messagesFor({ ...valid, dailyGlucoseChecks: ok }, 'dailyGlucoseChecks')).toHaveLength(
+        0,
+      );
+    }
+    for (const bad of ['0', '21', '2.5', 'abc']) {
+      expect(messagesFor({ ...valid, dailyGlucoseChecks: bad }, 'dailyGlucoseChecks')).toHaveLength(
+        1,
+      );
+    }
+  });
+
+  it('no permite dejar vacía la meta diaria', () => {
+    expect(messagesFor({ ...valid, dailyGlucoseChecks: '' }, 'dailyGlucoseChecks')).toContain(
+      'Indica la meta diaria',
+    );
+  });
+
   it('exige enteros en el rango de glucosa', () => {
     expect(messagesFor({ ...valid, targetGlucoseMin: '80.5' }, 'targetGlucoseMin')).toHaveLength(1);
   });
@@ -80,6 +101,7 @@ describe('formValuesToInput', () => {
       targetGlucoseMin: 90,
       targetGlucoseMax: null,
       targetHba1c: 6.5,
+      dailyGlucoseChecks: 4,
       weight: null,
       height: null,
     });
@@ -93,6 +115,7 @@ describe('profileToFormValues', () => {
       targetGlucoseMin: 80,
       targetGlucoseMax: 180,
       targetHba1c: null,
+      dailyGlucoseChecks: 5,
       weight: 72.5,
       height: null,
       activityLevel: 'ACTIVE',
@@ -105,6 +128,7 @@ describe('profileToFormValues', () => {
       targetGlucoseMin: '80',
       targetGlucoseMax: '180',
       targetHba1c: '',
+      dailyGlucoseChecks: '5',
       weight: '72.5',
       height: '',
     });

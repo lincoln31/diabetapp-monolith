@@ -31,6 +31,7 @@ const ICONS = {
   close: 'close-outline',
   'arrow-right': 'arrow-forward-outline',
   'arrow-left': 'arrow-back-outline',
+  flame: 'flame-outline',
   'trend-up': 'trending-up-outline',
   'trend-down': 'trending-down-outline',
   'trend-flat': 'remove-outline',

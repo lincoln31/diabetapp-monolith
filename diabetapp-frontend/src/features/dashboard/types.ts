@@ -30,3 +30,12 @@ export interface Hba1cProjection {
 }
 
 export type ExportFormat = 'csv' | 'pdf';
+
+/** Racha de días seguidos y avance de hoy (spec fase 8, D-8.1). */
+export interface StreakStats {
+  current: number;
+  longest: number;
+  todayCount: number;
+  dailyGoal: number;
+  goalReachedToday: boolean;
+}

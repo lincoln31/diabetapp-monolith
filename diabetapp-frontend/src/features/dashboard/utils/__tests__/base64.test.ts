@@ -1,6 +1,7 @@
 import { arrayBufferToBase64 } from '../base64';
 
-const bufferFrom = (text: string): ArrayBuffer => new TextEncoder().encode(text).buffer as ArrayBuffer;
+const bufferFrom = (text: string): ArrayBuffer =>
+  new TextEncoder().encode(text).buffer as ArrayBuffer;
 
 describe('arrayBufferToBase64', () => {
   // Vectores de prueba de RFC 4648 §10

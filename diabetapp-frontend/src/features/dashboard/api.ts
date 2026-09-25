@@ -1,5 +1,5 @@
 import { get, getFile } from '@/src/shared/api/client';
-import { ExportFormat, GlucoseStats, Hba1cProjection } from './types';
+import { ExportFormat, GlucoseStats, Hba1cProjection, StreakStats } from './types';
 
 /** Llamada de estadísticas del dashboard (spec fase 5, RF-5.1). */
 export const dashboardApi = {
@@ -15,4 +15,9 @@ export const hba1cApi = {
 export const exportApi = {
   download: (format: ExportFormat) =>
     getFile(`/glucose/export/${format}`, format === 'pdf' ? 'arraybuffer' : 'text'),
+};
+
+/** Llamada de racha y meta diaria (spec fase 8, RF-8.1). */
+export const streakApi = {
+  getStreak: () => get<StreakStats>('/glucose/streak'),
 };
