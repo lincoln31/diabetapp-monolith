@@ -6,7 +6,7 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-8-rachas-meta-diaria
 
 ## Bloque 0 — Aclaraciones y limpieza
 
-- [ ] **T8.1** Resolver las aclaraciones de la spec (§8: qué día cuenta, metas por la vía del perfil, límites de la meta diaria) y anotarlas.
+- [x] **T8.1** Resolver las aclaraciones de la spec (§8: qué día cuenta, metas por la vía del perfil, límites de la meta diaria) y anotarlas.
 - [x] **T8.2** Cerrar #56 y #57 con un comentario que apunte a `test/auth.*.test.ts` y `.github/workflows/ci.yml` (fase 4). — H8.4
 
 ## Bloque A — Backend

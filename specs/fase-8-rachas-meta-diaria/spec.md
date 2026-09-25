@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 8 |
-| Estado | Borrador |
+| Estado | Aprobada |
 | Fecha | 2026-09-24 |
 | Depende de | Fase 5 (dashboard por tarjetas), Fase 7 (perfil editable) |
 | Issues relacionados | Cierra #25, #26 (rachas) y #22, #23, #24 (metas diarias, por la vía del perfil — ver §8). Se cierran por ya estar entregados: #56, #57 (fase 4). Fuera de esta fase: #27, #28, #54 (badges) |
@@ -100,9 +100,9 @@ Que el paciente vea su **racha** de días seguidos registrando glucosa y su avan
 
 ## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** ¿Qué hace que un día «cuente»? Propuesta: **al menos una lectura** (racha por constancia, forgiving). Alternativa: que cumpla la meta diaria completa (4 lecturas por defecto), que es mucho más exigente y haría que casi nadie tuviera racha. Con la propuesta, la meta diaria se muestra como **avance del día** pero no rompe la racha.
-- **[NECESITA ACLARACIÓN]** #22, #23, #24 piden un esquema y un CRUD de «metas». Propuesta: **no crear una tabla de metas**; la meta diaria ya es `User.dailyGlucoseChecks` y se edita con el perfil (#23 = `PUT /profile`, #24 = un campo más de «Mi perfil»). Se cierran los tres al terminar la fase con un comentario que lo explique. Un CRUD de metas arbitrarias se especificaría cuando exista un módulo que las consuma (ejercicio, medicación). ¿Te parece bien?
-- **[NECESITA ACLARACIÓN]** Límites de `dailyGlucoseChecks`: propuesta **1 a 20** lecturas por día.
+- **Resuelta (2026-09-24):** un día cuenta para la racha con **al menos una lectura**; la meta diaria se muestra como avance del día pero no rompe la racha.
+- **Resuelta (2026-09-24):** no se crea tabla ni CRUD de metas; la meta diaria es `User.dailyGlucoseChecks`. Se aclara que **debe ser modificable por el usuario**: mínimo 1 y él elige el número que quiera (4, 5, etc.) desde «Mi perfil». #22, #23 y #24 se cierran al terminar la fase con un comentario que lo explique.
+- **Resuelta (2026-09-24):** la meta diaria admite de **1 a 20** lecturas por día (valor por defecto 4).
 - **Decisión tomada:** las rachas **no se guardan**: se calculan sobre el historial en cada petición. Guardar un contador exigiría mantenerlo coherente con lecturas retroactivas, borradas o editadas (RF-8.5); con una consulta agrupada por día el costo es mínimo (RNF-8.1).
 - **Decisión tomada:** se cierran #56 y #57 ahora (H8.4), sin esperar a la implementación: ya están en `Develop`.
 
