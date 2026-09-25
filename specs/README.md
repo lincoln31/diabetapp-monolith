@@ -51,15 +51,17 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 2    | [Sesión y seguridad](fase-2-sesion-seguridad/spec.md)             | Sesiones que se renuevan, rutas protegidas, protección contra abuso                         | Fase 1                              | #14, #15 (prepara) | 2 días     |
 | 3    | [Arquitectura del frontend](fase-3-arquitectura-frontend/spec.md) | Estructura por funcionalidades, capa de servicios tipada, formularios con errores por campo | Fase 2                              | #48 (prepara)      | 2–3 días   |
 | 4    | [Calidad continua](fase-4-calidad-continua/spec.md)               | Tests, linters y CI que bloquea PRs rotos                                                   | Fase 1 (backend), Fase 3 (frontend) | #56, #57           | 2 días     |
+| 5    | [Dashboard con promedios de glucosa](fase-5-dashboard-glucosa/spec.md) | Endpoint de estadísticas (7/14/30 días) y pantalla principal que las muestra | Fase 1, Fase 3 | #19, #20, #48 | 2–3 días |
 
 > La fase 4 puede empezar en paralelo para el backend en cuanto la fase 1 esté fusionada.
 
 ## Estado actual
 
-| Fase | Estado                                                                       |
-| ---- | ---------------------------------------------------------------------------- |
-| 0    | En implementación (PR abierto; pendiente rotar el secreto en los servidores) |
-| 1    | En implementación (PR abierto; falta probar la app en dispositivo)           |
-| 2    | En implementación (PR abierto; falta probar la app en dispositivo)           |
-| 3    | En implementación (PR abierto; falta probar la app en dispositivo)           |
-| 4    | En implementación (PR abierto; falta activar la protección de ramas)         |
+| Fase | Estado |
+| ---- | ------ |
+| 0    | Implementada (fusionada en Develop) |
+| 1    | Implementada (fusionada en Develop) |
+| 2    | Implementada (fusionada en Develop) |
+| 3    | Implementada (fusionada en Develop) |
+| 4    | Implementada (fusionada en Develop) |
+| 5    | Borrador |
