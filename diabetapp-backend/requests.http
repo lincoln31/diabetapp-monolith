@@ -201,3 +201,18 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 { "targetGlucoseMin": 500 }
+
+### ---------------------------------------------------------------------------
+### Fase 8 · rachas y meta diaria
+### ---------------------------------------------------------------------------
+
+### CA-8.1 – CA-8.10 · Racha actual, mejor racha, avance de hoy y meta diaria
+GET {{host}}/glucose/streak
+Authorization: Bearer {{token}}
+
+### CA-8.11 · Cambiar la meta diaria (1 a 20)
+PUT {{host}}/profile
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "dailyGlucoseChecks": 5 }

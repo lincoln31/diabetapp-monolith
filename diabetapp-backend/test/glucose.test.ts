@@ -307,3 +307,110 @@ describe('/api/glucose/export', () => {
     expect((response.body as Buffer).subarray(0, 5).toString()).toBe('%PDF-');
   });
 });
+
+describe('/api/glucose/streak', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  const haceDias = (dias: number) => new Date(Date.now() - dias * DAY);
+
+  it('exige sesión', async () => {
+    const response = await api().get('/api/glucose/streak');
+
+    expect(response.status).toBe(401);
+  });
+
+  it('devuelve todo en cero sin lecturas', async () => {
+    const { accessToken } = await registerUser();
+
+    const response = await api().get('/api/glucose/streak').set(authHeader(accessToken));
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toEqual({
+      current: 0,
+      longest: 0,
+      todayCount: 0,
+      dailyGoal: 4,
+      goalReachedToday: false,
+    });
+  });
+
+  it('calcula la racha, cuenta las lecturas de hoy y respeta la meta', async () => {
+    const { accessToken, user } = await registerUser();
+
+    for (const dias of [0, 0, 1, 2]) {
+      await createReading(user.id, { timestamp: haceDias(dias) });
+    }
+    await createReading(user.id, { timestamp: haceDias(10) });
+
+    const response = await api().get('/api/glucose/streak').set(authHeader(accessToken));
+
+    expect(response.body.data).toMatchObject({
+      current: 3,
+      longest: 3,
+      todayCount: 2,
+      dailyGoal: 4,
+      goalReachedToday: false,
+    });
+  });
+
+  it('marca la meta como cumplida y usa la meta del perfil', async () => {
+    const { accessToken, user } = await registerUser();
+    await api().put('/api/profile').set(authHeader(accessToken)).send({ dailyGlucoseChecks: 2 });
+
+    await createReading(user.id, { timestamp: haceDias(0) });
+    await createReading(user.id, { timestamp: haceDias(0) });
+
+    const response = await api().get('/api/glucose/streak').set(authHeader(accessToken));
+
+    expect(response.body.data).toMatchObject({
+      dailyGoal: 2,
+      todayCount: 2,
+      goalReachedToday: true,
+    });
+  });
+
+  it('mantiene viva la racha si hoy no hay lecturas', async () => {
+    const { accessToken, user } = await registerUser();
+    await createReading(user.id, { timestamp: haceDias(1) });
+    await createReading(user.id, { timestamp: haceDias(2) });
+
+    const response = await api().get('/api/glucose/streak').set(authHeader(accessToken));
+
+    expect(response.body.data).toMatchObject({ current: 2, todayCount: 0 });
+  });
+
+  it('une dos rachas con una lectura retroactiva', async () => {
+    const { accessToken, user } = await registerUser();
+    for (const dias of [0, 1, 3, 4]) {
+      await createReading(user.id, { timestamp: haceDias(dias) });
+    }
+    const antes = await api().get('/api/glucose/streak').set(authHeader(accessToken));
+
+    await createReading(user.id, { timestamp: haceDias(2) });
+    const despues = await api().get('/api/glucose/streak').set(authHeader(accessToken));
+
+    expect(antes.body.data).toMatchObject({ current: 2, longest: 2 });
+    expect(despues.body.data).toMatchObject({ current: 5, longest: 5 });
+  });
+
+  it('agrupa por día local (Bogotá) y no por día UTC', async () => {
+    const { accessToken, user } = await registerUser();
+    const hoyLocal = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
+
+    // 04:30 UTC de hoy local = 23:30 de ayer en Bogotá (UTC-5), siempre en el pasado
+    await createReading(user.id, { timestamp: new Date(hoyLocal + 'T04:30:00.000Z') });
+
+    const response = await api().get('/api/glucose/streak').set(authHeader(accessToken));
+
+    expect(response.body.data).toMatchObject({ current: 1, longest: 1, todayCount: 0 });
+  });
+
+  it('no cuenta lecturas de otro usuario', async () => {
+    const { accessToken } = await registerUser();
+    const otro = await registerUser();
+    await createReading(otro.user.id, { timestamp: haceDias(0) });
+
+    const response = await api().get('/api/glucose/streak').set(authHeader(accessToken));
+
+    expect(response.body.data).toMatchObject({ current: 0, todayCount: 0 });
+  });
+});

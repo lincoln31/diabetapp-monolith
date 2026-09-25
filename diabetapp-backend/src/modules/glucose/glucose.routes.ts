@@ -9,6 +9,7 @@ import {
   getGlucoseHba1cProjection,
   getGlucoseReading,
   getGlucoseStats,
+  getGlucoseStreak,
   listGlucoseReadings,
   updateGlucoseReading,
 } from './glucose.controller';
@@ -28,6 +29,7 @@ router.get('/', validate({ query: listGlucoseQuerySchema }), listGlucoseReadings
 // Antes de "/:id" (spec fase 5, D-5.4 / fase 6, D-6.5): si no, Express las trataría como un id.
 router.get('/stats', getGlucoseStats);
 router.get('/hba1c', getGlucoseHba1cProjection);
+router.get('/streak', getGlucoseStreak);
 router.get('/export/csv', exportGlucoseCsv);
 router.get('/export/pdf', exportGlucosePdf);
 router.get('/:id', validate({ params: glucoseIdParamsSchema }), getGlucoseReading);

@@ -6,11 +6,13 @@ import {
   CreateGlucoseInput,
   GlucoseStats,
   Hba1cProjection,
+  StreakStats,
   ListGlucoseQuery,
   UpdateGlucoseInput,
 } from './glucose.schemas';
 import { projectHba1c } from './glucose.hba1c';
 import { summarize } from './glucose.stats';
+import { calculateStreaks } from './glucose.streak';
 
 /** Campos que la API devuelve de una lectura. */
 const readingFields = {
@@ -168,5 +170,43 @@ export class GlucoseService {
     ]);
 
     return { readings, patientName: [user.firstName, user.lastName].filter(Boolean).join(' ') };
+  }
+
+  /**
+   * Racha de días seguidos y avance de hoy (spec fase 8, RF-8.1 – RF-8.7).
+   * La base agrupa las lecturas por día local del usuario; la racha se calcula sobre
+   * esa lista de días y no se guarda (D-8.2, RNF-8.1).
+   */
+  async getStreak(userId: string): Promise<StreakStats> {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { timezone: true, dailyGlucoseChecks: true },
+    });
+    const tz = user.timezone ?? 'America/Bogota';
+    const dailyGoal = user.dailyGlucoseChecks ?? 4;
+
+    const [rows, todayRows] = await prisma.$transaction([
+      prisma.$queryRaw<{ day: string; count: number }[]>`
+        SELECT to_char(("timestamp" AT TIME ZONE 'UTC') AT TIME ZONE ${tz}, 'YYYY-MM-DD') AS day,
+               COUNT(*)::int AS count
+        FROM glucose_readings
+        WHERE "userId" = ${userId}
+        GROUP BY day`,
+      prisma.$queryRaw<{ today: string }[]>`
+        SELECT to_char(now() AT TIME ZONE ${tz}, 'YYYY-MM-DD') AS today`,
+    ]);
+
+    const today = todayRows[0].today;
+    const todayCount = rows.find((row) => row.day === today)?.count ?? 0;
+
+    return {
+      ...calculateStreaks(
+        rows.map((row) => row.day),
+        today,
+      ),
+      todayCount,
+      dailyGoal,
+      goalReachedToday: todayCount >= dailyGoal,
+    };
   }
 }

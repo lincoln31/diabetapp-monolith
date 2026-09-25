@@ -22,6 +22,7 @@ describe('/api/profile', () => {
       targetGlucoseMin: 80,
       targetGlucoseMax: 180,
       targetHba1c: null,
+      dailyGlucoseChecks: 4,
       weight: null,
       height: null,
       activityLevel: null,
@@ -110,6 +111,20 @@ describe('/api/profile', () => {
     expect(update.status).toBe(200);
     expect(update.body.data.typeOfDiabetes).toBe('TYPE_2');
     expect(stats.body.data.target).toEqual({ min: 90, max: 140 });
+  });
+
+  it('permite cambiar la meta diaria y rechaza valores fuera de 1 a 20', async () => {
+    const { accessToken } = await registerUser();
+    const put = (body: object) => api().put('/api/profile').set(authHeader(accessToken)).send(body);
+
+    const cinco = await put({ dailyGlucoseChecks: 5 });
+    const cero = await put({ dailyGlucoseChecks: 0 });
+    const veintiuno = await put({ dailyGlucoseChecks: 21 });
+    const nula = await put({ dailyGlucoseChecks: null });
+
+    expect(cinco.body.data.dailyGlucoseChecks).toBe(5);
+    expect([cero.status, veintiuno.status, nula.status]).toEqual([400, 400, 400]);
+    expect(cero.body.error.fields[0].field).toBe('dailyGlucoseChecks');
   });
 
   it('no permite tocar el perfil de otro usuario', async () => {

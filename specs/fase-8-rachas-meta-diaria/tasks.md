@@ -11,13 +11,13 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-8-rachas-meta-diaria
 
 ## Bloque A — Backend
 
-- [ ] **T8.3** `calculateStreaks(days, today)` en `glucose.streak.ts`, con tests unitarios: hoy/ayer, sin hoy, hueco, dos rachas, días repetidos, hueco rellenado, lista vacía, cruce de mes y de año. — RF-8.2 – RF-8.6 · depende de T8.1
-- [ ] **T8.4** `GlucoseService.getStreak(userId)`: consulta agrupada por día local + «hoy» + meta y zona del usuario (D-8.2). — RF-8.1, RF-8.2, RNF-8.1 · depende de T8.3
-- [ ] **T8.5** Controlador y ruta `GET /glucose/streak` **antes** de `GET /glucose/:id`. — RF-8.7 · depende de T8.4
-- [ ] **T8.6 [P]** Tests de integración: racha con lecturas de varios días, sin lecturas, otro usuario, lectura en el borde de medianoche (Bogotá vs UTC), lectura retroactiva que une dos rachas, `todayCount`/`goalReachedToday`. — CA-8.1 – CA-8.10 · depende de T8.5
-- [ ] **T8.7** `dailyGlucoseChecks` (1–20) en `profile.schemas.ts` y `profileFields`, con tests en `profile.test.ts`. — RF-8.8, CA-8.11 · depende de T8.1
-- [ ] **T8.8 [P]** Añadir `GET /glucose/streak` a `requests.http`. — depende de T8.5
-- [ ] **T8.9** Medir CA-8.17 con `prisma/seed-perf.ts`. — RNF-8.2 · depende de T8.5
+- [x] **T8.3** `calculateStreaks(days, today)` en `glucose.streak.ts`, con tests unitarios: hoy/ayer, sin hoy, hueco, dos rachas, días repetidos, hueco rellenado, lista vacía, cruce de mes y de año. — RF-8.2 – RF-8.6 · depende de T8.1
+- [x] **T8.4** `GlucoseService.getStreak(userId)`: consulta agrupada por día local + «hoy» + meta y zona del usuario (D-8.2). — RF-8.1, RF-8.2, RNF-8.1 · depende de T8.3
+- [x] **T8.5** Controlador y ruta `GET /glucose/streak` **antes** de `GET /glucose/:id`. — RF-8.7 · depende de T8.4
+- [x] **T8.6 [P]** Tests de integración: racha con lecturas de varios días, sin lecturas, otro usuario, lectura en el borde de medianoche (Bogotá vs UTC), lectura retroactiva que une dos rachas, `todayCount`/`goalReachedToday`. — CA-8.1 – CA-8.10 · depende de T8.5
+- [x] **T8.7** `dailyGlucoseChecks` (1–20) en `profile.schemas.ts` y `profileFields`, con tests en `profile.test.ts`. — RF-8.8, CA-8.11 · depende de T8.1
+- [x] **T8.8 [P]** Añadir `GET /glucose/streak` a `requests.http`. — depende de T8.5
+- [x] **T8.9** Medir CA-8.17 con `prisma/seed-perf.ts`. — RNF-8.2 · depende de T8.5
 
 ## Bloque B — Frontend
 
