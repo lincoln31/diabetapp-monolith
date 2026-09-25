@@ -10,13 +10,13 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-9-logros`
 
 ## Bloque A — Backend
 
-- [ ] **T9.2** `achievements.catalog.ts` con los 6 logros (D-9.2). — RF-9.2 · depende de T9.1
-- [ ] **T9.3** `GlucoseService.getLongestStreak(userId)`: reutiliza `calculateStreaks` sobre la misma consulta agrupada por día de `getStreak` (D-8.2), sin el parámetro «hoy». — depende de T9.2
-- [ ] **T9.4** `AchievementsService.get(userId)`: aplica el catálogo a `readingsCount` (`count()`) y `longestStreak` (D-9.3). — RF-9.1, RF-9.3, RNF-9.1 · depende de T9.3
-- [ ] **T9.5** Controlador y ruta `GET /achievements`, registrada en `modules/index.ts`. — RF-9.4 · depende de T9.4
-- [ ] **T9.6 [P]** Tests de integración: sin lecturas, racha y volumen que cruzan algunos umbrales, logro de racha que sigue desbloqueado con la racha actual en 0, aislamiento entre usuarios, sin sesión. — CA-9.1 – CA-9.5 · depende de T9.5
-- [ ] **T9.7 [P]** Añadir `GET /achievements` a `requests.http`. — depende de T9.5
-- [ ] **T9.8** Medir CA-9.9 con `prisma/seed-perf.ts`. — RNF-9.2 · depende de T9.5
+- [x] **T9.2** `achievements.catalog.ts` con los 6 logros (D-9.2). — RF-9.2 · depende de T9.1
+- [x] **T9.3** `GlucoseService.getLongestStreak(userId)`: reutiliza `calculateStreaks` sobre la misma consulta agrupada por día de `getStreak` (D-8.2), sin el parámetro «hoy». — depende de T9.2
+- [x] **T9.4** `AchievementsService.get(userId)`: aplica el catálogo a `readingsCount` (`count()`) y `longestStreak` (D-9.3). — RF-9.1, RF-9.3, RNF-9.1 · depende de T9.3
+- [x] **T9.5** Controlador y ruta `GET /achievements`, registrada en `modules/index.ts`. — RF-9.4 · depende de T9.4
+- [x] **T9.6 [P]** Tests de integración: sin lecturas, racha y volumen que cruzan algunos umbrales, logro de racha que sigue desbloqueado con la racha actual en 0, aislamiento entre usuarios, sin sesión. — CA-9.1 – CA-9.5 · depende de T9.5
+- [x] **T9.7 [P]** Añadir `GET /achievements` a `requests.http`. — depende de T9.5
+- [x] **T9.8** Medir CA-9.9 con `prisma/seed-perf.ts`. — RNF-9.2 · depende de T9.5
 
 ## Bloque B — Frontend
 

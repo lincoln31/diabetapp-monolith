@@ -7,6 +7,7 @@
 import { MomentOfDay } from '@prisma/client';
 import prisma from '../src/config/db';
 import { GlucoseService } from '../src/modules/glucose/glucose.service';
+import { AchievementsService } from '../src/modules/achievements/achievements.service';
 
 const TOTAL = 10_000;
 
@@ -61,6 +62,14 @@ async function main() {
 
   console.log(`Racha en ${streakMs.toFixed(1)} ms`);
   console.log(streakMs < 300 ? '✅ Cumple RNF-8.2 (< 300 ms)' : '❌ Por encima de 300 ms');
+
+  // RNF-9.2: catálogo de logros (spec fase 9) con las mismas 10 000 lecturas
+  const t3 = performance.now();
+  await new AchievementsService().get(user.id);
+  const achievementsMs = performance.now() - t3;
+
+  console.log(`Logros en ${achievementsMs.toFixed(1)} ms`);
+  console.log(achievementsMs < 300 ? '✅ Cumple RNF-9.2 (< 300 ms)' : '❌ Por encima de 300 ms');
 }
 
 void main().finally(() => prisma.$disconnect());

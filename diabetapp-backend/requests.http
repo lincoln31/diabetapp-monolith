@@ -216,3 +216,11 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 { "dailyGlucoseChecks": 5 }
+
+### ---------------------------------------------------------------------------
+### Fase 9 · logros
+### ---------------------------------------------------------------------------
+
+### CA-9.1 – CA-9.7 · Catálogo de logros con progreso y desbloqueo
+GET {{host}}/achievements
+Authorization: Bearer {{token}}
