@@ -77,6 +77,12 @@ const DashboardScreen = () => {
       )}
 
       <Button title="Registrar glucosa" onPress={goToRegister} style={styles.action} />
+      <Button
+        title="Mi perfil"
+        variant="outline"
+        onPress={() => router.push('/profile')}
+        style={styles.action}
+      />
       <ExportReportButton style={styles.action} />
       <Button
         title="Cerrar sesión"
