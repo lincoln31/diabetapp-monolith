@@ -32,7 +32,7 @@ const CarbCalculatorScreen = () => {
       )
     : null;
 
-  const field = (name: keyof CarbCalculatorValues, label: string) => (
+  const field = (name: keyof CarbCalculatorValues, label: string, placeholder: string) => (
     <View style={styles.inputGroup}>
       <Text style={styles.label}>{label}</Text>
       <Controller
@@ -40,7 +40,7 @@ const CarbCalculatorScreen = () => {
         name={name}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            placeholder={label}
+            placeholder={placeholder}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -58,8 +58,8 @@ const CarbCalculatorScreen = () => {
       <ScreenHeader title="Calculadora de carbohidratos" />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Card padding="large">
-          {field('carbsPer100g', 'Carbohidratos por 100 g (del empaque)')}
-          {field('gramsEaten', 'Gramos que vas a comer')}
+          {field('carbsPer100g', 'Carbohidratos por 100 g (del empaque)', 'Ej. 25')}
+          {field('gramsEaten', 'Gramos que vas a comer', 'Ej. 80')}
         </Card>
 
         {result && (

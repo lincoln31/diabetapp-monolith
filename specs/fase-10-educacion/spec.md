@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 10 |
-| Estado | Aprobada |
+| Estado | Implementada |
 | Fecha | 2026-09-25 |
 | Depende de | Fase 3 (estructura por funcionalidades), Fase 5 (dashboard extensible por tarjetas) |
 | Issues relacionados | Cierra #43, #44, #45. #41 y #42 se resuelven sin backend (ver §8) |

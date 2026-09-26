@@ -44,6 +44,7 @@ const TimesField = ({ value, onChange, error }: TimesFieldProps) => {
           variant="outline"
           size="small"
           onPress={() => onChange([...value, ''])}
+          style={styles.add}
         />
       )}
 
@@ -55,6 +56,7 @@ const TimesField = ({ value, onChange, error }: TimesFieldProps) => {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
   input: { flex: 1 },
+  add: { marginBottom: 12 },
   remove: { marginBottom: 12 },
   error: { fontSize: 12, color: COLORS.error, marginTop: 6 },
 });

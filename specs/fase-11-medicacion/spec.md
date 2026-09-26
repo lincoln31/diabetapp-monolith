@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 11 |
-| Estado | Aprobada |
+| Estado | Implementada |
 | Fecha | 2026-09-26 |
 | Depende de | Fase 1 (contrato de API), Fase 3 (estructura por funcionalidades), Fase 5 (dashboard por tarjetas), Fase 8 (día local según `User.timezone`) |
 | Issues relacionados | Cierra #29, #30, #31, #32, #33, #34. #35 (recordatorios) queda fuera y abierto (ver §8) |

@@ -25,9 +25,9 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-10-educacion`
 
 ## Bloque C — Verificación y cierre
 
-- [ ] **T10.11** ⏳ (requiere dispositivo) Recorrido en dispositivo: CA-10.7, CA-10.8, CA-10.9 (con el backend apagado).
+- [x] **T10.11** Recorrido (moto g34 5G, Android 15; encontrado y corregido: ✕ del encabezado recortado, mensajes de error y placeholders de la calculadora) en dispositivo: CA-10.7, CA-10.8, CA-10.9 (con el backend apagado).
 - [x] **T10.12** `npx tsc --noEmit`, lint y tests completos del frontend (sin cambios en el backend).
-- [ ] **T10.13** Marcar CA-10.1 … CA-10.9 en el PR; cerrar #43, #44, #45; cerrar #41 y #42 con el comentario de §8; actualizar `CLAUDE.md` y `specs/README.md`.
+- [x] **T10.13** Marcar CA-10.1 … CA-10.9 en el PR; cerrar #43, #44, #45; cerrar #41 y #42 con el comentario de §8; actualizar `CLAUDE.md` y `specs/README.md`.
 
 ## Trazabilidad
 

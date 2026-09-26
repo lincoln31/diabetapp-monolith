@@ -37,9 +37,9 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-11-medicacion`
 
 ## Bloque D — Verificación y cierre
 
-- [ ] **T11.20** ⏳ (requiere dispositivo) Recorrido: CA-11.13 – CA-11.16 (incluido backend apagado).
+- [x] **T11.20** Recorrido (moto g34 5G, Android 15): CA-11.13 – CA-11.16 (incluido backend apagado).
 - [x] **T11.21** `tsc`, lint y tests completos de ambos proyectos; medir CA de RNF-11.1 con `seed-perf`.
-- [ ] **T11.22** Marcar CA-11.1 … CA-11.16 en el PR; cerrar #29 – #34; comentar en #35 el enlace a la fase de notificaciones; actualizar `CLAUDE.md` y `specs/README.md`.
+- [x] **T11.22** Marcar CA-11.1 … CA-11.16 en el PR; cerrar #29 – #34; comentar en #35 el enlace a la fase de notificaciones; actualizar `CLAUDE.md` y `specs/README.md`.
 
 ## Trazabilidad
 
