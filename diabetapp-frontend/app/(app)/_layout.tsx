@@ -5,6 +5,7 @@ export default function AppLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="profile" />
+      <Stack.Screen name="achievements" />
       {/* El registro de glucosa se abre como modal sobre la pantalla principal */}
       <Stack.Screen name="glucose/new" options={{ presentation: 'modal' }} />
     </Stack>

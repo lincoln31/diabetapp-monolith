@@ -12,7 +12,7 @@ import {
 } from './glucose.schemas';
 import { projectHba1c } from './glucose.hba1c';
 import { summarize } from './glucose.stats';
-import { calculateStreaks } from './glucose.streak';
+import { calculateStreaks, longestStreak } from './glucose.streak';
 
 /** Campos que la API devuelve de una lectura. */
 const readingFields = {
@@ -208,5 +208,24 @@ export class GlucoseService {
       dailyGoal,
       goalReachedToday: todayCount >= dailyGoal,
     };
+  }
+
+  /**
+   * Mejor racha histórica, sin «hoy» (spec fase 9, D-9.3): la usan los logros por
+   * racha. Mismo agrupado por día local que `getStreak`, sin la consulta de «hoy».
+   */
+  async getLongestStreak(userId: string): Promise<number> {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { timezone: true },
+    });
+    const tz = user.timezone ?? 'America/Bogota';
+
+    const rows = await prisma.$queryRaw<{ day: string }[]>`
+      SELECT DISTINCT to_char(("timestamp" AT TIME ZONE 'UTC') AT TIME ZONE ${tz}, 'YYYY-MM-DD') AS day
+      FROM glucose_readings
+      WHERE "userId" = ${userId}`;
+
+    return longestStreak(rows.map((row) => row.day));
   }
 }
