@@ -3,6 +3,7 @@ import achievementsRoutes from './achievements/achievements.routes';
 import authRoutes from './auth/auth.routes';
 import glucoseRoutes from './glucose/glucose.routes';
 import healthRoutes from './health/health.routes';
+import medicationsRoutes from './medications/medications.routes';
 import profileRoutes from './profile/profile.routes';
 
 /**
@@ -17,6 +18,7 @@ export const registerModules = (): Router => {
   router.use('/glucose', glucoseRoutes);
   router.use('/profile', profileRoutes);
   router.use('/achievements', achievementsRoutes);
+  router.use('/medications', medicationsRoutes);
 
   return router;
 };
