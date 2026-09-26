@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 11 |
-| Estado | Borrador |
+| Estado | Aprobada |
 | Fecha | 2026-09-26 |
 | Depende de | Fase 1 (contrato de API), Fase 3 (estructura por funcionalidades), Fase 5 (dashboard por tarjetas), Fase 8 (día local según `User.timezone`) |
 | Issues relacionados | Cierra #29, #30, #31, #32, #33, #34. #35 (recordatorios) queda fuera y abierto (ver §8) |
@@ -98,10 +98,10 @@ Que el paciente guarde su lista de medicamentos con sus horarios, registre cada 
 
 ## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** **#35 (recordatorios) fuera de esta fase.** Un recordatorio útil requiere notificaciones (permisos, programación, y en Android push con FCM), que son los issues #51–54 y #16. Propuesta: esta fase guarda ya los **horarios** de cada medicamento (`scheduledTimes`), que es lo único que los recordatorios necesitarán, y #35 se implementa en la fase de notificaciones sin migrar nada. #35 queda abierto.
-- **[NECESITA ACLARACIÓN]** **Dos tablas y archivar en vez de borrar.** `medications` + `medication_intakes`. «Dejar de usar» marca `active = false`: así la adherencia pasada y el historial no se pierden si el paciente cambia de tratamiento. (Borrar en cascada perdería el historial.) Los horarios son una lista de textos `HH:mm` en una columna (`String[]` de PostgreSQL), no una tabla aparte: la lista solo se lee y edita entera.
-- **[NECESITA ACLARACIÓN]** **Definición de adherencia.** Esperadas = horarios del medicamento × días de la ventana, contando solo desde el día en que se creó. Cumplidas = tomas registradas, con tope por día y medicamento igual a sus horarios (2 tomas de más no compensan una que faltó otro día). Porcentaje = cumplidas / esperadas. No se empareja cada toma con un horario concreto: contar tomas por día es suficiente y no obliga al paciente a elegir a qué hora «correspondía». ¿De acuerdo, o prefieres que cada toma se asocie a un horario específico?
-- **[NECESITA ACLARACIÓN]** **Sin deshacer toma en esta fase.** Si el paciente se equivoca al tocar «Registrar toma», el registro queda. Propuesta: aceptarlo por simplicidad (P8) y agregar «deshacer» solo si se pide. ¿De acuerdo?
+- **Resuelta (2026-09-26):** **#35 (recordatorios) fuera de esta fase.** Un recordatorio útil requiere notificaciones (permisos, programación, y en Android push con FCM), que son los issues #51–54 y #16. Propuesta: esta fase guarda ya los **horarios** de cada medicamento (`scheduledTimes`), que es lo único que los recordatorios necesitarán, y #35 se implementa en la fase de notificaciones sin migrar nada. #35 queda abierto.
+- **Resuelta (2026-09-26):** **Dos tablas y archivar en vez de borrar.** `medications` + `medication_intakes`. «Dejar de usar» marca `active = false`: así la adherencia pasada y el historial no se pierden si el paciente cambia de tratamiento. (Borrar en cascada perdería el historial.) Los horarios son una lista de textos `HH:mm` en una columna (`String[]` de PostgreSQL), no una tabla aparte: la lista solo se lee y edita entera.
+- **Resuelta (2026-09-26):** **Definición de adherencia.** Esperadas = horarios del medicamento × días de la ventana, contando solo desde el día en que se creó. Cumplidas = tomas registradas, con tope por día y medicamento igual a sus horarios (2 tomas de más no compensan una que faltó otro día). Porcentaje = cumplidas / esperadas. No se empareja cada toma con un horario concreto: contar tomas por día es suficiente y no obliga al paciente a elegir a qué hora «correspondía».
+- **Resuelta (2026-09-26):** **Sin deshacer toma en esta fase.** Si el paciente se equivoca al tocar «Registrar toma», el registro queda. Propuesta: aceptarlo por simplicidad (P8) y agregar «deshacer» solo si se pide.
 
 ## 9. Definición de terminado
 

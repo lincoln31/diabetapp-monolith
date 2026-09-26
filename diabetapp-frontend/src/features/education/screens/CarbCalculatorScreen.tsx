@@ -3,9 +3,9 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, Input } from '@/src/shared/components/ui';
+import ScreenHeader from '@/src/shared/components/ui/ScreenHeader';
 import { COLORS } from '@/src/shared/theme/colors';
 import { calculateCarbs } from '../carbCalculator';
-import ScreenHeader from '../components/ScreenHeader';
 import { CarbCalculatorValues, carbCalculatorSchema, parseCalculatorValue } from '../schemas';
 
 /** Calculadora de carbohidratos (spec fase 10, RF-10.3, RF-10.4). No guarda nada. */

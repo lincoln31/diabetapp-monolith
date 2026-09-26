@@ -76,4 +76,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 8    | Implementada (fusionada en main) |
 | 9    | Implementada (fusionada en main) |
 | 10   | Aprobada (implementada; pendiente recorrido en dispositivo) |
-| 11   | Borrador (pendiente de aprobar las aclaraciones de la spec §8) |
+| 11   | Aprobada (implementada; pendiente recorrido en dispositivo) |

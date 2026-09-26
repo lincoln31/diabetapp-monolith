@@ -34,6 +34,7 @@ const ICONS = {
   flame: 'flame-outline',
   trophy: 'trophy-outline',
   book: 'book-outline',
+  medication: 'medkit-outline',
   calculator: 'calculator-outline',
   bulb: 'bulb-outline',
   'chevron-down': 'chevron-down-outline',

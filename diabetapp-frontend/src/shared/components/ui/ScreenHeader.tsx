@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button } from '@/src/shared/components/ui';
-import { COLORS } from '@/src/shared/theme/colors';
+import Button from './Button';
+import { COLORS } from '../../theme/colors';
 
 /** Cabecera con botón de cerrar, igual a la de «Mis Logros». */
 const ScreenHeader = ({ title }: { title: string }) => {

@@ -11,6 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useSession } from '@/src/features/auth';
 import { TipCard } from '@/src/features/education';
+import { AdherenceCard, useAdherence } from '@/src/features/medications';
 import { Button } from '@/src/shared/components/ui';
 import { COLORS } from '@/src/shared/theme/colors';
 import EmptyState from '../components/EmptyState';
@@ -29,12 +30,14 @@ const DashboardScreen = () => {
   const { status, stats, errorMessage, refreshing, refresh } = useDashboardStats();
   const hba1c = useHba1cProjection();
   const streak = useStreak();
+  const adherence = useAdherence();
 
   const goToRegister = () => router.push('/glucose/new');
 
   // Deslizar hacia abajo refresca todas las tarjetas, no solo la de promedios
   // (spec fase 6, D-6.7 / RF-5.13 de la fase 5).
-  const refreshAll = () => Promise.all([refresh(), hba1c.refresh(), streak.refresh()]);
+  const refreshAll = () =>
+    Promise.all([refresh(), hba1c.refresh(), streak.refresh(), adherence.refresh()]);
 
   const handleSignOut = () => {
     Alert.alert('Cerrar sesión', '¿Seguro que quieres salir de tu cuenta?', [
@@ -83,6 +86,13 @@ const DashboardScreen = () => {
         </>
       )}
 
+      {adherence.status === 'success' &&
+        adherence.adherence &&
+        (adherence.adherence.days7.percent !== null ||
+          adherence.adherence.days30.percent !== null) && (
+          <AdherenceCard adherence={adherence.adherence} />
+        )}
+
       <Button title="Registrar glucosa" onPress={goToRegister} style={styles.action} />
       <Button
         title="Mi perfil"
@@ -94,6 +104,12 @@ const DashboardScreen = () => {
         title="Mis Logros"
         variant="outline"
         onPress={() => router.push('/achievements')}
+        style={styles.action}
+      />
+      <Button
+        title="Mis Medicamentos"
+        variant="outline"
+        onPress={() => router.push('/medications')}
         style={styles.action}
       />
       <Button

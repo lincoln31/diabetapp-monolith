@@ -6,6 +6,8 @@ export default function AppLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="profile" />
       <Stack.Screen name="achievements" />
+      <Stack.Screen name="medications/index" />
+      <Stack.Screen name="medications/form" />
       <Stack.Screen name="education/index" />
       <Stack.Screen name="education/calculator" />
       <Stack.Screen name="education/guides" />
