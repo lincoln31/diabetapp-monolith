@@ -58,6 +58,7 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 9    | [Logros](fase-9-logros/spec.md) | Catálogo de logros por racha y volumen de lecturas, con una pantalla "Mis Logros" | Fase 3, 8 | #28 (cierra también #27) | 1–2 días |
 | 10   | [Contenido educativo](fase-10-educacion/spec.md) | Tip del día en el dashboard, calculadora de carbohidratos y guías/FAQs | Fase 3, 5 | #43, #44, #45 (resuelve también #41, #42) | 2 días |
 | 11   | [Medicación y adherencia](fase-11-medicacion/spec.md) | Lista de medicamentos con horarios, registro de tomas y adherencia de 7/30 días | Fase 3, 5, 8 | #29–#34 (#35 queda para notificaciones) | 3–4 días |
+| 12   | [Actividad física](fase-12-ejercicio/spec.md) | Registro de actividades, cronómetro, avance diario y comparación de glucosa con/sin ejercicio | Fase 3, 5, 7, 8 | #36–#40 | 3–4 días |
 
 > La fase 4 puede empezar en paralelo para el backend en cuanto la fase 1 esté fusionada.
 
@@ -77,3 +78,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 9    | Implementada (fusionada en main) |
 | 10   | Implementada (verificada en dispositivo; pendiente fusionar #92) |
 | 11   | Implementada (verificada en dispositivo; pendiente fusionar #94) |
+| 12   | Borrador (pendiente de aprobar las aclaraciones de la spec §8) |
