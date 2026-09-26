@@ -56,6 +56,7 @@ export const profileFormSchema = z
     targetGlucoseMax: optionalNumber('El máximo', 40, 400, 'mg/dL', true),
     targetHba1c: optionalNumber('La meta de HbA1c', 4, 14, '%'),
     dailyGlucoseChecks: requiredInteger('La meta diaria', 1, 20, 'lecturas'),
+    exerciseGoalMinutes: requiredInteger('La meta de ejercicio', 5, 300, 'minutos'),
     weight: optionalNumber('El peso', 20, 400, 'kg'),
     height: optionalNumber('La altura', 50, 250, 'cm'),
   })
@@ -87,6 +88,7 @@ export const profileToFormValues = (profile: Profile): ProfileFormValues => ({
   targetGlucoseMax: numberToText(profile.targetGlucoseMax),
   targetHba1c: numberToText(profile.targetHba1c),
   dailyGlucoseChecks: String(profile.dailyGlucoseChecks),
+  exerciseGoalMinutes: String(profile.exerciseGoalMinutes),
   weight: numberToText(profile.weight),
   height: numberToText(profile.height),
 });
@@ -101,6 +103,7 @@ export const formValuesToInput = (values: ProfileFormValues): UpdateProfileInput
   targetGlucoseMax: textToNumber(values.targetGlucoseMax),
   targetHba1c: textToNumber(values.targetHba1c),
   dailyGlucoseChecks: toNumber(values.dailyGlucoseChecks),
+  exerciseGoalMinutes: toNumber(values.exerciseGoalMinutes),
   weight: textToNumber(values.weight),
   height: textToNumber(values.height),
 });

@@ -71,6 +71,7 @@ model User {
   refreshTokens   RefreshToken[]
   medications     Medication[]
   medicationIntakes MedicationIntake[]
+  exerciseActivities ExerciseActivity[]
   // achievements    Achievement[]
   // dailyGoals      DailyGoal[]
 
@@ -150,6 +151,33 @@ model MedicationIntake {
   @@index([userId, takenAt])
   @@index([medicationId])
   @@map("medication_intakes")
+}
+
+/// Actividad física registrada por el paciente (spec fase 12, D-12.1).
+model ExerciseActivity {
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type            ActivityType
+  durationMinutes Int
+  startedAt       DateTime
+  notes           String?
+
+  createdAt       DateTime     @default(now())
+
+  @@index([userId, startedAt])
+  @@map("exercise_activities")
+}
+
+enum ActivityType {
+  WALKING
+  RUNNING
+  CYCLING
+  SWIMMING
+  GYM
+  YOGA
+  OTHER
 }
 
 // --- Enums (fase 1, RF-1.18): la base de datos rechaza valores fuera de estas listas ---

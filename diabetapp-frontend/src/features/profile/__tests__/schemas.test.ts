@@ -8,6 +8,7 @@ const valid = {
   targetGlucoseMax: '',
   targetHba1c: '',
   dailyGlucoseChecks: '4',
+  exerciseGoalMinutes: '30',
   weight: '',
   height: '',
 };
@@ -32,6 +33,7 @@ describe('profileFormSchema', () => {
       targetGlucoseMax: '140',
       targetHba1c: '6,5',
       dailyGlucoseChecks: '5',
+      exerciseGoalMinutes: '45',
       weight: '72.5',
       height: '170',
     });
@@ -102,6 +104,7 @@ describe('formValuesToInput', () => {
       targetGlucoseMax: null,
       targetHba1c: 6.5,
       dailyGlucoseChecks: 4,
+      exerciseGoalMinutes: 30,
       weight: null,
       height: null,
     });
@@ -116,6 +119,7 @@ describe('profileToFormValues', () => {
       targetGlucoseMax: 180,
       targetHba1c: null,
       dailyGlucoseChecks: 5,
+      exerciseGoalMinutes: 45,
       weight: 72.5,
       height: null,
       activityLevel: 'ACTIVE',
@@ -129,6 +133,7 @@ describe('profileToFormValues', () => {
       targetGlucoseMax: '180',
       targetHba1c: '',
       dailyGlucoseChecks: '5',
+      exerciseGoalMinutes: '45',
       weight: '72.5',
       height: '',
     });

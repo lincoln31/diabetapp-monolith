@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 12 |
-| Estado | Borrador |
+| Estado | Aprobada |
 | Fecha | 2026-09-26 |
 | Depende de | Fase 1 (contrato de API), Fase 3 (estructura por funcionalidades), Fase 5 (dashboard por tarjetas), Fase 7 (perfil y metas), Fase 8 (día local según `User.timezone`) |
 | Issues relacionados | Cierra #36, #37, #38, #39, #40 |
@@ -101,11 +101,11 @@ Que el paciente registre su actividad física (a mano o con un cronómetro), vea
 
 ## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** **#40 sin gráficos.** El issue pide «gráficos», pero la app no tiene ninguno y agregar una librería (p. ej. `react-native-svg` + gráficos) es una dependencia grande para un solo elemento. Propuesta: mostrar la correlación como **tarjeta** en el dashboard («Tus días con ejercicio: 118 mg/dL de promedio · sin ejercicio: 141 mg/dL»), coherente con el resto del dashboard, y dejar los gráficos para una fase propia si se piden (habría que hacerlos para toda la app, no solo aquí). #40 se cierra con un comentario que lo explique.
-- **[NECESITA ACLARACIÓN]** **Definición de la correlación.** Promedio de glucosa de los últimos 30 días locales, separando los días con al menos una actividad de los que no tienen ninguna; se necesitan al menos 5 lecturas en cada grupo. Es una asociación simple, no una causa (el paciente puede hacer ejercicio justo los días que se cuida más), y la tarjeta lo dice. ¿De acuerdo, o prefieres otra ventana o umbral?
-- **[NECESITA ACLARACIÓN]** **Meta editable en el perfil.** Se reutiliza el campo ya existente `exerciseGoalMinutes` (30 por defecto) y se agrega al formulario de perfil como la meta diaria de lecturas (5–300 min, no nula). ¿De acuerdo, o prefieres dejar la meta fija en 30 esta fase?
-- **[NECESITA ACLARACIÓN]** **Tipos de actividad y sin intensidad.** Enum `ActivityType`: caminar, correr, bicicleta, natación, gimnasio, yoga, otro. Sin intensidad, calorías ni distancia (P8). ¿Algún tipo que agregarías o quitarías?
-- **[NECESITA ACLARACIÓN]** **Sin editar, pero sí borrar.** Un error se corrige borrando y registrando de nuevo (a diferencia de las tomas de medicación, aquí hay un historial visible donde borrar tiene sentido).
+- **Resuelta (2026-09-26):** **#40 sin gráficos.** El issue pide «gráficos», pero la app no tiene ninguno y agregar una librería (p. ej. `react-native-svg` + gráficos) es una dependencia grande para un solo elemento. Propuesta: mostrar la correlación como **tarjeta** en el dashboard («Tus días con ejercicio: 118 mg/dL de promedio · sin ejercicio: 141 mg/dL»), coherente con el resto del dashboard, y dejar los gráficos para una fase propia si se piden (habría que hacerlos para toda la app, no solo aquí). #40 se cierra con un comentario que lo explique.
+- **Resuelta (2026-09-26):** **Definición de la correlación.** Promedio de glucosa de los últimos 30 días locales, separando los días con al menos una actividad de los que no tienen ninguna; se necesitan al menos 5 lecturas en cada grupo. Es una asociación simple, no una causa (el paciente puede hacer ejercicio justo los días que se cuida más), y la tarjeta lo dice.
+- **Resuelta (2026-09-26):** **Meta editable en el perfil.** Se reutiliza el campo ya existente `exerciseGoalMinutes` (30 por defecto) y se agrega al formulario de perfil como la meta diaria de lecturas (5–300 min, no nula).
+- **Resuelta (2026-09-26):** **Tipos de actividad y sin intensidad.** Enum `ActivityType`: caminar, correr, bicicleta, natación, gimnasio, yoga, otro. Sin intensidad, calorías ni distancia (P8).
+- **Resuelta (2026-09-26):** **Sin editar, pero sí borrar.** Un error se corrige borrando y registrando de nuevo (a diferencia de las tomas de medicación, aquí hay un historial visible donde borrar tiene sentido).
 
 ## 9. Definición de terminado
 

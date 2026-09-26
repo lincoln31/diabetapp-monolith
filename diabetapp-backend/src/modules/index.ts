@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import achievementsRoutes from './achievements/achievements.routes';
 import authRoutes from './auth/auth.routes';
+import exerciseRoutes from './exercise/exercise.routes';
 import glucoseRoutes from './glucose/glucose.routes';
 import healthRoutes from './health/health.routes';
 import medicationsRoutes from './medications/medications.routes';
@@ -19,6 +20,7 @@ export const registerModules = (): Router => {
   router.use('/profile', profileRoutes);
   router.use('/achievements', achievementsRoutes);
   router.use('/medications', medicationsRoutes);
+  router.use('/exercise', exerciseRoutes);
 
   return router;
 };

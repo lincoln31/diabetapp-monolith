@@ -246,3 +246,22 @@ Content-Type: application/json
 ###
 GET {{host}}/medications/adherence
 Authorization: Bearer {{token}}
+
+### Actividad física (spec fase 12)
+GET {{host}}/exercise
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/exercise
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "type": "WALKING", "durationMinutes": 30, "notes": "Parque" }
+
+###
+GET {{host}}/exercise/summary
+Authorization: Bearer {{token}}
+
+###
+DELETE {{host}}/exercise/{{exerciseId}}
+Authorization: Bearer {{token}}

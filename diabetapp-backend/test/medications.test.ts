@@ -153,6 +153,18 @@ describe('/api/medications', () => {
       expect(response.status).toBe(400);
     });
 
+    it('rechaza una fecha de toma mal escrita con 400, no 500', async () => {
+      const { accessToken } = await registerUser();
+      const { id } = (await createMedication(accessToken)).body.data;
+
+      const response = await api()
+        .post(`/api/medications/${id}/intakes`)
+        .set(authHeader(accessToken))
+        .send({ takenAt: 'ayer' });
+
+      expect(response.status).toBe(400);
+    });
+
     it('no permite registrar una toma sobre un medicamento archivado', async () => {
       const { accessToken } = await registerUser();
       const { id } = (await createMedication(accessToken)).body.data;
