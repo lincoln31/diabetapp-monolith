@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 10 |
-| Estado | Borrador |
+| Estado | Aprobada |
 | Fecha | 2026-09-25 |
 | Depende de | Fase 3 (estructura por funcionalidades), Fase 5 (dashboard extensible por tarjetas) |
 | Issues relacionados | Cierra #43, #44, #45. #41 y #42 se resuelven sin backend (ver §8) |
@@ -73,9 +73,9 @@ Que el paciente vea un consejo educativo distinto cada día en el dashboard, ten
 
 ## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** #41 pide un «esquema de BD para almacenar contenido educativo». Propuesta: **sin backend ni tabla**. El catálogo de tips y el contenido de guías/FAQs son listas fijas en el código del frontend (mismo patrón que `ACHIEVEMENTS` de la fase 9 o `MOMENT_OF_DAY_OPTIONS` de la fase 1): no hay pantalla de administración que los edite, así que una tabla solo agregaría una migración y un endpoint sin ningún beneficio real. #41 y #42 (el endpoint) se cierran con un comentario que lo explique. Si más adelante se pide poder editar el contenido sin publicar una nueva versión de la app, se revisará esta decisión.
-- **[NECESITA ACLARACIÓN]** El tip del día se selecciona por la **fecha local del celular** (no por la zona horaria guardada del usuario, a diferencia de la racha en la fase 8): es contenido no crítico, y evita cualquier lógica de fecha en el frontend. ¿De acuerdo, o prefieres que también respete la zona horaria del perfil?
-- **[NECESITA ACLARACIÓN]** Único punto de entrada «Educación» en el dashboard, con la calculadora y las guías como dos opciones dentro (RF-10.6), en vez de dos botones nuevos sueltos (el dashboard ya tiene cinco). ¿Apruebas, o prefieres botones directos?
+- **Resuelta (2026-09-26):** #41 pide un «esquema de BD para almacenar contenido educativo». Propuesta: **sin backend ni tabla**. El catálogo de tips y el contenido de guías/FAQs son listas fijas en el código del frontend (mismo patrón que `ACHIEVEMENTS` de la fase 9 o `MOMENT_OF_DAY_OPTIONS` de la fase 1): no hay pantalla de administración que los edite, así que una tabla solo agregaría una migración y un endpoint sin ningún beneficio real. #41 y #42 (el endpoint) se cierran con un comentario que lo explique. Si más adelante se pide poder editar el contenido sin publicar una nueva versión de la app, se revisará esta decisión.
+- **Resuelta (2026-09-26):** el tip del día se selecciona por la **fecha local del celular** (no por la zona horaria guardada del usuario, a diferencia de la racha en la fase 8): es contenido no crítico, y evita cualquier lógica de fecha en el frontend.
+- **Resuelta (2026-09-26):** único punto de entrada «Educación» en el dashboard, con la calculadora y las guías como dos opciones dentro (RF-10.6), en vez de dos botones nuevos sueltos (el dashboard ya tiene cinco).
 
 ## 9. Definición de terminado
 
