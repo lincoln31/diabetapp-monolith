@@ -40,9 +40,9 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-12-ejercicio`
 
 ## Bloque D — Verificación y cierre
 
-- [ ] **T12.23** ⏳ (requiere dispositivo) Recorrido: CA-12.12 – CA-12.18 (incluidos segundo plano del cronómetro y backend apagado).
+- [x] **T12.23** Recorrido (moto g34 5G, Android 15; encontrado y corregido: ✕ recortado también en «Mi perfil» y «Mis Logros»): CA-12.12 – CA-12.18 (incluidos segundo plano del cronómetro y backend apagado).
 - [x] **T12.24** `tsc`, lint y tests completos de ambos proyectos; medir RNF-12.1 con `seed-perf`.
-- [ ] **T12.25** Marcar CA-12.1 … CA-12.18 en el PR; cerrar #36 – #40 (#40 con el comentario de §8); actualizar `CLAUDE.md` y `specs/README.md`.
+- [x] **T12.25** Marcar CA-12.1 … CA-12.18 en el PR; cerrar #36 – #40 (#40 con el comentario de §8); actualizar `CLAUDE.md` y `specs/README.md`.
 
 ## Trazabilidad
 

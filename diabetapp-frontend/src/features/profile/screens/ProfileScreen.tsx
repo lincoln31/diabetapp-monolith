@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Card, FormError, Input } from '@/src/shared/components/ui';
+import CloseButton from '@/src/shared/components/ui/CloseButton';
 import { toApiError } from '@/src/shared/api/errors';
 import { applyServerErrors } from '@/src/shared/forms/applyServerErrors';
 import { COLORS } from '@/src/shared/theme/colors';
@@ -165,7 +166,6 @@ const ProfileForm = ({ profile }: { profile: Profile }) => {
 
 /** Pantalla «Mi perfil» (spec fase 7, RF-7.7 – RF-7.10). */
 const ProfileScreen = () => {
-  const router = useRouter();
   const { status, profile, errorMessage, reload } = useProfile();
 
   return (
@@ -178,13 +178,7 @@ const ProfileScreen = () => {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Button
-            variant="outline"
-            size="small"
-            style={styles.closeButton}
-            onPress={() => router.back()}
-            title="✕"
-          />
+          <CloseButton />
           <Text style={styles.title}>Mi perfil</Text>
         </View>
 
@@ -207,15 +201,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   scrollContainer: { flexGrow: 1, padding: 20 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 30, paddingTop: 10 },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 15,
-    padding: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   title: { fontSize: 20, fontWeight: 'bold', color: COLORS.gray[800], flex: 1 },
   form: { backgroundColor: COLORS.white, borderRadius: 16, padding: 20 },
   section: { fontSize: 16, fontWeight: 'bold', color: COLORS.gray[800], marginBottom: 12 },
