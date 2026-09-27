@@ -62,6 +62,7 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 13   | [Notificaciones y recordatorios](fase-13-notificaciones/spec.md) | Recordatorios locales de medicación y glucosa, mensaje motivacional, aviso de logros y preferencias en el perfil | Fase 7, 9, 10, 11 | #16, #35, #52–#54 (#51 FCM se descarta) | 3–4 días |
 | 14   | [Development build](fase-14-dev-build/spec.md) | Compilar e instalar una build de desarrollo (expo-dev-client) para probar notificaciones, sin quitar Expo Go | Fase 13 | — (desbloquea #16, #35, #52–#54) | 1–2 días |
 | 15   | [Rediseño UX](fase-15-rediseno-ux/spec.md) | Auditoría UX y rediseño de toda la app: pestañas, sistema de diseño, historial de glucosa y accesibilidad | Fase 3–14 | — | 2–3 semanas (5 etapas) |
+| 16   | [Infraestructura y despliegue](fase-16-infraestructura/spec.md) | Backend desplegado en Render con Postgres en Neon, gratis, con despliegue automático desde `main` | Fase 1, 2, 4 | — | 1 día + pasos manuales |
 
 > La fase 4 puede empezar en paralelo para el backend en cuanto la fase 1 esté fusionada.
 
@@ -85,3 +86,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 13   | Implementada (verificada en dispositivo con la development build; pendiente fusionar #98 y el PR de la fase 14) |
 | 14   | Implementada (verificada en dispositivo; pendiente fusionar) |
 | 15   | Implementada (verificada en dispositivo: recorrido completo, TalkBack y texto al 200 %; pendiente fusionar #101) |
+| 16   | Aprobada (backend en Render + Postgres en Neon, gratis; pendiente que el usuario cree las cuentas — bloque 1 de `tasks.md`) |
