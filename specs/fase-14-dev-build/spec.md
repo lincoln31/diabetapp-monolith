@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 14 |
-| Estado | Aprobada |
+| Estado | Implementada |
 | Fecha | 2026-09-26 |
 | Depende de | Fase 13 (notificaciones locales, bloqueadas en Expo Go) |
 | Issues relacionados | Ninguno (desbloquea la verificación de #16, #35, #52, #53, #54) |

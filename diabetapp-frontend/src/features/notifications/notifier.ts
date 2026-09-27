@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { CHANNEL_ID } from './constants';
+import { isSameSchedule } from './schedule';
 import { ScheduledItem } from './types';
 
 /**
@@ -93,8 +94,10 @@ export const ensurePermission = async (): Promise<PermissionResult> => {
 };
 
 /**
- * Cancela todo lo programado por la app y reprograma la lista recibida: idempotente,
- * sin duplicados ni huérfanos (RNF-13.2). Una lista vacía deja cero programadas (RF-13.12).
+ * Deja programada exactamente la lista recibida, de forma **diferencial** (spec fase 13,
+ * D-13.4): cancela solo lo que sobra y (re)programa solo lo nuevo o cambiado. Lo que ya estaba
+ * bien no se toca: cancelarlo y reprogramarlo dentro de su ventana de entrega perdería el aviso
+ * de esa vez. Idempotente y sin duplicados (RNF-13.2); una lista vacía deja cero (RF-13.12).
  */
 export const syncSchedule = async (items: ScheduledItem[]): Promise<void> => {
   const Notifications = load();
@@ -102,9 +105,37 @@ export const syncSchedule = async (items: ScheduledItem[]): Promise<void> => {
 
   try {
     await configure(Notifications);
-    await Notifications.cancelAllScheduledNotificationsAsync();
+
+    const existing = await Notifications.getAllScheduledNotificationsAsync();
+    const wanted = new Map(items.map((item) => [item.id, item]));
+
+    for (const request of existing) {
+      if (!wanted.has(request.identifier)) {
+        await Notifications.cancelScheduledNotificationAsync(request.identifier);
+      }
+    }
+
+    const current = new Map(existing.map((request) => [request.identifier, request]));
 
     for (const item of items) {
+      const request = current.get(item.id);
+      const trigger = request?.trigger as { hour?: number; minute?: number } | null | undefined;
+
+      if (
+        request &&
+        isSameSchedule(
+          {
+            title: request.content.title,
+            body: request.content.body,
+            hour: trigger?.hour,
+            minute: trigger?.minute,
+          },
+          item,
+        )
+      ) {
+        continue;
+      }
+
       await Notifications.scheduleNotificationAsync({
         identifier: item.id,
         content: { title: item.title, body: item.body },

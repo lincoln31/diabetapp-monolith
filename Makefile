@@ -17,7 +17,7 @@ SHELL := bash
 .DEFAULT_GOAL := help
 DEV := bash scripts/dev.sh
 
-.PHONY: help doctor devices db backend backend-bg reverse app up stop down \
+.PHONY: help doctor devices db backend backend-bg reverse app build up stop down \
 	logs logs-crash logs-backend report status reinstall-expo-go adb-reset
 
 help: ## Muestra esta ayuda
@@ -47,7 +47,10 @@ reverse: ## Abre el puente USB: el celular ve el backend y Metro como localhost
 app: ## Arranca Metro e instala/abre la app en el celular (instala Expo Go si falta)
 	@$(DEV) app
 
-up: ## Todo junto: BD + backend + app en el celular
+build: ## Compila e instala la development build (para notificaciones; la 1.ª vez tarda)
+	@$(DEV) build
+
+up: ## Todo junto: BD + backend + app en el celular (DEV_CLIENT=1 usa la development build)
 	@$(DEV) up
 
 stop: ## Detiene backend y Metro (deja PostgreSQL corriendo)

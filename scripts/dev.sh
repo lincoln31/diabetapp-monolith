@@ -162,6 +162,102 @@ check_expo_go() {
 
 # --- Comandos -----------------------------------------------------------------
 
+# --- Development build (spec fase 14) ---------------------------------------
+# Expo Go no puede cargar expo-notifications (Android, SDK 53+): para probar avisos hace
+# falta una build propia con expo-dev-client. `make build` la compila e instala;
+# `make up DEV_CLIENT=1` la usa en vez de Expo Go. Sin DEV_CLIENT todo sigue como antes.
+DEV_CLIENT="${DEV_CLIENT:-}"
+APP_ID=com.diabetapp.app
+
+# Carpeta de compilación con ruta CORTA. Con la ruta del repo, CMake/Ninja fallan en Windows
+# («ninja: manifest 'build.ninja' still dirty after 100 tries»): los objetos nativos anidan
+# rutas de más de 260 caracteres. `subst` no sirve (Node resuelve la ruta real y Gradle mezcla
+# X: con C:), así que se compila en una copia mínima del frontend.
+BUILD_DIR="${BUILD_DIR:-C:/dpb}"
+
+# Ruta en formato «C:/...» (Gradle y Android Studio la aceptan sin escapes)
+to_mixed() { cygpath -m "$1" 2>/dev/null || echo "$1"; }
+
+# JDK que trae Android Studio (no hace falta instalar otro)
+find_java_home() {
+  local candidate
+  if [ -n "${JAVA_HOME:-}" ] && [ -e "$JAVA_HOME/bin/java.exe" ]; then
+    echo "$JAVA_HOME"
+    return 0
+  fi
+  for candidate in "C:/Program Files/Android/Android Studio/jbr" "${LOCALAPPDATA:-}/Programs/Android Studio/jbr"; do
+    if [ -e "$candidate/bin/java.exe" ]; then
+      to_mixed "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Solo dentro de esta ejecución: no toca las variables del sistema del usuario
+setup_android_env() {
+  local sdk java_home
+  sdk="${ANDROID_HOME:-${LOCALAPPDATA:-}/Android/Sdk}"
+  sdk="$(to_mixed "$sdk")"
+  export ANDROID_HOME="$sdk" ANDROID_SDK_ROOT="$sdk"
+
+  java_home="$(find_java_home)" || die "No encuentro un JDK. Instala Android Studio (trae uno) o define JAVA_HOME."
+  export JAVA_HOME="$java_home"
+}
+
+# Copia a BUILD_DIR solo lo que necesita la compilación nativa (la app JS la sirve Metro
+# desde el repo) y reinstala dependencias o regenera android/ únicamente si algo cambió.
+sync_build_dir() {
+  local dst="$BUILD_DIR/$FRONTEND" lock_hash cfg_hash
+  mkdir -p "$dst"
+
+  cp "$FRONTEND/app.json" "$FRONTEND/package.json" "$FRONTEND/package-lock.json" "$dst/"
+  [ -f "$FRONTEND/.npmrc" ] && cp "$FRONTEND/.npmrc" "$dst/"
+  [ -f "$FRONTEND/.env" ] && cp "$FRONTEND/.env" "$dst/"
+  rm -rf "$dst/assets" && cp -r "$FRONTEND/assets" "$dst/assets"
+
+  lock_hash="$(cksum <"$FRONTEND/package-lock.json" | cut -d' ' -f1)"
+  if [ ! -d "$dst/node_modules" ] || [ "$(cat "$dst/.lock-hash" 2>/dev/null || true)" != "$lock_hash" ]; then
+    echo "Instalando dependencias en $dst ..."
+    (cd "$dst" && npm ci)
+    echo "$lock_hash" >"$dst/.lock-hash"
+  fi
+
+  # Un cambio en app.json/package.json puede cambiar el código nativo: se regenera android/
+  cfg_hash="$(cat "$FRONTEND/app.json" "$FRONTEND/package.json" | cksum | cut -d' ' -f1)"
+  if [ "$(cat "$dst/.cfg-hash" 2>/dev/null || true)" != "$cfg_hash" ]; then
+    rm -rf "$dst/android"
+    echo "$cfg_hash" >"$dst/.cfg-hash"
+  fi
+}
+
+dev_build_installed() {
+  adb_ shell pm list packages 2>/dev/null | tr -d '' | grep -q "^package:$APP_ID$"
+}
+
+# Informativo: solo hace falta para las notificaciones (nunca hace fallar el doctor)
+check_dev_build() {
+  local java_home sdk
+  if java_home="$(find_java_home)"; then
+    ok "JDK para compilar: $java_home"
+  else
+    warn "No encuentro un JDK (Android Studio trae uno): hace falta solo para «make build»"
+  fi
+
+  sdk="${ANDROID_HOME:-${LOCALAPPDATA:-}/Android/Sdk}"
+  if [ -d "$sdk/ndk" ]; then
+    ok "Android NDK instalado"
+  else
+    warn "Aún no hay Android NDK: Gradle lo descarga en el primer «make build»"
+  fi
+
+  if dev_build_installed; then
+    ok "Development build instalada ($APP_ID): «make up DEV_CLIENT=1» la usa"
+  else
+    warn "Development build no instalada; solo hace falta para notificaciones: «make build»"
+  fi
+}
+
 cmd_doctor() {
   echo "Entorno"
   command -v node >/dev/null && ok "Node $(node -v) (el repo usa $(tr -d '\r\n' <.nvmrc))" || bad "Node no encontrado"
@@ -192,6 +288,7 @@ cmd_doctor() {
       ok "Celular listo: ${model:-desconocido}, Android ${version:-?}"
 
       check_expo_go
+      check_dev_build
     else
       while IFS= read -r line; do bad "$line"; done <<<"$msg"
     fi
@@ -268,6 +365,14 @@ cmd_app() {
 
   echo "PC en la red local como $lan_ip — asegúrate de que el celular esté en la misma WiFi."
   echo "API para la app: $api_url"
+
+  if [ -n "$DEV_CLIENT" ]; then
+    dev_build_installed || die "La development build no está instalada en el celular: ejecuta «make build» primero."
+    echo "Modo development build (con notificaciones): se abre «DiabetApp», no Expo Go."
+    cd "$FRONTEND"
+    EXPO_PUBLIC_API_URL="$api_url" exec npx expo start --dev-client --android --lan --clear
+  fi
+
   echo "Si Expo pregunta por instalar Expo Go en el celular, responde Y (necesita la versión de su SDK)."
   cd "$FRONTEND"
   # --lan hace que Metro escuche en todas las interfaces, no solo localhost.
@@ -275,6 +380,23 @@ cmd_app() {
   # cachea el bundle con la URL ya incrustada: sin --clear podría servir la de
   # una ejecución anterior. Cuesta unos segundos.
   EXPO_PUBLIC_API_URL="$api_url" exec npx expo start --android --lan --clear
+}
+
+# Compila e instala la development build en el celular (spec fase 14). La primera vez tarda
+# (Gradle y el NDK se descargan); las siguientes reutilizan la caché.
+cmd_build() {
+  local lan_ip api_url
+  require_device
+  setup_android_env
+  lan_ip="$(detect_lan_ip)"
+  [ -n "$lan_ip" ] || die "No pude detectar la IP de red del PC. Fija LAN_IP=<tu-ip>."
+  api_url="http://${lan_ip}:${API_PORT}/api"
+
+  sync_build_dir
+  echo "Compilando la development build en $BUILD_DIR/$FRONTEND (JDK: $JAVA_HOME)..."
+  cd "$BUILD_DIR/$FRONTEND"
+  EXPO_PUBLIC_API_URL="$api_url" npx expo run:android --no-bundler
+  echo "Listo. Ahora: make up DEV_CLIENT=1"
 }
 
 cmd_up() {
@@ -382,7 +504,7 @@ cmd_adb_reset() {
 # --- Entrada ------------------------------------------------------------------
 
 command_name="${1:-}"
-[ -n "$command_name" ] || die "Uso: bash scripts/dev.sh <doctor|devices|db|backend|backend-bg|reverse|app|up|stop|down|logs|logs-crash|logs-backend|report|status|reinstall-expo-go|adb-reset>"
+[ -n "$command_name" ] || die "Uso: bash scripts/dev.sh <doctor|devices|db|backend|backend-bg|reverse|app|build|up|stop|down|logs|logs-crash|logs-backend|report|status|reinstall-expo-go|adb-reset>"
 
 fn="cmd_${command_name//-/_}"
 declare -F "$fn" >/dev/null || die "Comando desconocido: $command_name"

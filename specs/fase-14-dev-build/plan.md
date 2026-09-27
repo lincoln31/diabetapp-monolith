@@ -39,7 +39,9 @@ Sin instalar nada global ni tocar variables del sistema del usuario: solo dentro
 
 Comprobaciones **informativas** (aviso, no error) para el modo *dev client*: JDK encontrado (`java -version` con el `JAVA_HOME` resuelto), NDK presente en `$ANDROID_HOME/ndk`, y si `com.diabetapp.app` está instalada (`adb shell pm list packages`). Nunca hacen fallar `make doctor` si no se usa el modo *dev client*.
 
-### D-14.6 Ruta larga
+### D-14.6 Ruta larga (ajustado tras T14.2)
+
+**subst no funciona:** Node resuelve la ruta real y Gradle termina mezclando X:\ con C:\ («this and base files have different roots»). La salida que sí funciona es compilar en una **copia mínima del frontend con ruta corta** (BUILD_DIR, por defecto C:/dpb): sync_build_dir copia app.json, package.json, package-lock.json, .npmrc, .env y assets/, ejecuta npm ci solo si cambió el lock y regenera android/ solo si cambió app.json o package.json. La app JS no se compila allí (--no-bundler): la sirve Metro desde el repo. Texto original:
 
 Si la compilación falla por longitud de ruta (CMake/Ninja: «Filename longer than 260 characters» o rutas truncadas), la salida es compilar desde una unidad corta: `subst X: <raíz-del-repo>` y ejecutar `make build` desde `X:\`. Se documenta el procedimiento exacto en `CLAUDE.md` solo si hace falta.
 

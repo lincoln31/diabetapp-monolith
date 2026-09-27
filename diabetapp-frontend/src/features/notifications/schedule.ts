@@ -61,3 +61,22 @@ export const buildSchedule = ({
 
   return items;
 };
+
+/** Lo que se necesita saber de una notificación ya programada para compararla. */
+export interface ExistingSchedule {
+  title?: string | null;
+  body?: string | null;
+  hour?: number;
+  minute?: number;
+}
+
+/**
+ * ¿La notificación ya programada es idéntica a la deseada? (spec fase 13, D-13.4). Permite no
+ * tocar lo que no cambió: cancelar y reprogramar una alarma diaria que aún está dentro de su
+ * ventana de entrega (las alarmas son inexactas) la mueve a mañana y se pierde el aviso.
+ */
+export const isSameSchedule = (existing: ExistingSchedule, item: ScheduledItem): boolean =>
+  existing.title === item.title &&
+  existing.body === item.body &&
+  existing.hour === item.hour &&
+  existing.minute === item.minute;

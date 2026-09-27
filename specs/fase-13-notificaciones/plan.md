@@ -96,14 +96,14 @@ export const syncSchedule: (items: ScheduledItem[]) => Promise<void>;      // ca
 export const notifyNow: (title: string, body: string) => Promise<void>;    // trigger: null
 ```
 
-- `syncSchedule`: `cancelAllScheduledNotificationsAsync()` y luego `scheduleNotificationAsync({ identifier: item.id, content: { title, body }, trigger: { type: DAILY, hour, minute, channelId } })`. Cancelar todo y reprogramar es idempotente y evita duplicados y huérfanos (RNF-13.2, RF-13.12).
+- `syncSchedule` es **diferencial** (ajustado tras el recorrido en dispositivo): lee `getAllScheduledNotificationsAsync()`, cancela solo los identificadores que ya no corresponden y (re)programa solo los nuevos o cambiados (`isSameSchedule`: título, cuerpo, hora y minuto). Motivo: las alarmas diarias son **inexactas** (la de medicación llegó ~1,5 min tarde); con «cancelar todo y reprogramar», abrir la app dentro de esa ventana movía la alarma a mañana y se **perdía el aviso**. Sigue siendo idempotente y sin duplicados ni huérfanos (RNF-13.2, RF-13.12).
 - Android exige un **canal** (`setNotificationChannelAsync`, importancia alta) creado antes de programar.
 - `setNotificationHandler` para que también se muestren con la app abierta.
 - Todo `try/catch`: un fallo se registra y no se propaga (RF-13.11).
 
 ### D-13.5 Sincronización y logros nuevos
 
-`useNotificationSync()` se monta en `DashboardScreen` (al recuperar el foco, como los demás hooks de tarjetas):
+`useNotificationSync()` se monta en `DashboardScreen` y sincroniza al recuperar el foco **y al volver la app a primer plano** (`AppState`):
 
 1. Pide en paralelo `profileApi.get()` y `medicationsApi.list()` (por sus `index.ts`) y `achievementsApi.get()` si `achievements` está activo.
 2. `buildSchedule(...)` → `syncSchedule(...)`.
