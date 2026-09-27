@@ -24,6 +24,8 @@ interface ScreenProps {
   scroll?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
+  /** Cabecera fija sobre el contenido (p. ej. `ScreenHeader`), sin el margen lateral. */
+  header?: React.ReactNode;
   /** Contenido fijo al pie (p. ej. el botón principal de un formulario). */
   footer?: React.ReactNode;
   /** Ajusta la pantalla al teclado (formularios). */
@@ -38,6 +40,7 @@ const Screen = ({
   scroll = true,
   refreshing = false,
   onRefresh,
+  header,
   footer,
   keyboard = false,
   insetBottom = true,
@@ -67,6 +70,7 @@ const Screen = ({
 
   const inner = (
     <>
+      {header}
       {body}
       {footer ? (
         <View style={[styles.footer, { paddingBottom: gutter + bottom }]}>{footer}</View>

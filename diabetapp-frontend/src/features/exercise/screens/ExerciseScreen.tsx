@@ -61,7 +61,7 @@ const ExerciseScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="Ejercicio" />
+      <ScreenHeader title="Actividad" showClose={false} />
 
       {status === 'loading' && (
         <View style={styles.centered}>

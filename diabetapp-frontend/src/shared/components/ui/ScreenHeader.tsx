@@ -9,12 +9,21 @@ import CloseButton from './CloseButton';
  * respetando el área segura superior. Cuando la pantalla usa `Screen` (que ya reserva ese
  * espacio) se pasa `safeTop={false}`.
  */
-const ScreenHeader = ({ title, safeTop = true }: { title: string; safeTop?: boolean }) => {
+const ScreenHeader = ({
+  title,
+  safeTop = true,
+  showClose = true,
+}: {
+  title: string;
+  safeTop?: boolean;
+  /** `false` en las pantallas raíz de una pestaña, que no se cierran. */
+  showClose?: boolean;
+}) => {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.header, { paddingTop: (safeTop ? insets.top : 0) + space.sm }]}>
-      <CloseButton />
+      {showClose ? <CloseButton /> : null}
       <Text style={styles.title} accessibilityRole="header">
         {title}
       </Text>

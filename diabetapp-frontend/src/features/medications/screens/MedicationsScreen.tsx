@@ -50,7 +50,7 @@ const MedicationsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="Mis Medicamentos" />
+      <ScreenHeader title="Medicación" showClose={false} />
 
       {status === 'loading' && (
         <View style={styles.centered}>
