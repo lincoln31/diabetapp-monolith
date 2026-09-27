@@ -61,6 +61,7 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 12   | [Actividad física](fase-12-ejercicio/spec.md) | Registro de actividades, cronómetro, avance diario y comparación de glucosa con/sin ejercicio | Fase 3, 5, 7, 8 | #36–#40 | 3–4 días |
 | 13   | [Notificaciones y recordatorios](fase-13-notificaciones/spec.md) | Recordatorios locales de medicación y glucosa, mensaje motivacional, aviso de logros y preferencias en el perfil | Fase 7, 9, 10, 11 | #16, #35, #52–#54 (#51 FCM se descarta) | 3–4 días |
 | 14   | [Development build](fase-14-dev-build/spec.md) | Compilar e instalar una build de desarrollo (expo-dev-client) para probar notificaciones, sin quitar Expo Go | Fase 13 | — (desbloquea #16, #35, #52–#54) | 1–2 días |
+| 15   | [Rediseño UX](fase-15-rediseno-ux/spec.md) | Auditoría UX y rediseño de toda la app: pestañas, sistema de diseño, historial de glucosa y accesibilidad | Fase 3–14 | — | 2–3 semanas (5 etapas) |
 
 > La fase 4 puede empezar en paralelo para el backend en cuanto la fase 1 esté fusionada.
 
@@ -83,3 +84,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 12   | Implementada (verificada en dispositivo; pendiente fusionar #96) |
 | 13   | Implementada (verificada en dispositivo con la development build; pendiente fusionar #98 y el PR de la fase 14) |
 | 14   | Implementada (verificada en dispositivo; pendiente fusionar) |
+| 15   | Borrador (auditoría entregada; pendiente de aprobar las aclaraciones de la spec §8) |
