@@ -6,6 +6,10 @@ Implementa: [spec.md](spec.md) · Tareas: [tasks.md](tasks.md)
 
 `expo-notifications` en **Expo Go** (SDK 57, Android) soporta notificaciones **locales**, pero desde el SDK 53 ya no el push remoto. Esta fase solo usa lo local, pero antes de construir nada se hace una prueba mínima en el celular (T13.2): instalar la librería, programar una notificación a 1 minuto y ver que llega. Si Expo Go no la entrega, la fase se detiene y se vuelve a decidir (probablemente pasar a *development build*, lo que cambia `make up`). Es el mayor riesgo y es barato de descartar.
 
+### Resultado de T13.2 (2026-09-26): NEGATIVO en Expo Go
+
+En Expo Go (Android 15, SDK 57) **importar `expo-notifications` lanza un error no capturado** («Android Push notifications … was removed from Expo Go with the release of SDK 53. Use a development build») y la app queda en pantalla roja. No es solo el push remoto: el módulo entero no se puede cargar, así que tampoco hay notificaciones locales. Mitigación ya aplicada: `notifier.ts` carga el módulo de forma perezosa y **solo fuera de Expo Go** (`Constants.executionEnvironment`); en Expo Go los avisos quedan «no disponibles» (la pantalla lo explica) y el resto de la app funciona. Para que lleguen notificaciones de verdad hace falta una *development build* o la app instalada.
+
 ## 1. Decisiones
 
 ### D-13.1 Backend: preferencias en el perfil (sin migración, sin módulo nuevo)

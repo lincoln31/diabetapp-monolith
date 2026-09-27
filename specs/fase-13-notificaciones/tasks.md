@@ -7,7 +7,7 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-13-notificaciones`
 ## Bloque 0 — Aclaraciones y viabilidad
 
 - [x] **T13.1** Resolver las aclaraciones de la spec (§8: locales en vez de FCM, alcance de #52–#54, preferencias en el perfil, apagadas por defecto, mensaje a las 9:00, acceso desde «Mi perfil»).
-- [ ] **T13.2** ⏳ (requiere dispositivo) **Prueba de viabilidad**: instalar `expo-notifications`, programar una notificación local a 1 minuto y confirmar que llega en Expo Go (Android 15). Si no llega, detener la fase y replantear. — plan §0 · depende de T13.1
+- [x] **T13.2** **Prueba de viabilidad — NEGATIVO en Expo Go** (ver plan §0: el módulo no se puede importar; la app degrada sin avisos): instalar `expo-notifications`, programar una notificación local a 1 minuto y confirmar que llega en Expo Go (Android 15). Si no llega, detener la fase y replantear. — plan §0 · depende de T13.1
 
 ## Bloque A — Backend: preferencias en el perfil
 

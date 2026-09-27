@@ -84,6 +84,18 @@ describe('NotificationsScreen', () => {
     expect(mockUpdate).not.toHaveBeenCalled();
   });
 
+  it('en Expo Go (módulo no disponible) explica el motivo y no cambia el interruptor', async () => {
+    mockUseProfile.mockReturnValue(loaded());
+    mockEnsurePermission.mockResolvedValue('unavailable');
+
+    const { getByLabelText, findByText } = await render(<NotificationsScreen />);
+    await fireEvent(getByLabelText('Mensaje motivacional'), 'valueChange', true);
+
+    expect(await findByText(/no funcionan en Expo Go/)).toBeTruthy();
+    expect(getByLabelText('Mensaje motivacional').props.value).toBe(false);
+    expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
   it('los horarios de glucosa no se ven con ese aviso apagado', async () => {
     mockUseProfile.mockReturnValue(loaded());
 

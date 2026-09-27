@@ -30,16 +30,23 @@ const NotificationsForm = ({ profile }: { profile: Profile }) => {
   const [times, setTimes] = useState<string[]>(profile.glucoseReminderTimes);
   const [timesError, setTimesError] = useState<string | undefined>();
   const [permissionDenied, setPermissionDenied] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const toggle = async (key: NotificationKey, value: boolean) => {
     // Al activar se pide el permiso del sistema; si lo deniega, el interruptor no cambia (RF-13.5)
     if (value) {
-      if ((await ensurePermission()) === 'denied') {
+      const permission = await ensurePermission();
+      if (permission === 'unavailable') {
+        setUnavailable(true);
+        return;
+      }
+      if (permission === 'denied') {
         setPermissionDenied(true);
         return;
       }
       setPermissionDenied(false);
+      setUnavailable(false);
     }
 
     const previous = preferences;
@@ -79,6 +86,15 @@ const NotificationsForm = ({ profile }: { profile: Profile }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
+      {unavailable && (
+        <Card padding="large" style={styles.warning}>
+          <Text style={styles.warningText}>
+            Los avisos no funcionan en Expo Go: hace falta una versión de desarrollo de la app o la
+            app instalada.
+          </Text>
+        </Card>
+      )}
+
       {permissionDenied && (
         <Card padding="large" style={styles.warning}>
           <Text style={styles.warningText}>

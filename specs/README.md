@@ -80,4 +80,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 10   | Implementada (verificada en dispositivo; pendiente fusionar #92) |
 | 11   | Implementada (verificada en dispositivo; pendiente fusionar #94) |
 | 12   | Implementada (verificada en dispositivo; pendiente fusionar #96) |
-| 13   | Aprobada (implementada; pendiente prueba de viabilidad y recorrido en dispositivo) |
+| 13   | Aprobada (código listo; **bloqueada**: Expo Go no admite `expo-notifications`, falta decidir development build) |
