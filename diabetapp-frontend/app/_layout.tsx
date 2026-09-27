@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { ToastProvider } from '@/src/shared/components/ui';
 import { AuthProvider, useSession } from '@/src/features/auth';
 
 // La pantalla de carga se mantiene hasta saber si hay sesión (spec fase 2, RF-2.16)
@@ -36,8 +37,10 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootNavigator />
-    </AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <RootNavigator />
+      </AuthProvider>
+    </ToastProvider>
   );
 }

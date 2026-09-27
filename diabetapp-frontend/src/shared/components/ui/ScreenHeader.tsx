@@ -1,25 +1,41 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { color, gutter, space, type } from '../../theme/tokens';
 import CloseButton from './CloseButton';
-import { COLORS } from '../../theme/colors';
 
-/** Cabecera de pantallas secundarias: botón de cerrar + título. */
-const ScreenHeader = ({ title }: { title: string }) => (
-  <View style={styles.header}>
-    <CloseButton />
-    <Text style={styles.title}>{title}</Text>
-  </View>
-);
+/**
+ * Cabecera única de las pantallas apiladas (spec fase 15, RF-15.13): botón de cerrar + título,
+ * respetando el área segura superior. Cuando la pantalla usa `Screen` (que ya reserva ese
+ * espacio) se pasa `safeTop={false}`.
+ */
+const ScreenHeader = ({ title, safeTop = true }: { title: string; safeTop?: boolean }) => {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View style={[styles.header, { paddingTop: (safeTop ? insets.top : 0) + space.sm }]}>
+      <CloseButton />
+      <Text style={styles.title} accessibilityRole="header">
+        {title}
+      </Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 10,
+    paddingHorizontal: gutter,
+    paddingBottom: space.sm,
   },
-  title: { fontSize: 20, fontWeight: 'bold', color: COLORS.gray[800], flex: 1 },
+  title: {
+    flex: 1,
+    fontSize: type.title.fontSize,
+    lineHeight: type.title.lineHeight,
+    fontWeight: '700',
+    color: color.text,
+  },
 });
 
 export default ScreenHeader;

@@ -24,9 +24,9 @@ export interface AuthResult extends AuthTokens {
 
 export interface RegisterPayload {
   firstName: string;
-  lastName: string;
+  lastName?: string;
   email: string;
   phone?: string;
-  birthDate: string; // ISO
+  birthDate?: string; // ISO
   password: string;
 }

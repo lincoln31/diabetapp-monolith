@@ -1,62 +1,50 @@
 import React from 'react';
-import { View, StyleSheet, ViewProps } from 'react-native';
-import { COLORS } from '../../theme/colors';
+import { StyleSheet, View, ViewProps } from 'react-native';
+import { color, radius, space } from '../../theme/tokens';
 
+/** Superficie plana con borde de 1 px y sin sombra (spec fase 15, D-15.7). */
 interface CardProps extends ViewProps {
   variant?: 'default' | 'motivation' | 'security';
   padding?: 'small' | 'medium' | 'large';
 }
 
-const Card: React.FC<CardProps> = ({
+const Card = ({
   children,
   variant = 'default',
   padding = 'medium',
   style,
   ...props
-}) => {
-  return (
-    <View style={[styles.card, styles[variant], styles[`${padding}Padding`], style]} {...props}>
-      {children}
-    </View>
-  );
-};
+}: CardProps) => (
+  <View style={[styles.card, VARIANT[variant], PADDING[padding], style]} {...props}>
+    {children}
+  </View>
+);
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: color.border,
+    backgroundColor: color.surface,
   },
-
-  // Variantes
-  default: {
-    backgroundColor: COLORS.white,
-  },
-  motivation: {
-    backgroundColor: COLORS.blue[100],
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
-  },
-  security: {
-    backgroundColor: COLORS.green[50],
-  },
-
-  // Padding
-  smallPadding: {
-    padding: 12,
-  },
-  mediumPadding: {
-    padding: 16,
-  },
-  largePadding: {
-    padding: 24,
-  },
+  default: { backgroundColor: color.surface },
+  motivation: { backgroundColor: color.infoBg },
+  security: { backgroundColor: color.successBg },
+  small: { padding: space.md },
+  medium: { padding: space.lg },
+  large: { padding: space.xl },
 });
+
+const VARIANT = {
+  default: styles.default,
+  motivation: styles.motivation,
+  security: styles.security,
+} as const;
+
+const PADDING = {
+  small: styles.small,
+  medium: styles.medium,
+  large: styles.large,
+} as const;
 
 export default Card;
