@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import {
-  ActivityIndicator,
-  Linking,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-} from 'react-native';
-import { Button, Card } from '@/src/shared/components/ui';
+  Banner,
+  Button,
+  ErrorView,
+  LoadingView,
+  Screen,
+  SwitchRow,
+} from '@/src/shared/components/ui';
 import ScreenHeader from '@/src/shared/components/ui/ScreenHeader';
 import TimesField from '@/src/shared/components/TimesField';
 import { toApiError } from '@/src/shared/api/errors';
-import { COLORS } from '@/src/shared/theme/colors';
+import { color, radius, space, type } from '@/src/shared/theme/tokens';
 import { showError } from '@/src/shared/utils/showError';
 import { profileApi, useProfile } from '@/src/features/profile';
 import type { Profile } from '@/src/features/profile';
@@ -85,48 +84,44 @@ const NotificationsForm = ({ profile }: { profile: Profile }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
-      {unavailable && (
-        <Card padding="large" style={styles.warning}>
-          <Text style={styles.warningText}>
-            Los avisos no funcionan en Expo Go: hace falta una versión de desarrollo de la app o la
-            app instalada.
-          </Text>
-        </Card>
-      )}
+    <Screen
+      header={<ScreenHeader title="Notificaciones" safeTop={false} />}
+      contentStyle={styles.content}
+    >
+      {unavailable ? (
+        <Banner
+          tone="warning"
+          message="Los avisos no funcionan en Expo Go: hace falta una versión de desarrollo de la app o la app instalada."
+        />
+      ) : null}
 
-      {permissionDenied && (
-        <Card padding="large" style={styles.warning}>
-          <Text style={styles.warningText}>
-            Los avisos están bloqueados en el celular. Habilita las notificaciones de DiabetApp en
-            los ajustes para recibirlos.
-          </Text>
+      {permissionDenied ? (
+        <View style={styles.denied}>
+          <Banner
+            tone="warning"
+            message="Los avisos están bloqueados en el celular. Habilita las notificaciones de DiabetApp en los ajustes para recibirlos."
+          />
           <Button
             title="Abrir ajustes"
-            variant="outline"
+            variant="secondary"
             size="small"
             onPress={() => void Linking.openSettings()}
             style={styles.settingsButton}
           />
-        </Card>
-      )}
+        </View>
+      ) : null}
 
       {NOTIFICATION_OPTIONS.map((option) => (
-        <Card key={option.key} padding="large" style={styles.option}>
-          <View style={styles.optionRow}>
-            <View style={styles.optionText}>
-              <Text style={styles.optionTitle}>{option.title}</Text>
-              <Text style={styles.optionDescription}>{option.description}</Text>
-            </View>
-            <Switch
-              accessibilityLabel={option.title}
-              value={preferences[option.key]}
-              onValueChange={(value) => void toggle(option.key, value)}
-              disabled={saving}
-            />
-          </View>
+        <View key={option.key} style={styles.option}>
+          <SwitchRow
+            title={option.title}
+            description={option.description}
+            value={preferences[option.key]}
+            onValueChange={(value) => void toggle(option.key, value)}
+            disabled={saving}
+          />
 
-          {option.key === 'glucoseReminders' && preferences.glucoseReminders && (
+          {option.key === 'glucoseReminders' && preferences.glucoseReminders ? (
             <View style={styles.times}>
               <Text style={styles.timesLabel}>Horarios (24 horas)</Text>
               <TimesField value={times} onChange={setTimes} error={timesError} allowEmpty />
@@ -134,65 +129,70 @@ const NotificationsForm = ({ profile }: { profile: Profile }) => {
                 title="Guardar horarios"
                 size="small"
                 onPress={saveTimes}
+                loading={saving}
                 disabled={saving}
                 style={styles.saveTimes}
               />
             </View>
-          )}
-        </Card>
+          ) : null}
+        </View>
       ))}
 
       <Text style={styles.footnote}>
         Los recordatorios se programan en tu celular y llegan aunque no tengas internet. Abrir la
         app los actualiza.
       </Text>
-    </ScrollView>
+    </Screen>
   );
 };
 
 /** Pantalla «Notificaciones» (spec fase 13, RF-13.4). */
 const NotificationsScreen = () => {
-  const { status, profile, errorMessage, reload } = useProfile();
+  const { status, profile, errorMessage, offline, reload } = useProfile();
+
+  if (status === 'success' && profile) return <NotificationsForm profile={profile} />;
 
   return (
-    <View style={styles.container}>
-      <ScreenHeader title="Notificaciones" />
-
-      {status === 'loading' && (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      )}
-
-      {status === 'error' && (
-        <View style={styles.centered}>
-          <Text style={styles.errorText}>{errorMessage}</Text>
-          <Button title="Reintentar" variant="outline" onPress={reload} />
-        </View>
-      )}
-
-      {status === 'success' && profile && <NotificationsForm profile={profile} />}
-    </View>
+    <Screen header={<ScreenHeader title="Notificaciones" safeTop={false} />}>
+      {status === 'loading' ? <LoadingView /> : null}
+      {status === 'error' ? (
+        <ErrorView message={errorMessage ?? ''} offline={offline} onRetry={reload} />
+      ) : null}
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
-  errorText: { fontSize: 14, color: COLORS.error, textAlign: 'center', marginBottom: 16 },
-  content: { padding: 20, paddingTop: 4 },
-  warning: { marginBottom: 12, backgroundColor: '#FFFBEB' },
-  warningText: { fontSize: 14, lineHeight: 20, color: COLORS.gray[700] },
-  settingsButton: { marginTop: 10, alignSelf: 'flex-start' },
-  option: { marginBottom: 12 },
-  optionRow: { flexDirection: 'row', alignItems: 'center', columnGap: 12 },
-  optionText: { flex: 1 },
-  optionTitle: { fontSize: 16, fontWeight: '700', color: COLORS.gray[900] },
-  optionDescription: { fontSize: 13, color: COLORS.gray[500], marginTop: 2 },
-  times: { marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: COLORS.gray[100] },
-  timesLabel: { fontSize: 14, fontWeight: '600', color: COLORS.gray[700], marginBottom: 6 },
-  saveTimes: { marginTop: 4, alignSelf: 'flex-start' },
-  footnote: { fontSize: 12, color: COLORS.gray[500], textAlign: 'center', marginTop: 8 },
+  content: { rowGap: space.md },
+  denied: { rowGap: space.sm },
+  settingsButton: { alignSelf: 'flex-start' },
+  option: {
+    backgroundColor: color.surface,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: color.border,
+    overflow: 'hidden',
+  },
+  times: {
+    padding: space.lg,
+    paddingTop: space.md,
+    borderTopWidth: 1,
+    borderTopColor: color.border,
+    rowGap: space.sm,
+  },
+  timesLabel: {
+    fontSize: type.label.fontSize,
+    lineHeight: type.label.lineHeight,
+    fontWeight: '600',
+    color: color.text,
+  },
+  saveTimes: { alignSelf: 'flex-start' },
+  footnote: {
+    fontSize: type.caption.fontSize,
+    lineHeight: type.caption.lineHeight,
+    color: color.textMuted,
+    textAlign: 'center',
+  },
 });
 
 export default NotificationsScreen;

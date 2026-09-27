@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     columnGap: space.sm,
     marginTop: space.xs,
   },
-  value: { fontSize: 48, lineHeight: 56, fontWeight: '700', color: color.text },
+  value: { ...type.hero, color: color.text },
   unit: { fontSize: type.body.fontSize, color: color.textMuted },
   footer: {
     flexDirection: 'row',

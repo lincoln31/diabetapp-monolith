@@ -32,6 +32,8 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
   loading?: boolean;
   loadingText?: string;
   icon?: AppIconName;
+  /** `danger` tiñe los botones `secondary`/`tertiary` de rojo (acciones destructivas discretas). */
+  tone?: 'default' | 'danger';
   style?: StyleProp<ViewStyle>;
 }
 
@@ -48,6 +50,7 @@ const Button = ({
   loading = false,
   loadingText,
   icon,
+  tone = 'default',
   style,
   disabled,
   accessibilityLabel,
@@ -55,7 +58,8 @@ const Button = ({
 }: ButtonProps) => {
   const kind = variant === 'outline' ? 'secondary' : variant;
   const inactive = Boolean(disabled) || loading;
-  const textColor = inactive ? color.disabledText : TEXT_COLOR[kind];
+  const danger = tone === 'danger' && (kind === 'secondary' || kind === 'tertiary');
+  const textColor = inactive ? color.disabledText : danger ? color.danger : TEXT_COLOR[kind];
 
   return (
     <Pressable
@@ -68,6 +72,7 @@ const Button = ({
         styles.base,
         { minHeight: MIN_HEIGHT[size] },
         inactive ? styles.disabled : VARIANT_STYLE[kind],
+        danger && !inactive && kind === 'secondary' && styles.dangerBorder,
         pressed && !inactive && styles.pressed,
         style,
       ]}
@@ -127,6 +132,7 @@ const styles = StyleSheet.create({
   tertiary: { backgroundColor: 'transparent' },
   destructive: { backgroundColor: color.danger },
   disabled: { backgroundColor: color.disabledBg },
+  dangerBorder: { borderColor: color.danger },
 });
 
 const VARIANT_STYLE = {

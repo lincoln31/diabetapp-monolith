@@ -28,6 +28,8 @@ describe('/api/profile', () => {
       weight: null,
       height: null,
       activityLevel: null,
+      phone: null,
+      birthDate: null,
       onboardingCompleted: false,
       notificationPreferences: {
         medicationReminders: false,
@@ -91,6 +93,28 @@ describe('/api/profile', () => {
     expect(fields).toEqual(
       expect.arrayContaining(['weight', 'height', 'targetHba1c', 'typeOfDiabetes']),
     );
+  });
+
+  it('guarda y borra teléfono y fecha de nacimiento, y rechaza valores inválidos', async () => {
+    const { accessToken } = await registerUser();
+    const put = (body: object) => api().put('/api/profile').set(authHeader(accessToken)).send(body);
+
+    const saved = await put({ phone: '300 123-4567', birthDate: '1990-05-20T00:00:00.000Z' });
+    expect(saved.status).toBe(200);
+    expect(saved.body.data.phone).toBe('300 123-4567');
+    expect(saved.body.data.birthDate).toBe('1990-05-20T00:00:00.000Z');
+
+    const badPhone = await put({ phone: 'abc' });
+    expect(badPhone.status).toBe(400);
+    expect(badPhone.body.error.fields[0].field).toBe('phone');
+
+    const future = await put({ birthDate: '2999-01-01T00:00:00.000Z' });
+    expect(future.status).toBe(400);
+    expect(future.body.error.fields[0].field).toBe('birthDate');
+
+    const cleared = await put({ phone: null, birthDate: null });
+    expect(cleared.body.data.phone).toBeNull();
+    expect(cleared.body.data.birthDate).toBeNull();
   });
 
   it('rechaza un rango incoherente contra el valor ya guardado', async () => {

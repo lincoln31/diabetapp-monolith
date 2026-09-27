@@ -21,6 +21,8 @@ const medications: ScheduleMedication[] = [
 
 const base = {
   medications,
+  phone: null,
+  birthDate: null,
   glucoseReminderTimes: ['07:30', '13:00'],
   today: new Date(2026, 8, 26),
 };

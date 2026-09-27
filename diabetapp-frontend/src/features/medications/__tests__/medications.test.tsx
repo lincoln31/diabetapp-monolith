@@ -6,6 +6,10 @@ import MedicationsScreen from '../screens/MedicationsScreen';
 import { AdherenceStats, Medication } from '../types';
 
 const mockUseMedications = jest.fn();
+jest.mock('../hooks/useAdherence', () => ({
+  useAdherence: () => ({ status: 'loading', adherence: null }),
+}));
+
 jest.mock('../hooks/useMedications', () => ({
   useMedications: () => mockUseMedications(),
 }));
@@ -56,7 +60,7 @@ describe('MedicationsScreen', () => {
     const { getByText } = await render(<MedicationsScreen />);
     await fireEvent.press(getByText('Registrar toma'));
 
-    expect(logIntake).toHaveBeenCalledWith('m1');
+    expect(logIntake).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1' }));
   });
 
   it('con la lista vacía invita a agregar el primer medicamento', async () => {

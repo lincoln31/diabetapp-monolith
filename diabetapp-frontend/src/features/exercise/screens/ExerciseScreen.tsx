@@ -1,10 +1,17 @@
 import React from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Card } from '@/src/shared/components/ui';
+import {
+  Button,
+  Card,
+  EmptyView,
+  ErrorView,
+  LoadingView,
+  Screen,
+} from '@/src/shared/components/ui';
 import ScreenHeader from '@/src/shared/components/ui/ScreenHeader';
-import { COLORS } from '@/src/shared/theme/colors';
-import ExerciseProgress from '../components/ExerciseProgress';
+import { color, space, type } from '@/src/shared/theme/tokens';
+import ExerciseSummaryCard from '../components/ExerciseSummaryCard';
 import { ACTIVITY_TYPE_LABEL } from '../constants';
 import { useExercise } from '../hooks/useExercise';
 import { ExerciseActivity } from '../types';
@@ -28,13 +35,24 @@ const ActivityRow = ({ activity, onDelete }: ActivityRowProps) => (
         {ACTIVITY_TYPE_LABEL[activity.type]} · {activity.durationMinutes} min
       </Text>
       <Text style={styles.date}>{formatStart(activity.startedAt)}</Text>
-      {activity.notes && <Text style={styles.notes}>{activity.notes}</Text>}
+      {activity.notes ? <Text style={styles.notes}>{activity.notes}</Text> : null}
     </View>
-    <Button title="Borrar" variant="outline" size="small" onPress={onDelete} />
+    <Button
+      title="Borrar"
+      variant="tertiary"
+      tone="danger"
+      size="small"
+      icon="trash"
+      accessibilityLabel={`Borrar ${ACTIVITY_TYPE_LABEL[activity.type]} de ${activity.durationMinutes} minutos`}
+      onPress={onDelete}
+    />
   </Card>
 );
 
-/** Pantalla «Ejercicio» (spec fase 12, RF-12.9, RF-12.12). */
+/**
+ * Pestaña Actividad (spec fase 12, RF-12.9, RF-12.12; rediseñada en la fase 15): resumen con la
+ * comparación de glucosa arriba, historial y «Registrar actividad» fijo abajo.
+ */
 const ExerciseScreen = () => {
   const router = useRouter();
   const {
@@ -42,8 +60,11 @@ const ExerciseScreen = () => {
     activities,
     summary,
     errorMessage,
+    offline,
     hasMore,
     loadingMore,
+    refreshing,
+    refresh,
     reload,
     loadMore,
     remove,
@@ -60,93 +81,96 @@ const ExerciseScreen = () => {
     );
 
   return (
-    <View style={styles.container}>
-      <ScreenHeader title="Actividad" showClose={false} />
-
-      {status === 'loading' && (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      )}
-
-      {status === 'error' && (
-        <View style={styles.centered}>
-          <Text style={styles.errorText}>{errorMessage}</Text>
-          <Button title="Reintentar" variant="outline" onPress={reload} />
-        </View>
-      )}
-
-      {status === 'success' && (
-        <ScrollView contentContainerStyle={styles.list}>
-          {summary && (
-            <Card padding="large" style={styles.progress}>
-              <ExerciseProgress
-                todayMinutes={summary.todayMinutes}
-                goalMinutes={summary.goalMinutes}
-              />
-            </Card>
-          )}
-
-          <View style={styles.actions}>
+    <Screen
+      insetBottom={false}
+      header={<ScreenHeader title="Actividad" showClose={false} safeTop={false} />}
+      refreshing={refreshing}
+      onRefresh={refresh}
+      contentStyle={styles.content}
+      footer={
+        status === 'success' ? (
+          <View style={styles.footer}>
             <Button
               title="Registrar actividad"
+              icon="plus"
+              size="large"
               onPress={() => router.push('/exercise/form')}
-              style={styles.actionMain}
+              style={styles.footerMain}
             />
             <Button
               title="Cronómetro"
-              variant="outline"
+              variant="secondary"
+              size="large"
               onPress={() => router.push('/exercise/timer')}
             />
           </View>
+        ) : undefined
+      }
+    >
+      {status === 'loading' ? <LoadingView /> : null}
 
-          {activities.length === 0 && (
-            <Card padding="large">
-              <Text style={styles.emptyTitle}>Aún no registras actividad</Text>
-              <Text style={styles.emptyText}>
-                Registra una caminata, una rutina o usa el cronómetro para medirla.
-              </Text>
-            </Card>
+      {status === 'error' ? (
+        <ErrorView message={errorMessage ?? ''} offline={offline} onRetry={reload} />
+      ) : null}
+
+      {status === 'success' ? (
+        <>
+          {summary ? <ExerciseSummaryCard summary={summary} /> : null}
+
+          {activities.length === 0 ? (
+            <EmptyView
+              icon="walk"
+              title="Aún no registras actividad"
+              message="Registra una caminata, una rutina o usa el cronómetro para medirla."
+            />
+          ) : (
+            activities.map((activity) => (
+              <ActivityRow
+                key={activity.id}
+                activity={activity}
+                onDelete={() => confirmDelete(activity)}
+              />
+            ))
           )}
 
-          {activities.map((activity) => (
-            <ActivityRow
-              key={activity.id}
-              activity={activity}
-              onDelete={() => confirmDelete(activity)}
-            />
-          ))}
-
-          {hasMore && (
+          {hasMore ? (
             <Button
               title="Cargar más"
-              variant="outline"
+              variant="secondary"
               onPress={loadMore}
               loading={loadingMore}
               disabled={loadingMore}
             />
-          )}
-        </ScrollView>
-      )}
-    </View>
+          ) : null}
+        </>
+      ) : null}
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
-  errorText: { fontSize: 14, color: COLORS.error, textAlign: 'center', marginBottom: 16 },
-  list: { padding: 20, paddingTop: 4 },
-  progress: { marginBottom: 12 },
-  actions: { flexDirection: 'row', columnGap: 8, marginBottom: 12 },
-  actionMain: { flex: 1 },
-  row: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, columnGap: 8 },
-  rowText: { flex: 1 },
-  type: { fontSize: 16, fontWeight: '700', color: COLORS.gray[900] },
-  date: { fontSize: 13, color: COLORS.gray[500], marginTop: 2 },
-  notes: { fontSize: 13, color: COLORS.gray[600], marginTop: 4, fontStyle: 'italic' },
-  emptyTitle: { fontSize: 16, fontWeight: '700', color: COLORS.gray[900] },
-  emptyText: { fontSize: 14, color: COLORS.gray[600], marginTop: 6, lineHeight: 20 },
+  content: { rowGap: space.lg },
+  footer: { flexDirection: 'row', columnGap: space.sm },
+  footerMain: { flex: 1 },
+  row: { flexDirection: 'row', alignItems: 'center', columnGap: space.sm },
+  rowText: { flex: 1, rowGap: space.xs },
+  type: {
+    fontSize: type.body.fontSize,
+    lineHeight: type.body.lineHeight,
+    fontWeight: '700',
+    color: color.text,
+  },
+  date: {
+    fontSize: type.label.fontSize,
+    lineHeight: type.label.lineHeight,
+    color: color.textMuted,
+  },
+  notes: {
+    fontSize: type.caption.fontSize,
+    lineHeight: type.caption.lineHeight,
+    color: color.textMuted,
+    fontStyle: 'italic',
+  },
 });
 
 export default ExerciseScreen;

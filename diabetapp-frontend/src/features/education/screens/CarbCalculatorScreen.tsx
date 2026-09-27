@@ -1,10 +1,10 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Card, Input } from '@/src/shared/components/ui';
+import { Card, Input, Screen } from '@/src/shared/components/ui';
 import ScreenHeader from '@/src/shared/components/ui/ScreenHeader';
-import { COLORS } from '@/src/shared/theme/colors';
+import { color, space, type } from '@/src/shared/theme/tokens';
 import { calculateCarbs } from '../carbCalculator';
 import { CarbCalculatorValues, carbCalculatorSchema, parseCalculatorValue } from '../schemas';
 
@@ -33,61 +33,73 @@ const CarbCalculatorScreen = () => {
     : null;
 
   const field = (name: keyof CarbCalculatorValues, label: string, placeholder: string) => (
-    <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            placeholder={placeholder}
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors[name]?.message}
-            keyboardType="decimal-pad"
-            maxLength={7}
-          />
-        )}
-      />
-    </View>
+    <Controller
+      control={control}
+      name={name}
+      render={({ field: { onChange, onBlur, value } }) => (
+        <Input
+          label={label}
+          placeholder={placeholder}
+          value={value}
+          onChangeText={onChange}
+          onBlur={onBlur}
+          error={errors[name]?.message}
+          keyboardType="decimal-pad"
+          maxLength={7}
+        />
+      )}
+    />
   );
 
   return (
-    <View style={styles.container}>
-      <ScreenHeader title="Calculadora de carbohidratos" />
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Card padding="large">
-          {field('carbsPer100g', 'Carbohidratos por 100 g (del empaque)', 'Ej. 25')}
-          {field('gramsEaten', 'Gramos que vas a comer', 'Ej. 80')}
+    <Screen
+      keyboard
+      header={<ScreenHeader title="Calculadora de carbohidratos" safeTop={false} />}
+      contentStyle={styles.content}
+    >
+      <Card padding="large" style={styles.form}>
+        {field('carbsPer100g', 'Carbohidratos por 100 g (del empaque)', 'Ej. 25')}
+        {field('gramsEaten', 'Gramos que vas a comer', 'Ej. 80')}
+      </Card>
+
+      {result ? (
+        <Card padding="large" style={styles.result} accessible accessibilityLiveRegion="polite">
+          <Text style={styles.resultValue}>{result.totalCarbs} g</Text>
+          <Text style={styles.resultLabel}>de carbohidratos en tu porción</Text>
+          <Text style={styles.portions}>≈ {result.portions} raciones de 10 g</Text>
         </Card>
+      ) : null}
 
-        {result && (
-          <Card padding="large" style={styles.result}>
-            <Text style={styles.resultValue}>{result.totalCarbs} g</Text>
-            <Text style={styles.resultLabel}>de carbohidratos en tu porción</Text>
-            <Text style={styles.portions}>≈ {result.portions} raciones de 10 g</Text>
-          </Card>
-        )}
-
-        <Text style={styles.disclaimer}>
-          Es solo un cálculo aproximado. No reemplaza las indicaciones de tu médico.
-        </Text>
-      </ScrollView>
-    </View>
+      <Text style={styles.disclaimer}>
+        Es solo un cálculo aproximado. No reemplaza las indicaciones de tu médico.
+      </Text>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  content: { padding: 20, paddingTop: 4 },
-  inputGroup: { marginBottom: 8 },
-  label: { fontSize: 14, fontWeight: '600', color: COLORS.gray[700], marginBottom: 6 },
-  result: { marginTop: 16, alignItems: 'center', backgroundColor: COLORS.white },
-  resultValue: { fontSize: 36, fontWeight: 'bold', color: COLORS.primary },
-  resultLabel: { fontSize: 14, color: COLORS.gray[600], marginTop: 2 },
-  portions: { fontSize: 16, fontWeight: '600', color: COLORS.gray[800], marginTop: 10 },
-  disclaimer: { fontSize: 12, color: COLORS.gray[500], textAlign: 'center', marginTop: 16 },
+  content: { rowGap: space.md },
+  form: { rowGap: space.md },
+  result: { alignItems: 'center', rowGap: space.xs },
+  resultValue: { ...type.hero, color: color.primary },
+  resultLabel: {
+    fontSize: type.body.fontSize,
+    lineHeight: type.body.lineHeight,
+    color: color.textMuted,
+  },
+  portions: {
+    fontSize: type.body.fontSize,
+    lineHeight: type.body.lineHeight,
+    fontWeight: '600',
+    color: color.text,
+    marginTop: space.sm,
+  },
+  disclaimer: {
+    fontSize: type.caption.fontSize,
+    lineHeight: type.caption.lineHeight,
+    color: color.textMuted,
+    textAlign: 'center',
+  },
 });
 
 export default CarbCalculatorScreen;

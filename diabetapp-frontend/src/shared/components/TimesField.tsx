@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Button, Input } from '@/src/shared/components/ui';
-import { COLORS } from '@/src/shared/theme/colors';
+import { Button, Icon, Input } from '@/src/shared/components/ui';
+import { color, space, type } from '@/src/shared/theme/tokens';
 
 interface TimesFieldProps {
   value: string[];
@@ -11,7 +11,11 @@ interface TimesFieldProps {
   allowEmpty?: boolean;
 }
 
-/** Lista editable de horarios `HH:mm` (spec fase 11, D-11.5; compartida con la fase 13): agregar y quitar. */
+/**
+ * Lista editable de horarios `HH:mm` (spec fase 11, D-11.5; compartida con la fase 13 y
+ * rediseñada en la fase 15): cada horario con su etiqueta, «Quitar» accesible por horario,
+ * y el error junto al campo con icono y texto.
+ */
 const TimesField = ({ value, onChange, error, allowEmpty = false }: TimesFieldProps) => {
   const setTime = (index: number, text: string) =>
     onChange(value.map((time, i) => (i === index ? text : time)));
@@ -21,6 +25,7 @@ const TimesField = ({ value, onChange, error, allowEmpty = false }: TimesFieldPr
       {value.map((time, index) => (
         <View key={index} style={styles.row}>
           <Input
+            label={`Horario ${index + 1}`}
             containerStyle={styles.input}
             placeholder="08:00"
             value={time}
@@ -28,39 +33,57 @@ const TimesField = ({ value, onChange, error, allowEmpty = false }: TimesFieldPr
             keyboardType="numbers-and-punctuation"
             maxLength={5}
           />
-          {(allowEmpty || value.length > 1) && (
+          {allowEmpty || value.length > 1 ? (
             <Button
               title="Quitar"
-              variant="outline"
+              variant="tertiary"
+              tone="danger"
               size="small"
+              icon="trash"
+              accessibilityLabel={`Quitar horario ${index + 1}`}
               onPress={() => onChange(value.filter((_, i) => i !== index))}
               style={styles.remove}
             />
-          )}
+          ) : null}
         </View>
       ))}
 
-      {value.length < 10 && (
+      {value.length < 10 ? (
         <Button
           title="Agregar horario"
-          variant="outline"
-          size="small"
+          variant="secondary"
+          icon="plus"
           onPress={() => onChange([...value, ''])}
-          style={styles.add}
         />
-      )}
+      ) : null}
 
-      {error && <Text style={styles.error}>{error}</Text>}
+      {error ? (
+        <View style={styles.error}>
+          <Icon name="alert" size={16} color={color.danger} />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
+  row: { flexDirection: 'row', alignItems: 'flex-end', columnGap: space.sm },
   input: { flex: 1 },
-  add: { marginBottom: 12 },
-  remove: { marginBottom: 12 },
-  error: { fontSize: 12, color: COLORS.error, marginTop: 6 },
+  remove: { marginBottom: space.lg },
+  error: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    columnGap: space.xs,
+    marginTop: space.sm,
+  },
+  errorText: {
+    flexShrink: 1,
+    fontSize: type.caption.fontSize,
+    lineHeight: type.caption.lineHeight,
+    fontWeight: '600',
+    color: color.danger,
+  },
 });
 
 export default TimesField;

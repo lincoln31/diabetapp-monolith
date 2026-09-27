@@ -22,6 +22,9 @@ export interface Profile {
   weight: number | null;
   height: number | null;
   activityLevel: ActivityLevel | null;
+  phone: string | null;
+  /** ISO 8601; el formulario la captura como DD/MM/YYYY. */
+  birthDate: string | null;
   onboardingCompleted: boolean;
   notificationPreferences: NotificationPreferences;
   glucoseReminderTimes: string[];

@@ -1,25 +1,27 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/src/shared/components/ui';
-import { COLORS } from '@/src/shared/theme/colors';
+import { color, space, type } from '@/src/shared/theme/tokens';
 import { AdherencePeriod, AdherenceStats } from '../types';
 
 const Period = ({ label, period }: { label: string; period: AdherencePeriod }) => (
   <View style={styles.period}>
     <Text style={styles.percent}>{period.percent === null ? '—' : `${period.percent} %`}</Text>
     <Text style={styles.label}>{label}</Text>
-    {period.expected > 0 && (
+    {period.expected > 0 ? (
       <Text style={styles.detail}>
         {period.taken} de {period.expected} tomas
       </Text>
-    )}
+    ) : null}
   </View>
 );
 
-/** Tarjeta de adherencia a la medicación (spec fase 11, RF-11.12). */
+/** Adherencia a la medicación (spec fase 11, RF-11.12; ahora en la pestaña Medicación, fase 15). */
 const AdherenceCard = ({ adherence }: { adherence: AdherenceStats }) => (
   <Card padding="large" style={styles.card}>
-    <Text style={styles.title}>Adherencia a tu medicación</Text>
+    <Text style={styles.title} accessibilityRole="header">
+      Tu adherencia
+    </Text>
     <View style={styles.row}>
       <Period label="Últimos 7 días" period={adherence.days7} />
       <Period label="Últimos 30 días" period={adherence.days30} />
@@ -28,13 +30,27 @@ const AdherenceCard = ({ adherence }: { adherence: AdherenceStats }) => (
 );
 
 const styles = StyleSheet.create({
-  card: { marginBottom: 16 },
-  title: { fontSize: 14, fontWeight: '600', color: COLORS.gray[500], marginBottom: 12 },
-  row: { flexDirection: 'row', columnGap: 16 },
+  card: { rowGap: space.md },
+  title: {
+    fontSize: type.heading.fontSize,
+    lineHeight: type.heading.lineHeight,
+    fontWeight: '700',
+    color: color.text,
+  },
+  row: { flexDirection: 'row', columnGap: space.lg },
   period: { flex: 1 },
-  percent: { fontSize: 28, fontWeight: 'bold', color: COLORS.gray[900] },
-  label: { fontSize: 13, color: COLORS.gray[600], marginTop: 2 },
-  detail: { fontSize: 12, color: COLORS.gray[500], marginTop: 2 },
+  percent: { ...type.display, color: color.text },
+  label: {
+    fontSize: type.label.fontSize,
+    lineHeight: type.label.lineHeight,
+    color: color.textMuted,
+    fontWeight: '600',
+  },
+  detail: {
+    fontSize: type.caption.fontSize,
+    lineHeight: type.caption.lineHeight,
+    color: color.textMuted,
+  },
 });
 
 export default AdherenceCard;

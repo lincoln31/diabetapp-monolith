@@ -26,6 +26,8 @@ const profile = (overrides: object = {}) => ({
     motivational: false,
     achievements: false,
   },
+  phone: null,
+  birthDate: null,
   glucoseReminderTimes: [],
   ...overrides,
 });
@@ -113,6 +115,8 @@ describe('NotificationsScreen', () => {
           motivational: false,
           achievements: false,
         },
+        phone: null,
+        birthDate: null,
         glucoseReminderTimes: ['07:30'],
       }),
     );

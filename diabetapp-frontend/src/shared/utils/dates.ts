@@ -54,3 +54,11 @@ export const isFutureDate = (dateOfBirth: string): boolean => {
 
   return new Date(year, month - 1, day) > new Date();
 };
+
+/** Convierte una fecha ISO (UTC) al formato DD/MM/YYYY del formulario. */
+export const isoToDateInput = (iso: string): string => {
+  const date = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+
+  return `${pad(date.getUTCDate())}/${pad(date.getUTCMonth() + 1)}/${date.getUTCFullYear()}`;
+};

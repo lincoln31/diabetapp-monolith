@@ -1,48 +1,48 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/src/shared/theme/colors';
+import { Icon } from '@/src/shared/components/ui';
+import ProgressBar from '@/src/shared/components/ui/ProgressBar';
+import { color, space, type } from '@/src/shared/theme/tokens';
 
 interface ExerciseProgressProps {
   todayMinutes: number;
   goalMinutes: number;
 }
 
-/** «Hoy: X de Y min» con una barra de avance (spec fase 12, RF-12.9, RF-12.13). */
+/** «Hoy: X de Y min» con su barra (spec fase 12, RF-12.9, RF-12.13); la meta cumplida lleva icono y texto. */
 const ExerciseProgress = ({ todayMinutes, goalMinutes }: ExerciseProgressProps) => {
-  const ratio = goalMinutes > 0 ? Math.min(1, todayMinutes / goalMinutes) : 0;
   const reached = todayMinutes >= goalMinutes;
 
   return (
-    <View>
+    <View style={styles.container}>
       <Text style={styles.text}>
         Hoy: {todayMinutes} de {goalMinutes} min
       </Text>
-      <View style={styles.track}>
-        <View
-          style={[
-            styles.fill,
-            { width: `${Math.round(ratio * 100)}%` },
-            reached && styles.fillReached,
-          ]}
-        />
-      </View>
-      {reached && <Text style={styles.reached}>Meta de hoy cumplida</Text>}
+      <ProgressBar
+        value={todayMinutes}
+        max={goalMinutes}
+        label={`${todayMinutes} de ${goalMinutes} minutos de ejercicio hoy`}
+      />
+      {reached ? (
+        <View style={styles.reached}>
+          <Icon name="check-circle" size={16} color={color.success} />
+          <Text style={styles.reachedText}>Meta de hoy cumplida</Text>
+        </View>
+      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  text: { fontSize: 15, fontWeight: '600', color: COLORS.gray[800] },
-  track: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.gray[100],
-    marginTop: 8,
-    overflow: 'hidden',
+  container: { rowGap: space.sm },
+  text: {
+    fontSize: type.body.fontSize,
+    lineHeight: type.body.lineHeight,
+    fontWeight: '600',
+    color: color.text,
   },
-  fill: { height: 8, borderRadius: 4, backgroundColor: COLORS.primary },
-  fillReached: { backgroundColor: COLORS.green[700] },
-  reached: { fontSize: 12, fontWeight: '600', color: COLORS.green[700], marginTop: 6 },
+  reached: { flexDirection: 'row', alignItems: 'center', columnGap: space.xs },
+  reachedText: { fontSize: type.caption.fontSize, fontWeight: '700', color: color.success },
 });
 
 export default ExerciseProgress;

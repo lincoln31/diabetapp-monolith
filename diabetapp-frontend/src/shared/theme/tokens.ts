@@ -56,8 +56,11 @@ export const radius = {
   pill: 999,
 } as const;
 
-/** Seis tamaños; nada por debajo de 13. */
+/** Seis tamaños de texto corriente y dos «cifras grandes»; nada por debajo de 13. */
 export const type = {
+  // Cifras protagonistas (última medición, cronómetro)
+  hero: { fontSize: 48, lineHeight: 56, fontWeight: '700' },
+  timer: { fontSize: 64, lineHeight: 72, fontWeight: '700' },
   display: { fontSize: 32, lineHeight: 40, fontWeight: '700' },
   title: { fontSize: 22, lineHeight: 28, fontWeight: '700' },
   heading: { fontSize: 18, lineHeight: 24, fontWeight: '600' },

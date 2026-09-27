@@ -51,6 +51,16 @@ export const updateProfileSchema = z
       .max(6, 'No puedes indicar más de 6 horarios')
       .refine((times) => new Set(times).size === times.length, 'Los horarios no pueden repetirse')
       .transform((times) => [...times].sort()),
+    // Datos personales que dejaron de pedirse al registrarse (spec fase 15, D-15.5)
+    phone: z
+      .string()
+      .regex(/^[0-9+\-\s()]{10,20}$/, 'Teléfono debe tener un formato válido')
+      .nullable(),
+    birthDate: z.iso
+      .datetime('Fecha debe ser formato ISO válido')
+      .refine((value) => new Date(value).getTime() <= Date.now(), 'La fecha no puede ser futura')
+      .transform((value) => new Date(value))
+      .nullable(),
     weight: z
       .number('El peso debe ser un número')
       .min(20, 'El peso debe estar entre 20 y 400 kg')

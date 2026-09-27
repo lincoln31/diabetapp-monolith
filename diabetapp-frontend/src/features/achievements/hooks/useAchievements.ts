@@ -9,14 +9,21 @@ interface AchievementsState {
   status: Status;
   achievements: Achievement[] | null;
   errorMessage: string | null;
+  offline: boolean;
 }
 
 const fetchAchievements = async (): Promise<AchievementsState> => {
   try {
     const { achievements } = await achievementsApi.list();
-    return { status: 'success', achievements, errorMessage: null };
+    return { status: 'success', achievements, errorMessage: null, offline: false };
   } catch (error) {
-    return { status: 'error', achievements: null, errorMessage: toApiError(error).message };
+    const apiError = toApiError(error);
+    return {
+      status: 'error',
+      achievements: null,
+      errorMessage: apiError.message,
+      offline: apiError.code === 'NETWORK_ERROR',
+    };
   }
 };
 
@@ -30,6 +37,7 @@ export const useAchievements = () => {
     status: 'loading',
     achievements: null,
     errorMessage: null,
+    offline: false,
   });
 
   useEffect(() => {
@@ -43,7 +51,7 @@ export const useAchievements = () => {
   }, []);
 
   const reload = useCallback(async () => {
-    setState({ status: 'loading', achievements: null, errorMessage: null });
+    setState({ status: 'loading', achievements: null, errorMessage: null, offline: false });
     setState(await fetchAchievements());
   }, []);
 
