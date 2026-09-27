@@ -1,5 +1,6 @@
 import { ActivityLevel, DiabetesType } from '@prisma/client';
 import { z } from 'zod';
+import { TIME_REGEX } from './profile.notifications';
 
 // Los enums vienen de la base de datos: una sola lista de valores (spec fase 1, RF-1.18).
 // Cada campo admite `null` para borrarlo y `undefined` (ausente) para no tocarlo (spec fase 7, RF-7.2).
@@ -36,6 +37,20 @@ export const updateProfileSchema = z
       .int('La meta de ejercicio debe ser un número entero')
       .min(5, 'La meta de ejercicio debe estar entre 5 y 300 minutos')
       .max(300, 'La meta de ejercicio debe estar entre 5 y 300 minutos'),
+    // Preferencias de notificaciones (spec fase 13, D-13.1): objeto estricto, parcial dentro del JSON
+    notificationPreferences: z
+      .strictObject({
+        medicationReminders: z.boolean('El valor debe ser verdadero o falso'),
+        glucoseReminders: z.boolean('El valor debe ser verdadero o falso'),
+        motivational: z.boolean('El valor debe ser verdadero o falso'),
+        achievements: z.boolean('El valor debe ser verdadero o falso'),
+      })
+      .partial(),
+    glucoseReminderTimes: z
+      .array(z.string().regex(TIME_REGEX, 'Cada horario debe tener formato HH:mm (24 horas)'))
+      .max(6, 'No puedes indicar más de 6 horarios')
+      .refine((times) => new Set(times).size === times.length, 'Los horarios no pueden repetirse')
+      .transform((times) => [...times].sort()),
     weight: z
       .number('El peso debe ser un número')
       .min(20, 'El peso debe estar entre 20 y 400 kg')

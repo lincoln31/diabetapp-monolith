@@ -124,6 +124,13 @@ describe('profileToFormValues', () => {
       height: null,
       activityLevel: 'ACTIVE',
       onboardingCompleted: true,
+      notificationPreferences: {
+        medicationReminders: false,
+        glucoseReminders: false,
+        motivational: false,
+        achievements: false,
+      },
+      glucoseReminderTimes: [],
     };
 
     expect(profileToFormValues(profile)).toEqual({

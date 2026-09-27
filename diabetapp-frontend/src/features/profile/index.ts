@@ -2,4 +2,4 @@
 export { profileApi } from './api';
 export { useProfile } from './hooks/useProfile';
 export { default as ProfileScreen } from './screens/ProfileScreen';
-export type { ActivityLevel, Profile, UpdateProfileInput } from './types';
+export type { ActivityLevel, NotificationPreferences, Profile, UpdateProfileInput } from './types';

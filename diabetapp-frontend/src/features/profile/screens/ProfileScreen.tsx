@@ -166,6 +166,7 @@ const ProfileForm = ({ profile }: { profile: Profile }) => {
 
 /** Pantalla «Mi perfil» (spec fase 7, RF-7.7 – RF-7.10). */
 const ProfileScreen = () => {
+  const router = useRouter();
   const { status, profile, errorMessage, reload } = useProfile();
 
   return (
@@ -191,7 +192,17 @@ const ProfileScreen = () => {
           </View>
         )}
 
-        {status === 'success' && profile && <ProfileForm profile={profile} />}
+        {status === 'success' && profile && (
+          <>
+            <ProfileForm profile={profile} />
+            <Button
+              title="Notificaciones"
+              variant="outline"
+              onPress={() => router.push('/notifications')}
+              style={styles.notifications}
+            />
+          </>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -214,6 +225,7 @@ const styles = StyleSheet.create({
   },
   picker: { height: 50 },
   saveButton: { marginTop: 8 },
+  notifications: { marginTop: 12 },
   centered: { alignItems: 'center', paddingVertical: 32 },
   errorText: { fontSize: 14, color: COLORS.error, textAlign: 'center', marginBottom: 16 },
 });

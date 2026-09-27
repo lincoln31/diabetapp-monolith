@@ -7,10 +7,12 @@ interface TimesFieldProps {
   value: string[];
   onChange: (times: string[]) => void;
   error?: string;
+  /** Permite quitar el último horario (lista vacía); por defecto se exige al menos uno. */
+  allowEmpty?: boolean;
 }
 
-/** Lista editable de horarios `HH:mm` (spec fase 11, D-11.5): agregar y quitar. */
-const TimesField = ({ value, onChange, error }: TimesFieldProps) => {
+/** Lista editable de horarios `HH:mm` (spec fase 11, D-11.5; compartida con la fase 13): agregar y quitar. */
+const TimesField = ({ value, onChange, error, allowEmpty = false }: TimesFieldProps) => {
   const setTime = (index: number, text: string) =>
     onChange(value.map((time, i) => (i === index ? text : time)));
 
@@ -26,7 +28,7 @@ const TimesField = ({ value, onChange, error }: TimesFieldProps) => {
             keyboardType="numbers-and-punctuation"
             maxLength={5}
           />
-          {value.length > 1 && (
+          {(allowEmpty || value.length > 1) && (
             <Button
               title="Quitar"
               variant="outline"

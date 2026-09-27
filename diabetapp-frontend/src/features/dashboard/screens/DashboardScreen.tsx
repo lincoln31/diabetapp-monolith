@@ -13,6 +13,7 @@ import { useSession } from '@/src/features/auth';
 import { TipCard } from '@/src/features/education';
 import { ExerciseSummaryCard, useExerciseSummary } from '@/src/features/exercise';
 import { AdherenceCard, useAdherence } from '@/src/features/medications';
+import { useNotificationSync } from '@/src/features/notifications';
 import { Button } from '@/src/shared/components/ui';
 import { COLORS } from '@/src/shared/theme/colors';
 import EmptyState from '../components/EmptyState';
@@ -33,6 +34,7 @@ const DashboardScreen = () => {
   const streak = useStreak();
   const adherence = useAdherence();
   const exercise = useExerciseSummary();
+  useNotificationSync();
 
   const goToRegister = () => router.push('/glucose/new');
 
