@@ -34,7 +34,15 @@ const Chips = <T extends string>({ options, value, onChange, label }: ChipsProps
             ]}
           >
             {selected ? <Icon name="check" size={16} color={color.onPrimary} /> : null}
-            <Text style={[styles.text, { color: selected ? color.onPrimary : color.text }]}>
+            {/* `numberOfLines={1}` (spec fase 15, hallazgo de verificación en dispositivo): sin
+                él, el chip que abre una fila nueva del `flexWrap` puede medir mal su ancho
+                disponible y recortar una etiqueta larga a la mitad sin avisar (p. ej. «Antes
+                del almuerzo» quedaba en «Antes del»). Con una sola línea fija, un chip que no
+                cabe pasa entero a la siguiente fila en vez de partir su propio texto. */}
+            <Text
+              style={[styles.text, { color: selected ? color.onPrimary : color.text }]}
+              numberOfLines={1}
+            >
               {option.label}
             </Text>
           </Pressable>

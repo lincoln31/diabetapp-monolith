@@ -44,7 +44,17 @@ const state = (overrides: object = {}) => ({
 describe('GlucoseHistoryScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Las mediciones de prueba son del 25 y 26 de septiembre de 2026: se fija «ahora» ahí para
+    // que «Hoy»/«Ayer» no dependan de la fecha real del día en que corre la prueba.
+    jest.useFakeTimers({
+      now: new Date(2026, 8, 26, 18, 0),
+      doNotFake: ['nextTick', 'setImmediate'],
+    });
     mockUseHistory.mockReturnValue(state());
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('muestra el resumen del período: promedio, mínimo y máximo', async () => {

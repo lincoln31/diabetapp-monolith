@@ -44,7 +44,12 @@ const AppTabs = () => {
             title: tab.title,
             tabBarAccessibilityLabel: tab.title,
             tabBarLabel: ({ focused, color: tint }) => (
-              <Text style={[styles.label, { color: tint, fontWeight: focused ? '700' : '500' }]}>
+              <Text
+                style={[styles.label, { color: tint, fontWeight: focused ? '700' : '500' }]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
                 {tab.title}
               </Text>
             ),
