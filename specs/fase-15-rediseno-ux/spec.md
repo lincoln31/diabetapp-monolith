@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 15 |
-| Estado | Borrador |
+| Estado | Implementada (pendiente verificar en dispositivo: T15.33 y T15.36) |
 | Fecha | 2026-09-26 |
 | Depende de | Fases 3–14 (todas las funcionalidades existentes) |
 | Issues relacionados | Ninguno (nace de la auditoría) |

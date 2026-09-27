@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../theme/colors';
+import { color as tone } from '../../theme/tokens';
 
 /**
  * Iconos vectoriales (spec fase 3, RF-3.16).
@@ -71,7 +71,7 @@ interface IconProps {
   style?: StyleProp<TextStyle>;
 }
 
-const Icon = ({ name, size = 24, color = COLORS.gray[600], style }: IconProps) => (
+const Icon = ({ name, size = 24, color = tone.textMuted, style }: IconProps) => (
   <Ionicons name={ICONS[name]} size={size} color={color} style={style} />
 );
 
