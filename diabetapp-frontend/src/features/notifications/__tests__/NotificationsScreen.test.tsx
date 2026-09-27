@@ -103,7 +103,7 @@ describe('NotificationsScreen', () => {
 
     const { queryByText } = await render(<NotificationsScreen />);
 
-    expect(queryByText('Horarios (24 horas)')).toBeNull();
+    expect(queryByText('Horarios')).toBeNull();
   });
 
   it('los horarios de glucosa se ven con ese aviso activo', async () => {
@@ -121,10 +121,10 @@ describe('NotificationsScreen', () => {
       }),
     );
 
-    const { getByText, getByDisplayValue } = await render(<NotificationsScreen />);
+    const { getByText } = await render(<NotificationsScreen />);
 
-    expect(getByText('Horarios (24 horas)')).toBeTruthy();
-    expect(getByDisplayValue('07:30')).toBeTruthy();
+    expect(getByText('Horarios')).toBeTruthy();
+    expect(getByText('7:30 a. m.')).toBeTruthy();
   });
 
   it('muestra el error del perfil con la opción de reintentar', async () => {

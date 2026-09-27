@@ -148,7 +148,7 @@ const MedicationForm = ({ medication }: { medication: Medication | null }) => {
         )}
       />
 
-      <Text style={styles.label}>Horarios (24 horas)</Text>
+      <Text style={styles.label}>Horarios</Text>
       <Controller
         control={control}
         name="scheduledTimes"

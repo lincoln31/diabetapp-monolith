@@ -123,7 +123,7 @@ const NotificationsForm = ({ profile }: { profile: Profile }) => {
 
           {option.key === 'glucoseReminders' && preferences.glucoseReminders ? (
             <View style={styles.times}>
-              <Text style={styles.timesLabel}>Horarios (24 horas)</Text>
+              <Text style={styles.timesLabel}>Horarios</Text>
               <TimesField value={times} onChange={setTimes} error={timesError} allowEmpty />
               <Button
                 title="Guardar horarios"
