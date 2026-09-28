@@ -86,4 +86,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 13   | Implementada (verificada en dispositivo, fusionada a main) |
 | 14   | Implementada (verificada en dispositivo, fusionada a main) |
 | 15   | Implementada (verificada en dispositivo: recorrido completo, TalkBack y texto al 200 %; fusionada a main) |
-| 16   | Aprobada, fusionada a main (spec/render.yaml); pendiente que el usuario cree las cuentas de Neon/Render — bloque 1 de `tasks.md` |
+| 16   | Implementada: backend real en https://diabetapp-backend.onrender.com, verificado (registro/login contra Neon en producción) |

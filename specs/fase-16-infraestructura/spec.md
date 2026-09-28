@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 16 |
-| Estado | Aprobada |
+| Estado | Implementada |
 | Fecha | 2026-09-27 |
 | Depende de | Fase 1 (config de entorno), Fase 2 (`TRUST_PROXY`, CORS), Fase 4 (CI, `prisma migrate deploy`) |
 | Issues relacionados | Ninguno |

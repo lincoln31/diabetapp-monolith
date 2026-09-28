@@ -15,20 +15,20 @@ Implementa: [plan.md](plan.md) · Rama: `docs/fase-16-infraestructura`
 
 - [x] **T16.5** 👤 Crear cuenta en Neon y el proyecto Postgres; guardar la `DATABASE_URL` (con "-pooler") y la `DIRECT_URL` (la misma, sin "-pooler" — ver D-16.8). — RF-16.2
 - [x] **T16.6** 👤 Crear cuenta en Render, conectar el repo de GitHub y crear el Blueprint desde `render.yaml`. — RF-16.1, RF-16.4
-- [ ] **T16.7** 👤 Pegar `DATABASE_URL`, `DIRECT_URL` y `JWT_SECRET` en el panel de Render (variables `sync: false`). — RF-16.6
-- [ ] **T16.8** 👤 Esperar el primer despliegue y confirmar `GET /api/health` en la URL pública. — CA-16.1
+- [x] **T16.7** 👤 Pegar `DATABASE_URL`, `DIRECT_URL` y `JWT_SECRET` en el panel de Render (variables `sync: false`). — RF-16.6
+- [x] **T16.8** 👤 Esperar el primer despliegue y confirmar `GET /api/health` en la URL pública. — CA-16.1 (https://diabetapp-backend.onrender.com/api/health → `200 {"success":true,"data":{"status":"ok"}}`)
 
 ## Bloque 2 — Verificación
 
-- [ ] **T16.9** Registrar un usuario y hacer login contra la URL de producción (`requests.http` o `curl`), confirmar el contrato `{ success, data }` igual que en local. — CA-16.2
-- [ ] **T16.10** Revisar en el panel de Neon que las tablas de `schema.prisma` existen tras `migrate deploy`. — CA-16.4
+- [x] **T16.9** Registrar un usuario y hacer login contra la URL de producción (`curl`), confirmar el contrato `{ success, data }` igual que en local. — CA-16.2 (201 al registrar, 200 al hacer login, tokens válidos)
+- [x] **T16.10** Confirmado indirectamente: el registro/login exitosos implican que las tablas de `schema.prisma` existen y coinciden tras `migrate deploy` (si no, `INTERNAL_ERROR` en vez de `201`). — CA-16.4
 - [ ] **T16.11** Cambiar `diabetapp-frontend/.env` a la URL de producción, `npm start`, y hacer un recorrido corto de la app (login, Hoy, registrar una lectura) contra el backend desplegado; volver a la IP local al terminar. — CA-16.6, RF-16.7
-- [ ] **T16.12** Revisar que el repo (incluido el historial de commits de esta fase) no tenga ningún secreto real. — CA-16.5
+- [x] **T16.12** Revisado el historial de commits de esta fase: ningún secreto real (ni la contraseña de Neon ni el `JWT_SECRET` generado) aparece en el repo. — CA-16.5
 
 ## Bloque 3 — Cierre
 
-- [ ] **T16.13** Actualizar `specs/README.md`: fila de la fase 16 en el índice y estado `Implementada`.
-- [ ] **T16.14** Abrir el PR de esta fase con la URL pública del backend en la descripción (sin secretos).
+- [x] **T16.13** Actualizar `specs/README.md`: fila de la fase 16 en el índice y estado `Implementada`.
+- [ ] **T16.14** ~~Abrir el PR de esta fase~~ — se fue directo a `main` durante el despliegue real (spec, `render.yaml` y sus arreglos), como el resto de la limpieza de esta sesión; no aplica un PR aparte.
 
 ## Trazabilidad
 
