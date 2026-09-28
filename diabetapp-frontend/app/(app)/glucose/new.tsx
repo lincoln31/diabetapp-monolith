@@ -1,1 +1,1 @@
-export { AddGlucoseScreen as default } from '@/src/features/glucose';
+export { GlucoseFormScreen as default } from '@/src/features/glucose';

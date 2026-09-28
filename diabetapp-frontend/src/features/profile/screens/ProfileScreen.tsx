@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { StyleSheet, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Card, FormError, Input } from '@/src/shared/components/ui';
-import CloseButton from '@/src/shared/components/ui/CloseButton';
+import {
+  Button,
+  Card,
+  Chips,
+  ErrorView,
+  FormError,
+  Input,
+  LoadingView,
+  Screen,
+  useToast,
+} from '@/src/shared/components/ui';
+import ScreenHeader from '@/src/shared/components/ui/ScreenHeader';
 import { toApiError } from '@/src/shared/api/errors';
 import { applyServerErrors } from '@/src/shared/forms/applyServerErrors';
-import { COLORS } from '@/src/shared/theme/colors';
+import { color, space, type } from '@/src/shared/theme/tokens';
+import { formatDateInput } from '@/src/shared/utils/dates';
 import { profileApi } from '../api';
 import { ACTIVITY_LEVEL_OPTIONS, DIABETES_TYPE_OPTIONS } from '../constants';
 import {
@@ -37,12 +38,33 @@ const FIELDS = [
   'targetHba1c',
   'dailyGlucoseChecks',
   'exerciseGoalMinutes',
+  'phone',
+  'birthDate',
   'weight',
   'height',
 ] as const;
 
+type NumberField =
+  | 'targetGlucoseMin'
+  | 'targetGlucoseMax'
+  | 'targetHba1c'
+  | 'dailyGlucoseChecks'
+  | 'exerciseGoalMinutes'
+  | 'weight'
+  | 'height';
+
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <Card padding="large" style={styles.section}>
+    <Text style={styles.sectionTitle} accessibilityRole="header">
+      {title}
+    </Text>
+    {children}
+  </Card>
+);
+
 const ProfileForm = ({ profile }: { profile: Profile }) => {
   const router = useRouter();
+  const toast = useToast();
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
@@ -63,171 +85,163 @@ const ProfileForm = ({ profile }: { profile: Profile }) => {
     try {
       await profileApi.update(formValuesToInput(values));
 
-      // Al volver, el dashboard recupera el foco y vuelve a pedir sus datos (spec fase 7, D-7.7)
-      Alert.alert('¡Listo!', 'Tu perfil se guardó correctamente', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      // Al volver, la pantalla anterior recupera el foco y vuelve a pedir sus datos (spec fase 7, D-7.7)
+      toast.show('Perfil guardado');
+      router.back();
     } catch (error) {
       setFormError(applyServerErrors(toApiError(error), setError, FIELDS));
     }
   });
 
   const numberInput = (
-    name:
-      | 'targetGlucoseMin'
-      | 'targetGlucoseMax'
-      | 'targetHba1c'
-      | 'dailyGlucoseChecks'
-      | 'exerciseGoalMinutes'
-      | 'weight'
-      | 'height',
+    name: NumberField,
     label: string,
     keyboardType: 'numeric' | 'decimal-pad',
   ) => (
-    <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            placeholder={label}
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors[name]?.message}
-            keyboardType={keyboardType}
-            maxLength={6}
-          />
-        )}
-      />
-    </View>
+    <Controller
+      control={control}
+      name={name}
+      render={({ field: { onChange, onBlur, value } }) => (
+        <Input
+          label={label}
+          value={value}
+          onChangeText={onChange}
+          onBlur={onBlur}
+          error={errors[name]?.message}
+          keyboardType={keyboardType}
+          maxLength={6}
+        />
+      )}
+    />
   );
 
   return (
-    <Card style={styles.form}>
+    <Screen
+      keyboard
+      header={<ScreenHeader title="Mi perfil" safeTop={false} />}
+      contentStyle={styles.content}
+      footer={
+        <Button
+          title="Guardar perfil"
+          size="large"
+          onPress={onSubmit}
+          loading={isSubmitting}
+          loadingText="Guardando…"
+          disabled={isSubmitting}
+        />
+      }
+    >
       <FormError message={formError} />
 
-      <Text style={styles.section}>Mis metas</Text>
-      {numberInput('targetGlucoseMin', 'Glucosa mínima (mg/dL)', 'numeric')}
-      {numberInput('targetGlucoseMax', 'Glucosa máxima (mg/dL)', 'numeric')}
-      {numberInput('targetHba1c', 'Meta de HbA1c (%)', 'decimal-pad')}
-      {numberInput('dailyGlucoseChecks', 'Lecturas por día (meta diaria)', 'numeric')}
-      {numberInput('exerciseGoalMinutes', 'Meta de ejercicio (min por día)', 'numeric')}
+      <Section title="Mis metas">
+        {numberInput('targetGlucoseMin', 'Glucosa mínima (mg/dL)', 'numeric')}
+        {numberInput('targetGlucoseMax', 'Glucosa máxima (mg/dL)', 'numeric')}
+        {numberInput('targetHba1c', 'Meta de HbA1c (%)', 'decimal-pad')}
+        {numberInput('dailyGlucoseChecks', 'Lecturas por día (meta diaria)', 'numeric')}
+        {numberInput('exerciseGoalMinutes', 'Meta de ejercicio (min por día)', 'numeric')}
+      </Section>
 
-      <Text style={styles.section}>Mi perfil diabético</Text>
-      <View style={styles.inputGroup}>
+      <Section title="Mi salud">
         <Text style={styles.label}>Tipo de diabetes</Text>
-        <View style={styles.pickerContainer}>
-          <Controller
-            control={control}
-            name="typeOfDiabetes"
-            render={({ field: { onChange, value } }) => (
-              <Picker selectedValue={value} onValueChange={onChange} style={styles.picker}>
-                {DIABETES_TYPE_OPTIONS.map((option) => (
-                  <Picker.Item key={option.value} label={option.label} value={option.value} />
-                ))}
-              </Picker>
-            )}
-          />
-        </View>
-      </View>
+        <Controller
+          control={control}
+          name="typeOfDiabetes"
+          render={({ field: { onChange, value } }) => (
+            <Chips
+              label="Tipo de diabetes"
+              options={DIABETES_TYPE_OPTIONS}
+              value={value}
+              onChange={onChange}
+            />
+          )}
+        />
 
-      <View style={styles.inputGroup}>
         <Text style={styles.label}>Nivel de actividad</Text>
-        <View style={styles.pickerContainer}>
-          <Controller
-            control={control}
-            name="activityLevel"
-            render={({ field: { onChange, value } }) => (
-              <Picker selectedValue={value} onValueChange={onChange} style={styles.picker}>
-                {ACTIVITY_LEVEL_OPTIONS.map((option) => (
-                  <Picker.Item key={option.value} label={option.label} value={option.value} />
-                ))}
-              </Picker>
-            )}
-          />
-        </View>
-      </View>
+        <Controller
+          control={control}
+          name="activityLevel"
+          render={({ field: { onChange, value } }) => (
+            <Chips
+              label="Nivel de actividad"
+              options={ACTIVITY_LEVEL_OPTIONS}
+              value={value}
+              onChange={onChange}
+            />
+          )}
+        />
 
-      {numberInput('weight', 'Peso (kg)', 'decimal-pad')}
-      {numberInput('height', 'Altura (cm)', 'decimal-pad')}
+        {numberInput('weight', 'Peso (kg)', 'decimal-pad')}
+        {numberInput('height', 'Altura (cm)', 'decimal-pad')}
+      </Section>
 
-      <Button
-        title="Guardar perfil"
-        onPress={onSubmit}
-        loading={isSubmitting}
-        disabled={isSubmitting}
-        style={styles.saveButton}
-      />
-    </Card>
+      <Section title="Mis datos">
+        <Controller
+          control={control}
+          name="birthDate"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              label="Fecha de nacimiento (opcional)"
+              placeholder="DD/MM/AAAA"
+              value={value}
+              onChangeText={(text) => onChange(formatDateInput(text))}
+              onBlur={onBlur}
+              error={errors.birthDate?.message}
+              keyboardType="numeric"
+              maxLength={10}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="phone"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              label="Teléfono (opcional)"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              error={errors.phone?.message}
+              keyboardType="phone-pad"
+              maxLength={20}
+            />
+          )}
+        />
+      </Section>
+    </Screen>
   );
 };
 
-/** Pantalla «Mi perfil» (spec fase 7, RF-7.7 – RF-7.10). */
+/** Pantalla «Mi perfil» (spec fase 7, RF-7.7 – RF-7.10; agrupada por secciones en la fase 15). */
 const ProfileScreen = () => {
-  const router = useRouter();
-  const { status, profile, errorMessage, reload } = useProfile();
+  const { status, profile, errorMessage, offline, reload } = useProfile();
+
+  if (status === 'success' && profile) return <ProfileForm profile={profile} />;
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.header}>
-          <CloseButton />
-          <Text style={styles.title}>Mi perfil</Text>
-        </View>
-
-        {status === 'loading' && <ActivityIndicator size="large" color={COLORS.primary} />}
-
-        {status === 'error' && (
-          <View style={styles.centered}>
-            <Text style={styles.errorText}>{errorMessage}</Text>
-            <Button title="Reintentar" variant="outline" onPress={reload} />
-          </View>
-        )}
-
-        {status === 'success' && profile && (
-          <>
-            <ProfileForm profile={profile} />
-            <Button
-              title="Notificaciones"
-              variant="outline"
-              onPress={() => router.push('/notifications')}
-              style={styles.notifications}
-            />
-          </>
-        )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+    <Screen header={<ScreenHeader title="Mi perfil" safeTop={false} />}>
+      {status === 'loading' ? <LoadingView /> : null}
+      {status === 'error' ? (
+        <ErrorView message={errorMessage ?? ''} offline={offline} onRetry={reload} />
+      ) : null}
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  scrollContainer: { flexGrow: 1, padding: 20 },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 30, paddingTop: 10 },
-  title: { fontSize: 20, fontWeight: 'bold', color: COLORS.gray[800], flex: 1 },
-  form: { backgroundColor: COLORS.white, borderRadius: 16, padding: 20 },
-  section: { fontSize: 16, fontWeight: 'bold', color: COLORS.gray[800], marginBottom: 12 },
-  inputGroup: { marginBottom: 20 },
-  label: { fontSize: 14, fontWeight: '600', color: COLORS.gray[600], marginBottom: 8 },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: COLORS.gray[200],
-    borderRadius: 12,
-    backgroundColor: COLORS.white,
+  content: { rowGap: space.lg },
+  section: { rowGap: space.md },
+  sectionTitle: {
+    fontSize: type.heading.fontSize,
+    lineHeight: type.heading.lineHeight,
+    fontWeight: '700',
+    color: color.text,
   },
-  picker: { height: 50 },
-  saveButton: { marginTop: 8 },
-  notifications: { marginTop: 12 },
-  centered: { alignItems: 'center', paddingVertical: 32 },
-  errorText: { fontSize: 14, color: COLORS.error, textAlign: 'center', marginBottom: 16 },
+  label: {
+    fontSize: type.label.fontSize,
+    lineHeight: type.label.lineHeight,
+    fontWeight: '600',
+    color: color.text,
+  },
 });
 
 export default ProfileScreen;

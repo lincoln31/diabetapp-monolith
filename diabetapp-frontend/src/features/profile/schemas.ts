@@ -1,4 +1,10 @@
 import { z } from 'zod';
+import {
+  dateOfBirthToISO,
+  isFutureDate,
+  isoToDateInput,
+  isRealDate,
+} from '@/src/shared/utils/dates';
 import { Profile, UpdateProfileInput } from './types';
 
 /**
@@ -57,6 +63,18 @@ export const profileFormSchema = z
     targetHba1c: optionalNumber('La meta de HbA1c', 4, 14, '%'),
     dailyGlucoseChecks: requiredInteger('La meta diaria', 1, 20, 'lecturas'),
     exerciseGoalMinutes: requiredInteger('La meta de ejercicio', 5, 300, 'minutos'),
+    phone: z
+      .string()
+      .refine(
+        (raw) => raw.trim() === '' || /^[0-9+\-\s()]{10,20}$/.test(raw.trim()),
+        'El teléfono debe tener entre 10 y 20 caracteres (números, +, -, paréntesis)',
+      ),
+    birthDate: z
+      .string()
+      .refine(
+        (raw) => raw.trim() === '' || (isRealDate(raw) && !isFutureDate(raw)),
+        'Escribe una fecha válida con el formato DD/MM/AAAA',
+      ),
     weight: optionalNumber('El peso', 20, 400, 'kg'),
     height: optionalNumber('La altura', 50, 250, 'cm'),
   })
@@ -89,6 +107,8 @@ export const profileToFormValues = (profile: Profile): ProfileFormValues => ({
   targetHba1c: numberToText(profile.targetHba1c),
   dailyGlucoseChecks: String(profile.dailyGlucoseChecks),
   exerciseGoalMinutes: String(profile.exerciseGoalMinutes),
+  phone: profile.phone ?? '',
+  birthDate: profile.birthDate ? isoToDateInput(profile.birthDate) : '',
   weight: numberToText(profile.weight),
   height: numberToText(profile.height),
 });
@@ -104,6 +124,8 @@ export const formValuesToInput = (values: ProfileFormValues): UpdateProfileInput
   targetHba1c: textToNumber(values.targetHba1c),
   dailyGlucoseChecks: toNumber(values.dailyGlucoseChecks),
   exerciseGoalMinutes: toNumber(values.exerciseGoalMinutes),
+  phone: values.phone.trim() === '' ? null : values.phone.trim(),
+  birthDate: values.birthDate.trim() === '' ? null : dateOfBirthToISO(values.birthDate),
   weight: textToNumber(values.weight),
   height: textToNumber(values.height),
 });

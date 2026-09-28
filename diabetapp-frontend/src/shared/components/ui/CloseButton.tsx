@@ -1,40 +1,39 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { color, radius, space, touch } from '../../theme/tokens';
 import Icon from './Icon';
-import { COLORS } from '../../theme/colors';
 
 /**
- * Botón «✕» para volver desde una pantalla secundaria. Es un icono propio (no un `Button`
- * pequeño): el texto «✕» dentro del botón de 32 px quedaba recortado y se veía un círculo vacío.
- * Como `ScreenHeader`, se importa por su ruta y no desde el barril `ui/index.ts` (usa `expo-router`).
+ * Botón «✕» para volver desde una pantalla secundaria (spec fase 15): icono propio, área táctil
+ * de 48 dp y nombre accesible. Como `ScreenHeader`, se importa por su ruta y no desde el barril
+ * `ui/index.ts` (usa `expo-router`).
  */
 const CloseButton = () => {
   const router = useRouter();
 
   return (
-    <TouchableOpacity
+    <Pressable
       accessibilityRole="button"
       accessibilityLabel="Cerrar"
       onPress={() => router.back()}
-      style={styles.button}
+      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
     >
-      <Icon name="close" size={20} color={COLORS.gray[700]} />
-    </TouchableOpacity>
+      <Icon name="close" size={24} color={color.text} />
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 15,
-    borderWidth: 1,
-    borderColor: COLORS.gray[300],
-    justifyContent: 'center',
+    width: touch.min,
+    height: touch.min,
+    borderRadius: radius.pill,
+    marginRight: space.sm,
     alignItems: 'center',
+    justifyContent: 'center',
   },
+  pressed: { backgroundColor: color.disabledBg },
 });
 
 export default CloseButton;

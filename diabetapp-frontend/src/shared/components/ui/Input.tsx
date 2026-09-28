@@ -1,117 +1,152 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, TextInputProps } from 'react-native';
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
+  ViewStyle,
+} from 'react-native';
+import { color, radius, space, touch, type } from '../../theme/tokens';
 import Icon, { AppIconName } from './Icon';
-import { COLORS } from '../../theme/colors';
 
+/**
+ * Campo de texto (spec fase 15, D-15.7): etiqueta **encima** (no solo placeholder), ayuda,
+ * error junto al campo con icono + texto, y borde de control ≥ 3 : 1.
+ */
 interface InputProps extends TextInputProps {
+  label?: string;
+  helper?: string;
   icon?: AppIconName;
   rightIcon?: AppIconName;
+  /** Nombre accesible del botón derecho (p. ej. «Mostrar contraseña»). */
+  rightIconLabel?: string;
   onRightIconPress?: () => void;
   error?: string;
-  containerStyle?: any;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
-const Input: React.FC<InputProps> = ({
+const Input = ({
+  label,
+  helper,
   icon,
   rightIcon,
+  rightIconLabel,
   onRightIconPress,
   error,
   containerStyle,
   style,
   onFocus,
   onBlur,
+  accessibilityLabel,
   ...props
-}) => {
-  const [isFocused, setIsFocused] = useState(false);
+}: InputProps) => {
+  const [focused, setFocused] = useState(false);
 
-  const handleFocus = (e: any) => {
-    setIsFocused(true);
-    onFocus?.(e);
+  const handleFocus = (event: Parameters<NonNullable<TextInputProps['onFocus']>>[0]) => {
+    setFocused(true);
+    onFocus?.(event);
   };
 
-  const handleBlur = (e: any) => {
-    setIsFocused(false);
-    onBlur?.(e);
+  const handleBlur = (event: Parameters<NonNullable<TextInputProps['onBlur']>>[0]) => {
+    setFocused(false);
+    onBlur?.(event);
   };
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <View
-        style={[styles.inputWrapper, isFocused && styles.inputFocused, error && styles.inputError]}
-      >
-        {icon && (
+      {label ? <Text style={styles.label}>{label}</Text> : null}
+
+      <View style={[styles.wrapper, focused && styles.focused, error ? styles.errored : null]}>
+        {icon ? (
           <Icon
             name={icon}
-            size={18}
-            color={isFocused ? COLORS.primary : COLORS.gray[400]}
+            size={20}
+            color={focused ? color.primary : color.textMuted}
             style={styles.leftIcon}
           />
-        )}
+        ) : null}
 
         <TextInput
-          style={[styles.textInput, style]}
-          placeholderTextColor={COLORS.gray[400]}
+          style={[styles.input, style]}
+          placeholderTextColor={color.borderStrong}
+          accessibilityLabel={accessibilityLabel ?? label ?? props.placeholder}
           onFocus={handleFocus}
           onBlur={handleBlur}
           {...props}
         />
 
-        {rightIcon && (
-          <TouchableOpacity
+        {rightIcon ? (
+          <Pressable
             onPress={onRightIconPress}
-            style={styles.rightIcon}
             disabled={!onRightIconPress}
+            hitSlop={touch.hitSlop}
+            accessibilityRole="button"
+            accessibilityLabel={rightIconLabel}
+            style={styles.rightIcon}
           >
-            <Icon name={rightIcon} size={18} color={COLORS.gray[400]} />
-          </TouchableOpacity>
-        )}
+            <Icon name={rightIcon} size={22} color={color.textMuted} />
+          </Pressable>
+        ) : null}
       </View>
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error ? (
+        <View style={styles.messageRow} accessibilityLiveRegion="polite">
+          <Icon name="alert" size={16} color={color.danger} />
+          <Text style={[styles.message, styles.errorText]}>{error}</Text>
+        </View>
+      ) : helper ? (
+        <Text style={[styles.message, styles.helperText]}>{helper}</Text>
+      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: 20,
+  container: { marginBottom: space.lg },
+  label: {
+    fontSize: type.label.fontSize,
+    lineHeight: type.label.lineHeight,
+    fontWeight: '600',
+    color: color.text,
+    marginBottom: space.xs,
   },
-  inputWrapper: {
+  wrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.gray[50],
-    borderWidth: 2,
-    borderColor: COLORS.gray[200],
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    minHeight: 56,
+    backgroundColor: color.surface,
+    borderWidth: 1.5,
+    borderColor: color.borderStrong,
+    borderRadius: radius.control,
+    paddingHorizontal: space.md,
+    minHeight: 52,
   },
-  inputFocused: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.white,
-  },
-  inputError: {
-    borderColor: COLORS.error,
-  },
-  leftIcon: {
-    marginRight: 12,
-  },
-  textInput: {
+  focused: { borderWidth: 2, borderColor: color.primary },
+  errored: { borderWidth: 2, borderColor: color.danger },
+  leftIcon: { marginRight: space.sm },
+  input: {
     flex: 1,
-    fontSize: 16,
-    color: COLORS.gray[800],
-    marginRight: 8,
+    fontSize: type.body.fontSize,
+    color: color.text,
+    paddingVertical: space.md,
   },
-  rightIcon: {
-    padding: 4,
+  rightIcon: { padding: space.xs, marginLeft: space.sm },
+  messageRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    columnGap: space.xs,
+    marginTop: space.xs,
   },
-  errorText: {
-    color: COLORS.error,
-    fontSize: 14,
-    marginTop: 4,
-    marginLeft: 4,
+  message: {
+    flexShrink: 1,
+    fontSize: type.caption.fontSize,
+    lineHeight: type.caption.lineHeight,
+    marginTop: 0,
   },
+  errorText: { color: color.danger, fontWeight: '600' },
+  helperText: { color: color.textMuted, marginTop: space.xs },
 });
 
 export default Input;

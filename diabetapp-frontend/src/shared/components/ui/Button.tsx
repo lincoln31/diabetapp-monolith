@@ -1,176 +1,145 @@
 import React from 'react';
 import {
-  TouchableOpacity,
-  Text,
   ActivityIndicator,
-  View,
-  StyleSheet,
-  TouchableOpacityProps,
+  Pressable,
+  PressableProps,
   StyleProp,
+  StyleSheet,
+  Text,
+  View,
   ViewStyle,
-  TextStyle,
 } from 'react-native';
-import { COLORS } from '../../theme/colors';
+import { color, radius, space, touch, type } from '../../theme/tokens';
+import Icon, { AppIconName } from './Icon';
 
-interface ButtonProps extends TouchableOpacityProps {
+/**
+ * Botón único de la app (spec fase 15, D-15.7).
+ *
+ * - `primary`: la acción principal de la pantalla (una sola).
+ * - `secondary`: acción importante pero no principal (`outline` es un alias antiguo).
+ * - `tertiary`: acción auxiliar, solo texto.
+ * - `destructive`: borrar/descartar; siempre con confirmación y lejos de la acción principal.
+ *
+ * Alto mínimo táctil de 48 dp; `small` mide 40 y añade `hitSlop` para llegar a 48.
+ */
+type Variant = 'primary' | 'secondary' | 'tertiary' | 'destructive' | 'outline';
+type Size = 'small' | 'medium' | 'large';
+
+export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> {
   title: string;
-  variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'small' | 'medium' | 'large';
+  variant?: Variant;
+  size?: Size;
   loading?: boolean;
   loadingText?: string;
-  icon?: string;
+  icon?: AppIconName;
+  /** `danger` tiñe los botones `secondary`/`tertiary` de rojo (acciones destructivas discretas). */
+  tone?: 'default' | 'danger';
+  style?: StyleProp<ViewStyle>;
 }
 
-const Button: React.FC<ButtonProps> = ({
+const MIN_HEIGHT: Record<Size, number> = {
+  small: touch.compact,
+  medium: touch.min,
+  large: 56,
+};
+
+const Button = ({
   title,
   variant = 'primary',
   size = 'medium',
   loading = false,
   loadingText,
   icon,
+  tone = 'default',
   style,
   disabled,
+  accessibilityLabel,
   ...props
-}) => {
-  // Mapas tipados en lugar de índices dinámicos (styles[`${size}Text`]),
-  // que TypeScript no puede comprobar
-  const getButtonStyle = (): StyleProp<ViewStyle>[] => [
-    styles.button,
-    styles[size],
-    disabled || loading ? styles.disabled : styles[variant],
-  ];
-
-  const getTextStyle = (): StyleProp<TextStyle>[] => [
-    styles.text,
-    SIZE_TEXT_STYLES[size],
-    disabled || loading ? styles.disabledText : VARIANT_TEXT_STYLES[variant],
-  ];
+}: ButtonProps) => {
+  const kind = variant === 'outline' ? 'secondary' : variant;
+  const inactive = Boolean(disabled) || loading;
+  const danger = tone === 'danger' && (kind === 'secondary' || kind === 'tertiary');
+  const textColor = inactive ? color.disabledText : danger ? color.danger : TEXT_COLOR[kind];
 
   return (
-    <TouchableOpacity
-      style={[getButtonStyle(), style]}
-      disabled={disabled || loading}
-      activeOpacity={0.8}
+    <Pressable
       accessibilityRole="button"
-      accessibilityLabel={title}
-      accessibilityState={{ disabled: disabled || loading, busy: loading }}
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled: inactive, busy: loading }}
+      disabled={inactive}
+      hitSlop={size === 'small' ? touch.hitSlop : undefined}
+      style={({ pressed }) => [
+        styles.base,
+        { minHeight: MIN_HEIGHT[size] },
+        inactive ? styles.disabled : VARIANT_STYLE[kind],
+        danger && !inactive && kind === 'secondary' && styles.dangerBorder,
+        pressed && !inactive && styles.pressed,
+        style,
+      ]}
       {...props}
     >
       {loading ? (
-        <View style={styles.loadingRow}>
-          <ActivityIndicator
-            size="small"
-            color={variant === 'outline' ? COLORS.primary : COLORS.white}
-          />
-          {loadingText && <Text style={getTextStyle()}>{loadingText}</Text>}
+        <View style={styles.row}>
+          <ActivityIndicator size="small" color={textColor} />
+          {loadingText ? (
+            <Text style={[styles.text, { color: textColor }]}>{loadingText}</Text>
+          ) : null}
         </View>
       ) : (
-        <Text style={getTextStyle()}>{title}</Text>
+        <View style={styles.row}>
+          {icon ? <Icon name={icon} size={20} color={textColor} /> : null}
+          <Text style={[styles.text, { color: textColor }]}>{title}</Text>
+        </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
-const styles = StyleSheet.create({
-  loadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    columnGap: 8,
-  },
-  button: {
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-
-  // Variantes
-  primary: {
-    backgroundColor: COLORS.primary,
-  },
-  secondary: {
-    backgroundColor: COLORS.gray[200],
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: COLORS.primary,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-
-  // Tamaños
-  small: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  medium: {
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-  },
-  large: {
-    paddingVertical: 20,
-    paddingHorizontal: 32,
-  },
-
-  // Estados
-  disabled: {
-    backgroundColor: COLORS.gray[300],
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-
-  // Texto
-  text: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  smallText: {
-    fontSize: 14,
-  },
-  mediumText: {
-    fontSize: 16,
-  },
-  largeText: {
-    fontSize: 18,
-  },
-
-  // Colores de texto por variante
-  primaryText: {
-    color: COLORS.white,
-  },
-  secondaryText: {
-    color: COLORS.gray[800],
-  },
-  outlineText: {
-    color: COLORS.primary,
-  },
-
-  // Estados de texto
-  disabledText: {
-    color: COLORS.gray[500],
-  },
-});
-
-// Mapas tipados de estilos de texto por tamaño y variante
-const SIZE_TEXT_STYLES = {
-  small: styles.smallText,
-  medium: styles.mediumText,
-  large: styles.largeText,
+const TEXT_COLOR = {
+  primary: color.onPrimary,
+  secondary: color.primary,
+  tertiary: color.primary,
+  destructive: color.onPrimary,
 } as const;
 
-const VARIANT_TEXT_STYLES = {
-  primary: styles.primaryText,
-  secondary: styles.secondaryText,
-  outline: styles.outlineText,
+const styles = StyleSheet.create({
+  base: {
+    borderRadius: radius.control,
+    paddingHorizontal: space.lg,
+    paddingVertical: space.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    columnGap: space.sm,
+  },
+  text: {
+    fontSize: type.body.fontSize,
+    lineHeight: type.body.lineHeight,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  pressed: { opacity: 0.85 },
+  primary: { backgroundColor: color.primary },
+  secondary: {
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: color.primary,
+  },
+  tertiary: { backgroundColor: 'transparent' },
+  destructive: { backgroundColor: color.danger },
+  disabled: { backgroundColor: color.disabledBg },
+  dangerBorder: { borderColor: color.danger },
+});
+
+const VARIANT_STYLE = {
+  primary: styles.primary,
+  secondary: styles.secondary,
+  tertiary: styles.tertiary,
+  destructive: styles.destructive,
 } as const;
 
 export default Button;

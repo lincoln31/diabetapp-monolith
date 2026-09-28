@@ -9,13 +9,25 @@ interface ProfileState {
   status: Status;
   profile: Profile | null;
   errorMessage: string | null;
+  offline: boolean;
 }
 
 const fetchProfile = async (): Promise<ProfileState> => {
   try {
-    return { status: 'success', profile: await profileApi.get(), errorMessage: null };
+    return {
+      status: 'success',
+      profile: await profileApi.get(),
+      errorMessage: null,
+      offline: false,
+    };
   } catch (error) {
-    return { status: 'error', profile: null, errorMessage: toApiError(error).message };
+    const apiError = toApiError(error);
+    return {
+      status: 'error',
+      profile: null,
+      errorMessage: apiError.message,
+      offline: apiError.code === 'NETWORK_ERROR',
+    };
   }
 };
 
@@ -28,6 +40,7 @@ export const useProfile = () => {
     status: 'loading',
     profile: null,
     errorMessage: null,
+    offline: false,
   });
 
   useEffect(() => {
@@ -41,7 +54,7 @@ export const useProfile = () => {
   }, []);
 
   const reload = useCallback(async () => {
-    setState({ status: 'loading', profile: null, errorMessage: null });
+    setState({ status: 'loading', profile: null, errorMessage: null, offline: false });
     setState(await fetchProfile());
   }, []);
 

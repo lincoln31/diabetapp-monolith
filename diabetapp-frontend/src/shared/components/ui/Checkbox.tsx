@@ -1,91 +1,69 @@
 import React, { ReactNode } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { COLORS } from '../../theme/colors';
+import { Pressable, StyleProp, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native';
+import { color, radius, space, touch, type } from '../../theme/tokens';
+import Icon from './Icon';
 
+/**
+ * Casilla accesible (spec fase 15, D-15.7): la fila completa es el área táctil (≥ 48 dp),
+ * anuncia su estado y la marca es un icono, no un carácter.
+ */
 interface CheckboxProps {
   checked: boolean;
   onPress: () => void;
   label?: ReactNode;
-  labelStyle?: any;
-  containerStyle?: any;
-  size?: 'small' | 'medium' | 'large';
+  /** Nombre accesible cuando `label` no es texto plano (p. ej. contiene enlaces). */
+  accessibilityLabel?: string;
+  labelStyle?: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({
+const Checkbox = ({
   checked,
   onPress,
   label,
+  accessibilityLabel,
   labelStyle,
   containerStyle,
-  size = 'medium',
-}) => {
-  const getCheckboxSize = () => {
-    switch (size) {
-      case 'small':
-        return 16;
-      case 'large':
-        return 24;
-      default:
-        return 20;
-    }
-  };
-
-  const getCheckmarkSize = () => {
-    switch (size) {
-      case 'small':
-        return 10;
-      case 'large':
-        return 16;
-      default:
-        return 12;
-    }
-  };
-
-  return (
-    <View style={[styles.container, containerStyle]}>
-      <TouchableOpacity
-        style={[
-          styles.checkbox,
-          {
-            width: getCheckboxSize(),
-            height: getCheckboxSize(),
-            borderColor: checked ? COLORS.primary : COLORS.gray[300],
-            backgroundColor: checked ? COLORS.primary : COLORS.white,
-          },
-        ]}
-        onPress={onPress}
-        activeOpacity={0.7}
-      >
-        {checked && <Text style={[styles.checkmark, { fontSize: getCheckmarkSize() }]}>✓</Text>}
-      </TouchableOpacity>
-
-      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
+}: CheckboxProps) => (
+  <Pressable
+    accessibilityRole="checkbox"
+    accessibilityLabel={accessibilityLabel ?? (typeof label === 'string' ? label : undefined)}
+    accessibilityState={{ checked }}
+    onPress={onPress}
+    style={[styles.container, containerStyle]}
+  >
+    <View style={[styles.box, checked && styles.boxChecked]}>
+      {checked ? <Icon name="check" size={18} color={color.onPrimary} /> : null}
     </View>
-  );
-};
+
+    {label ? <Text style={[styles.label, labelStyle]}>{label}</Text> : null}
+  </Pressable>
+);
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  checkbox: {
-    borderWidth: 2,
-    borderRadius: 4,
-    marginRight: 12,
-    marginTop: 2,
-    justifyContent: 'center',
     alignItems: 'center',
+    columnGap: space.md,
+    minHeight: touch.min,
   },
-  checkmark: {
-    color: COLORS.white,
-    fontWeight: 'bold',
+  box: {
+    width: 24,
+    height: 24,
+    borderRadius: radius.control / 2,
+    borderWidth: 2,
+    borderColor: color.borderStrong,
+    backgroundColor: color.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  boxChecked: { backgroundColor: color.primary, borderColor: color.primary },
   label: {
     flex: 1,
-    fontSize: 14,
-    color: COLORS.gray[500],
-    lineHeight: 20,
+    fontSize: type.label.fontSize,
+    lineHeight: type.label.lineHeight,
+    color: color.textMuted,
+    fontWeight: '400',
   },
 });
 

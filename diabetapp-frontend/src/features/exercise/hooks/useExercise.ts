@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { toApiError } from '@/src/shared/api/errors';
+import { useToast } from '@/src/shared/components/ui';
 import { showError } from '@/src/shared/utils/showError';
 import { exerciseApi } from '../api';
 import { ExerciseActivity, ExerciseSummary } from '../types';
@@ -14,6 +15,7 @@ interface ExerciseState {
   totalPages: number;
   summary: ExerciseSummary | null;
   errorMessage: string | null;
+  offline: boolean;
 }
 
 const initialState: ExerciseState = {
@@ -23,6 +25,7 @@ const initialState: ExerciseState = {
   totalPages: 1,
   summary: null,
   errorMessage: null,
+  offline: false,
 };
 
 /**
@@ -31,7 +34,9 @@ const initialState: ExerciseState = {
  */
 export const useExercise = () => {
   const [state, setState] = useState<ExerciseState>(initialState);
+  const toast = useToast();
   const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -46,9 +51,16 @@ export const useExercise = () => {
         totalPages: meta.totalPages,
         summary,
         errorMessage: null,
+        offline: false,
       });
     } catch (error) {
-      setState({ ...initialState, status: 'error', errorMessage: toApiError(error).message });
+      const apiError = toApiError(error);
+      setState((current) => ({
+        ...(current.activities.length > 0 ? current : initialState),
+        status: current.activities.length > 0 ? 'success' : 'error',
+        errorMessage: apiError.message,
+        offline: apiError.code === 'NETWORK_ERROR',
+      }));
     }
   }, []);
 
@@ -77,23 +89,37 @@ export const useExercise = () => {
     }
   }, [loadingMore, state.page, state.totalPages]);
 
+  const refresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
+  const retry = useCallback(() => {
+    setState((current) => ({ ...current, status: 'loading' }));
+    void load();
+  }, [load]);
+
   const remove = useCallback(
     async (id: string) => {
       try {
         await exerciseApi.remove(id);
+        toast.show('Actividad borrada');
         await load();
       } catch (error) {
         showError(toApiError(error), 'No se pudo borrar la actividad');
       }
     },
-    [load],
+    [load, toast],
   );
 
   return {
     ...state,
     hasMore: state.page < state.totalPages,
     loadingMore,
-    reload: load,
+    refreshing,
+    refresh,
+    reload: retry,
     loadMore,
     remove,
   };

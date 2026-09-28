@@ -9,6 +9,8 @@ const valid = {
   targetHba1c: '',
   dailyGlucoseChecks: '4',
   exerciseGoalMinutes: '30',
+  phone: '',
+  birthDate: '',
   weight: '',
   height: '',
 };
@@ -34,6 +36,8 @@ describe('profileFormSchema', () => {
       targetHba1c: '6,5',
       dailyGlucoseChecks: '5',
       exerciseGoalMinutes: '45',
+      phone: '300 123 4567',
+      birthDate: '20/05/1990',
       weight: '72.5',
       height: '170',
     });
@@ -83,6 +87,12 @@ describe('profileFormSchema', () => {
     );
   });
 
+  it('valida el teléfono y la fecha de nacimiento cuando se escriben', () => {
+    expect(messagesFor({ ...valid, phone: '123' }, 'phone')).toHaveLength(1);
+    expect(messagesFor({ ...valid, birthDate: '31/02/1990' }, 'birthDate')).toHaveLength(1);
+    expect(messagesFor({ ...valid, birthDate: '01/01/2999' }, 'birthDate')).toHaveLength(1);
+  });
+
   it('exige enteros en el rango de glucosa', () => {
     expect(messagesFor({ ...valid, targetGlucoseMin: '80.5' }, 'targetGlucoseMin')).toHaveLength(1);
   });
@@ -105,9 +115,17 @@ describe('formValuesToInput', () => {
       targetHba1c: 6.5,
       dailyGlucoseChecks: 4,
       exerciseGoalMinutes: 30,
+      phone: null,
+      birthDate: null,
       weight: null,
       height: null,
     });
+  });
+
+  it('convierte teléfono y fecha al contrato de la API', () => {
+    expect(
+      formValuesToInput({ ...valid, phone: ' 300 123 4567 ', birthDate: '20/05/1990' }),
+    ).toMatchObject({ phone: '300 123 4567', birthDate: '1990-05-20T00:00:00.000Z' });
   });
 });
 
@@ -123,6 +141,8 @@ describe('profileToFormValues', () => {
       weight: 72.5,
       height: null,
       activityLevel: 'ACTIVE',
+      phone: null,
+      birthDate: '1990-05-20T00:00:00.000Z',
       onboardingCompleted: true,
       notificationPreferences: {
         medicationReminders: false,
@@ -141,6 +161,8 @@ describe('profileToFormValues', () => {
       targetHba1c: '',
       dailyGlucoseChecks: '5',
       exerciseGoalMinutes: '45',
+      phone: '',
+      birthDate: '20/05/1990',
       weight: '72.5',
       height: '',
     });

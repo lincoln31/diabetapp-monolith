@@ -15,6 +15,8 @@ const profileFields = {
   weight: true,
   height: true,
   activityLevel: true,
+  phone: true,
+  birthDate: true,
   onboardingCompleted: true,
   notificationPreferences: true,
   reminderTimes: true,
