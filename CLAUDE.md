@@ -85,6 +85,12 @@ npm run format:check         # prettier
 
 Requiere `.env` con `EXPO_PUBLIC_API_URL` (parte de `.env.example`).
 
+### Backend en producción (spec fase 16)
+
+El backend puede correr fuera del PC, gratis: **Render** (Web Service, blueprint en `render.yaml` de la raíz) + **Neon** (Postgres administrado; se eligió sobre el Postgres gratuito de Render porque ese expira y el de Neon no). El despliegue es automático al hacer push a `main` (`autoDeploy: true` en el blueprint); `preDeployCommand` corre `prisma migrate deploy` antes de servir tráfico, así que un despliegue con una migración rota no sustituye a la versión que ya funciona. Crear las cuentas y pegar `JWT_SECRET`/`DATABASE_URL` en el panel de Render es manual (no lo puede hacer el asistente) — ver `specs/fase-16-infraestructura/plan.md`, «Pasos manuales».
+
+Para probar la app contra ese backend en vez del PC local, cambia `EXPO_PUBLIC_API_URL` en `diabetapp-frontend/.env` a la URL pública (termina en `/api`) y reinicia `npm start`; no hace falta `make up` ni Docker. El plan gratuito de Render "duerme" el servicio tras ~15 min sin tráfico: la primera petición después de eso tarda unos 30-50 s (*cold start*), es un trade-off aceptado, no un bug.
+
 **Actualizar el SDK de Expo** (se hizo 53 → 57): sube de uno en uno (`npm install expo@^N.0.0`, `npx expo install --fix`, `npx expo-doctor`), lee las notas de cada SDK y comprueba tipos, lint, tests y `npx expo export --platform android` en cada salto. Si el árbol queda mal hoisteado, borra `node_modules` y `package-lock.json` y reinstala. Particularidades vigentes:
 
 - `.npmrc` con `legacy-peer-deps=true`: `datetimepicker` declara un peer opcional (`react-native-windows`) que choca con el React fijado por Expo. Efecto colateral: npm **no instala los peers solos**, así que los que hagan falta van explícitos (`test-renderer`, `expo-asset`, `react-native-worklets`). `npx expo-doctor` valida la compatibilidad real.

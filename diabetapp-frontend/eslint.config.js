@@ -15,7 +15,7 @@ module.exports = defineConfig([
       'no-restricted-syntax': [
         'error',
         {
-          selector: "Literal[value=/^#[0-9A-Fa-f]{3,8}$/]",
+          selector: 'Literal[value=/^#[0-9A-Fa-f]{3,8}$/]',
           message: 'Usa un color de theme/tokens.ts en vez de un hex literal.',
         },
       ],

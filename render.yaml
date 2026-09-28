@@ -1,0 +1,30 @@
+# Blueprint de Render (spec fase 16): despliegue del backend en el plan gratuito.
+# `sync: false` = la variable existe pero su valor se pega a mano en el panel de Render,
+# nunca en este archivo (spec fase 16, RF-16.6; P1 de la constitución).
+services:
+  - type: web
+    name: diabetapp-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: diabetapp-backend
+    buildCommand: npm ci && npx prisma generate && npm run build
+    # Corre una vez por despliegue, después del build y antes de servir tráfico (spec
+    # fase 16, D-16.3): si migrate falla, Render no sustituye la versión que ya funciona.
+    preDeployCommand: npx prisma migrate deploy
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render está detrás de un proxy: sin esto, express-rate-limit limitaría por la IP
+      # de Render, no la del celular (spec fase 2, RNF-2.5).
+      - key: TRUST_PROXY
+        value: '1'
+      # Generar con: cd diabetapp-backend && npm run generate-secret
+      - key: JWT_SECRET
+        sync: false
+      # URL de Neon (incluye usuario, contraseña y ?sslmode=require)
+      - key: DATABASE_URL
+        sync: false
