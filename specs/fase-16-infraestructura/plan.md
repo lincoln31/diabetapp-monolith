@@ -7,12 +7,11 @@ Implementa: [spec.md](spec.md)
 ```
 GitHub (main) ──push──▶ Render (auto-deploy)
                               │
-                    build: npm ci && npx prisma generate && npm run build
-                    release: npx prisma migrate deploy
-                    start:   node dist/server.js
+                    build: npm ci --include=dev && npx prisma generate && npm run build
+                    start:  npx prisma migrate deploy && npm start
                               │
                               ▼
-                     DATABASE_URL ──▶ Neon (Postgres administrado)
+                     DATABASE_URL / DIRECT_URL ──▶ Neon (Postgres administrado)
 ```
 
 - **Render** aloja el backend como *Web Service* (Node), con auto-deploy nativo desde GitHub: no hace falta un job de despliegue en `.github/workflows/ci.yml`, la CI sigue siendo solo verificación (lint/tipos/tests), y Render dispara su propio build al ver un push en `main` con los checks de GitHub en verde.
@@ -49,7 +48,7 @@ services:
     runtime: node
     plan: free
     rootDir: diabetapp-backend
-    buildCommand: npm ci && npx prisma generate && npm run build
+    buildCommand: npm ci --include=dev && npx prisma generate && npm run build
     startCommand: npx prisma migrate deploy && npm start
     healthCheckPath: /api/health
     autoDeploy: true
@@ -69,6 +68,7 @@ services:
 `sync: false` es lo que le dice a Render "esta variable existe pero no la definas aquí": queda vacía en el blueprint y se completa una sola vez en el panel web, cumpliendo RF-16.6.
 
 - **D-16.8** (encontrada al desplegar) — Neon da la conexión **con *pooler*** (PgBouncer) por defecto, con `-pooler` en el nombre del host (p. ej. `ep-xxx-pooler.c-6.us-east-2.aws.neon.tech`). Esa conexión es la correcta para las consultas normales de la app, pero PgBouncer (en modo *transaction*) no soporta los bloqueos que usa `prisma migrate`. Por eso `schema.prisma` declara `directUrl = env("DIRECT_URL")` además de `url = env("DATABASE_URL")`: Prisma usa `directUrl` solo para migrar, y `url` para todo lo demás. `DIRECT_URL` es la **misma cadena de Neon quitándole `-pooler`** del host (el usuario, la contraseña, la base y el resto quedan igual). En local y en tests, `DIRECT_URL` vale lo mismo que `DATABASE_URL` (no hay *pooler*).
+- **D-16.9** (encontrada en el primer despliegue real) — `render.yaml` fija `NODE_ENV=production` como variable de entorno, y esa variable **también está presente durante el build**, no solo en tiempo de ejecución. `npm ci` respeta `NODE_ENV=production` salteándose **todas** las `devDependencies` (no solo las de test): `typescript`, todos los `@types/*` y `prisma` (el CLI) son devDependencies, así que el build fallaba primero con `TS2688: Cannot find type definition file for 'jest'` y, al corregir eso, con más errores de tipos (`@types/express`, `@types/jsonwebtoken`, etc.) — el build necesitaba paquetes que nunca se instalaron. Se soluciona con `npm ci --include=dev` en `buildCommand`, que fuerza a instalar las devDependencies sin importar `NODE_ENV`; el `dist/` compilado no las necesita en tiempo de ejecución, simplemente quedan sin usar en el contenedor final (aceptable: RNF-16.1 no pide optimizar el tamaño de la imagen). De paso, `tsconfig.build.json` deja de heredar `"jest"` en `types` (el build de producción no compila tests, así que no debería depender de que `@types/jest` exista).
 
 ## 5. Pasos manuales (fuera del alcance del asistente)
 

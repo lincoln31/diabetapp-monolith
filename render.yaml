@@ -8,7 +8,10 @@ services:
     plan: free
     region: oregon
     rootDir: diabetapp-backend
-    buildCommand: npm ci && npx prisma generate && npm run build
+    # `--include=dev` es necesario aunque el plan tenga NODE_ENV=production: sin él, `npm ci`
+    # se salta TODAS las devDependencies (typescript, los @types/*, prisma...), no solo las de
+    # test, y el build falla (spec fase 16, hallazgo del primer despliegue real).
+    buildCommand: npm ci --include=dev && npx prisma generate && npm run build
     # `preDeployCommand` no existe en el plan gratuito de Render (solo en los pagos), así que
     # la migración va en el arranque (spec fase 16, D-16.3 revisada): `prisma migrate deploy`
     # no hace nada si el esquema ya está al día, así que es seguro correrlo en cada arranque,

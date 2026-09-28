@@ -3,6 +3,11 @@
   "include": ["src/**/*"],
   "exclude": ["node_modules", "test", "dist", "scripts", "prisma"],
   "compilerOptions": {
-    "rootDir": "./src"
+    "rootDir": "./src",
+    // Sin "jest": el build de producción no compila tests y `@types/jest` es una
+    // devDependency que no está instalada cuando `npm ci` corre con NODE_ENV=production
+    // (como en Render, spec fase 16) — sin este override, tsc fallaba con TS2688
+    // "Cannot find type definition file for 'jest'" aunque ningún archivo lo usara.
+    "types": ["node", "express"]
   }
 }
