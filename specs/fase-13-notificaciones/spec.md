@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 13 |
-| Estado | Aprobada |
+| Estado | Implementada |
 | Fecha | 2026-09-26 |
 | Depende de | Fase 7 (perfil), Fase 9 (logros), Fase 10 (consejos), Fase 11 (horarios de medicación) |
 | Issues relacionados | Cierra #16, #35, #52, #53, #54. #51 (FCM) se descarta por ahora (ver §8) |
@@ -63,7 +63,7 @@ Que el paciente reciba avisos a tiempo — tomar su medicación, medir su glucos
 | RF-13.7 | DEBE programarse un recordatorio diario por cada horario de `glucoseReminderTimes`, mientras `glucoseReminders` esté activo. | HU-13.3 |
 | RF-13.8 | DEBE programarse un mensaje motivacional diario a las 9:00, tomado de un catálogo fijo que rota por día, mientras `motivational` esté activo. | HU-13.4 |
 | RF-13.9 | Cuando la app detecte un logro **nuevo** desbloqueado (comparando con los ya vistos en el celular), DEBE mostrar una notificación inmediata una sola vez, mientras `achievements` esté activo. La primera vez que se sincroniza, los logros ya desbloqueados se registran sin avisar. | HU-13.5 |
-| RF-13.10 | Los recordatorios DEBEN **sincronizarse** al abrir el dashboard y al guardar las preferencias: se cancelan los programados por la app y se reprograman desde el estado actual (medicamentos, preferencias). Archivar o editar un medicamento se refleja en la siguiente sincronización. | HU-13.2 |
+| RF-13.10 | Los recordatorios DEBEN **sincronizarse** al abrir el dashboard, al volver la app del segundo plano y al guardar las preferencias: se deja programado exactamente lo que corresponde al estado actual (se cancela lo que sobra y se reprograma solo lo nuevo o cambiado) (medicamentos, preferencias). Archivar o editar un medicamento se refleja en la siguiente sincronización. | HU-13.2 |
 | RF-13.11 | Una vez programados, los recordatorios DEBEN dispararse sin conexión y con el backend caído; un fallo al sincronizar NO DEBE cerrar la app ni mostrar un error intrusivo. | HU-13.6 |
 | RF-13.12 | Con todos los avisos apagados, la sincronización DEBE dejar **cero** notificaciones programadas. | HU-13.1 |
 

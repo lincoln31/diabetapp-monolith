@@ -1,6 +1,6 @@
 import { MOTIVATIONAL_MESSAGES } from '../constants';
 import { findNewAchievements } from '../newAchievements';
-import { buildSchedule } from '../schedule';
+import { buildSchedule, isSameSchedule } from '../schedule';
 import { glucoseTimesSchema } from '../schemas';
 import { NotificationPreferences, ScheduleMedication } from '../types';
 
@@ -98,6 +98,31 @@ describe('buildSchedule', () => {
     expect(buildSchedule({ ...base, preferences }).map((i) => i.id)).toEqual(
       buildSchedule({ ...base, preferences }).map((i) => i.id),
     );
+  });
+});
+
+describe('isSameSchedule', () => {
+  const item = {
+    id: 'med:m1:08:00',
+    title: 'Hora de tu medicación',
+    body: 'Metformina (850 mg)',
+    hour: 8,
+    minute: 0,
+  };
+  const same = { title: item.title, body: item.body, hour: 8, minute: 0 };
+
+  it('es igual si título, cuerpo y hora coinciden', () => {
+    expect(isSameSchedule(same, item)).toBe(true);
+  });
+
+  it.each([
+    ['otro título', { ...same, title: 'Otro' }],
+    ['otro cuerpo', { ...same, body: 'Metformina (1000 mg)' }],
+    ['otra hora', { ...same, hour: 9 }],
+    ['otros minutos', { ...same, minute: 30 }],
+    ['sin disparador', { title: item.title, body: item.body }],
+  ])('es distinta con %s', (_name, existing) => {
+    expect(isSameSchedule(existing, item)).toBe(false);
   });
 });
 

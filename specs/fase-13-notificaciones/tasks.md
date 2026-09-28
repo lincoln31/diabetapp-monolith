@@ -35,7 +35,7 @@ Implementa: [plan.md](plan.md) · Rama sugerida: `feat/fase-13-notificaciones`
 
 ## Bloque D — Verificación y cierre
 
-- [ ] **T13.18** ⏳ (requiere dispositivo) Recorrido: CA-13.10 – CA-13.15 (horarios a 2 minutos, archivar, logro nuevo, backend apagado, todo apagado).
+- [x] **T13.18** Recorrido (development build, moto g34 5G; encontrado y corregido: sincronización que perdía el aviso dentro de la ventana de la alarma inexacta, y falta de sincronización al volver del segundo plano): CA-13.10 – CA-13.15 (horarios a 2 minutos, archivar, logro nuevo, backend apagado, todo apagado).
 - [x] **T13.19** `tsc`, lint, tests completos de ambos proyectos y `npx expo-doctor`.
 - [ ] **T13.20** Marcar CA-13.1 … CA-13.15 en el PR; cerrar #16, #35, #52, #53, #54 (#54 con la aclaración) y #51 con el comentario de §8; actualizar `CLAUDE.md` y `specs/README.md`.
 
