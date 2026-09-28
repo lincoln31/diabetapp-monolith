@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Button, Card, Icon } from '@/src/shared/components/ui';
+import CloseButton from '@/src/shared/components/ui/CloseButton';
 import { COLORS } from '@/src/shared/theme/colors';
 import { useAchievements } from '../hooks/useAchievements';
 import { Achievement, AchievementMetric } from '../types';
@@ -47,19 +47,12 @@ const AchievementRow = ({ achievement }: { achievement: Achievement }) => {
 
 /** Pantalla «Mis Logros» (spec fase 9, RF-9.6 – RF-9.9). */
 const AchievementsScreen = () => {
-  const router = useRouter();
   const { status, achievements, errorMessage, reload } = useAchievements();
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Button
-          variant="outline"
-          size="small"
-          style={styles.closeButton}
-          onPress={() => router.back()}
-          title="✕"
-        />
+        <CloseButton />
         <Icon name="trophy" size={22} color={COLORS.gray[800]} style={styles.titleIcon} />
         <Text style={styles.title}>Mis Logros</Text>
       </View>
@@ -96,15 +89,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 30,
     paddingBottom: 10,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 15,
-    padding: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   titleIcon: { marginRight: 6 },
   title: { fontSize: 20, fontWeight: 'bold', color: COLORS.gray[800], flex: 1 },

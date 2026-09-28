@@ -23,6 +23,7 @@ describe('/api/profile', () => {
       targetGlucoseMax: 180,
       targetHba1c: null,
       dailyGlucoseChecks: 4,
+      exerciseGoalMinutes: 30,
       weight: null,
       height: null,
       activityLevel: null,
@@ -125,6 +126,20 @@ describe('/api/profile', () => {
     expect(cinco.body.data.dailyGlucoseChecks).toBe(5);
     expect([cero.status, veintiuno.status, nula.status]).toEqual([400, 400, 400]);
     expect(cero.body.error.fields[0].field).toBe('dailyGlucoseChecks');
+  });
+
+  it('permite cambiar la meta de ejercicio y rechaza valores fuera de 5 a 300', async () => {
+    const { accessToken } = await registerUser();
+    const put = (body: object) => api().put('/api/profile').set(authHeader(accessToken)).send(body);
+
+    const cuarenta = await put({ exerciseGoalMinutes: 45 });
+    const cuatro = await put({ exerciseGoalMinutes: 4 });
+    const grande = await put({ exerciseGoalMinutes: 301 });
+    const nula = await put({ exerciseGoalMinutes: null });
+
+    expect(cuarenta.body.data.exerciseGoalMinutes).toBe(45);
+    expect([cuatro.status, grande.status, nula.status]).toEqual([400, 400, 400]);
+    expect(cuatro.body.error.fields[0].field).toBe('exerciseGoalMinutes');
   });
 
   it('no permite tocar el perfil de otro usuario', async () => {

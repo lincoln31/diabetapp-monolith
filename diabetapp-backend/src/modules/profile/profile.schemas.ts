@@ -30,6 +30,12 @@ export const updateProfileSchema = z
       .int('La meta diaria debe ser un número entero')
       .min(1, 'La meta diaria debe estar entre 1 y 20 lecturas')
       .max(20, 'La meta diaria debe estar entre 1 y 20 lecturas'),
+    // La meta de ejercicio tampoco se borra (spec fase 12, RF-12.7)
+    exerciseGoalMinutes: z
+      .number('La meta de ejercicio debe ser un número')
+      .int('La meta de ejercicio debe ser un número entero')
+      .min(5, 'La meta de ejercicio debe estar entre 5 y 300 minutos')
+      .max(300, 'La meta de ejercicio debe estar entre 5 y 300 minutos'),
     weight: z
       .number('El peso debe ser un número')
       .min(20, 'El peso debe estar entre 20 y 400 kg')

@@ -10,6 +10,7 @@ const profileFields = {
   targetGlucoseMax: true,
   targetHba1c: true,
   dailyGlucoseChecks: true,
+  exerciseGoalMinutes: true,
   weight: true,
   height: true,
   activityLevel: true,

@@ -35,13 +35,14 @@ export const medicationIdParamsSchema = z.object({
 const FUTURE_MARGIN_MS = 5 * 60 * 1000;
 
 export const logIntakeSchema = z.object({
+  // Se valida antes de transformar: con un texto inválido, `transform` recibe el texto crudo (Zod 4)
   takenAt: z.iso
     .datetime('La fecha debe tener formato ISO válido')
-    .transform((value) => new Date(value))
     .refine(
-      (date) => date.getTime() <= Date.now() + FUTURE_MARGIN_MS,
+      (value) => new Date(value).getTime() <= Date.now() + FUTURE_MARGIN_MS,
       'La toma no puede ser futura',
     )
+    .transform((value) => new Date(value))
     .optional(),
 });
 
