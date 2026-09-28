@@ -265,3 +265,10 @@ Authorization: Bearer {{token}}
 ###
 DELETE {{host}}/exercise/{{exerciseId}}
 Authorization: Bearer {{token}}
+
+### Preferencias de notificaciones (spec fase 13)
+PUT {{host}}/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "notificationPreferences": { "medicationReminders": true, "glucoseReminders": true }, "glucoseReminderTimes": ["07:30", "20:00"] }

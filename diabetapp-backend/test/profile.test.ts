@@ -1,3 +1,4 @@
+import prisma from '../src/config/db';
 import { api } from './helpers/api';
 import { authHeader, createReading, registerUser } from './helpers/factories';
 
@@ -28,6 +29,13 @@ describe('/api/profile', () => {
       height: null,
       activityLevel: null,
       onboardingCompleted: false,
+      notificationPreferences: {
+        medicationReminders: false,
+        glucoseReminders: false,
+        motivational: false,
+        achievements: false,
+      },
+      glucoseReminderTimes: [],
     });
     expect(response.body.data).not.toHaveProperty('password');
   });
@@ -140,6 +148,130 @@ describe('/api/profile', () => {
     expect(cuarenta.body.data.exerciseGoalMinutes).toBe(45);
     expect([cuatro.status, grande.status, nula.status]).toEqual([400, 400, 400]);
     expect(cuatro.body.error.fields[0].field).toBe('exerciseGoalMinutes');
+  });
+
+  describe('preferencias de notificaciones (fase 13)', () => {
+    it('guarda las preferencias y los horarios de glucosa ordenados', async () => {
+      const { accessToken } = await registerUser();
+      const put = (body: object) =>
+        api().put('/api/profile').set(authHeader(accessToken)).send(body);
+
+      const response = await put({
+        notificationPreferences: { medicationReminders: true, glucoseReminders: true },
+        glucoseReminderTimes: ['20:00', '07:30'],
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.notificationPreferences).toEqual({
+        medicationReminders: true,
+        glucoseReminders: true,
+        motivational: false,
+        achievements: false,
+      });
+      expect(response.body.data.glucoseReminderTimes).toEqual(['07:30', '20:00']);
+
+      const again = await api().get('/api/profile').set(authHeader(accessToken));
+      expect(again.body.data.notificationPreferences.glucoseReminders).toBe(true);
+      expect(again.body.data.glucoseReminderTimes).toEqual(['07:30', '20:00']);
+    });
+
+    it('combina con lo guardado: enviar una clave no borra las demás', async () => {
+      const { accessToken } = await registerUser();
+      const put = (body: object) =>
+        api().put('/api/profile').set(authHeader(accessToken)).send(body);
+
+      await put({ notificationPreferences: { medicationReminders: true } });
+      const response = await put({ notificationPreferences: { motivational: true } });
+
+      expect(response.body.data.notificationPreferences).toEqual({
+        medicationReminders: true,
+        glucoseReminders: false,
+        motivational: true,
+        achievements: false,
+      });
+    });
+
+    it('actualizar otros campos no toca las preferencias', async () => {
+      const { accessToken } = await registerUser();
+      const put = (body: object) =>
+        api().put('/api/profile').set(authHeader(accessToken)).send(body);
+
+      await put({
+        notificationPreferences: { achievements: true },
+        glucoseReminderTimes: ['08:00'],
+      });
+      const response = await put({ weight: 70 });
+
+      expect(response.body.data.notificationPreferences.achievements).toBe(true);
+      expect(response.body.data.glucoseReminderTimes).toEqual(['08:00']);
+    });
+
+    it('permite vaciar los horarios de glucosa', async () => {
+      const { accessToken } = await registerUser();
+      const put = (body: object) =>
+        api().put('/api/profile').set(authHeader(accessToken)).send(body);
+
+      await put({ glucoseReminderTimes: ['08:00'] });
+      const response = await put({ glucoseReminderTimes: [] });
+
+      expect(response.body.data.glucoseReminderTimes).toEqual([]);
+    });
+
+    it.each([
+      ['horario mal escrito', { glucoseReminderTimes: ['8:00'] }, 'glucoseReminderTimes.0'],
+      ['hora inexistente', { glucoseReminderTimes: ['25:00'] }, 'glucoseReminderTimes.0'],
+      ['horarios repetidos', { glucoseReminderTimes: ['08:00', '08:00'] }, 'glucoseReminderTimes'],
+      [
+        'más de 6 horarios',
+        { glucoseReminderTimes: ['01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00'] },
+        'glucoseReminderTimes',
+      ],
+      ['clave desconocida', { notificationPreferences: { sms: true } }, 'notificationPreferences'],
+      [
+        'valor no booleano',
+        { notificationPreferences: { motivational: 'si' } },
+        'notificationPreferences.motivational',
+      ],
+      ['preferencias nulas', { notificationPreferences: null }, 'notificationPreferences'],
+    ])('rechaza %s con VALIDATION_ERROR', async (_name, body, field) => {
+      const { accessToken } = await registerUser();
+
+      const response = await api().put('/api/profile').set(authHeader(accessToken)).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.fields.map((f: { field: string }) => f.field)).toContain(field);
+    });
+
+    it('devuelve valores por defecto si el JSON guardado está malformado', async () => {
+      const { accessToken, user } = await registerUser();
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          notificationPreferences: { medicationReminders: 'si', otra: 1 },
+          reminderTimes: ['8:00', '07:30', 5],
+        },
+      });
+
+      const response = await api().get('/api/profile').set(authHeader(accessToken));
+
+      expect(response.body.data.notificationPreferences.medicationReminders).toBe(false);
+      expect(response.body.data.notificationPreferences).not.toHaveProperty('otra');
+      expect(response.body.data.glucoseReminderTimes).toEqual(['07:30']);
+    });
+
+    it('no mezcla las preferencias de dos usuarios', async () => {
+      const owner = await registerUser();
+      const other = await registerUser();
+
+      await api()
+        .put('/api/profile')
+        .set(authHeader(owner.accessToken))
+        .send({ notificationPreferences: { medicationReminders: true } });
+      const response = await api().get('/api/profile').set(authHeader(other.accessToken));
+
+      expect(response.body.data.notificationPreferences.medicationReminders).toBe(false);
+    });
   });
 
   it('no permite tocar el perfil de otro usuario', async () => {

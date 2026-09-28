@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 13 |
-| Estado | Borrador |
+| Estado | Aprobada |
 | Fecha | 2026-09-26 |
 | Depende de | Fase 7 (perfil), Fase 9 (logros), Fase 10 (consejos), Fase 11 (horarios de medicación) |
 | Issues relacionados | Cierra #16, #35, #52, #53, #54. #51 (FCM) se descarta por ahora (ver §8) |
@@ -99,12 +99,12 @@ Que el paciente reciba avisos a tiempo — tomar su medicación, medir su glucos
 
 ## 8. Decisiones
 
-- **[NECESITA ACLARACIÓN]** **Notificaciones locales en lugar de FCM (#51 se descarta por ahora).** Recomendación: implementar #35, #52 y #53 como notificaciones **locales programadas** con `expo-notifications`. Ventajas: funcionan sin internet y sin servidor, a la hora exacta, no requieren proyecto de Firebase ni *development build*, y se pueden verificar con el flujo actual. Costo: el contenido lo decide la app (no puede reaccionar a algo que solo sabe el servidor) y no hay entrega si la app se desinstala. FCM solo sería necesario para avisos originados en el servidor (p. ej. «hace 3 días que no registras» enviado con la app cerrada, o alertas a un familiar); no está pedido y se revisaría en su propia fase. #51 se cierra con un comentario que lo explique. Si prefieres FCM igualmente, la fase cambia de forma: habría que configurar Firebase, migrar a una *development build* y agregar un módulo de backend con tokens y envío.
-- **[NECESITA ACLARACIÓN]** **#52 – #54 sin «lógica de backend».** Los tres issues dicen «backend»; con la decisión anterior se resuelven en el celular. #54 (logros) queda limitado: el aviso aparece **al abrir la app**, no en el instante en que se desbloquea (los logros se calculan al consultar, fase 9). Un aviso en tiempo real requeriría servidor + FCM.
-- **[NECESITA ACLARACIÓN]** **Preferencias en el servidor (perfil) y programación en el celular.** Se guardan en `notificationPreferences`/`reminderTimes` vía el perfil (así sobreviven a una reinstalación o un teléfono nuevo, y #16 pide que estén «en el perfil»), y cada celular programa sus propias notificaciones a partir de ellas. Alternativa más simple: guardarlas solo en el celular (AsyncStorage), sin tocar el backend.
-- **[NECESITA ACLARACIÓN]** **Apagadas por defecto, permiso al activar.** Ningún aviso llega hasta que el paciente lo activa; el permiso del sistema se pide en ese momento (no al abrir la app por primera vez).
-- **[NECESITA ACLARACIÓN]** **Mensaje motivacional fijo a las 9:00.** Sin horario configurable en esta fase (P8). El catálogo son frases fijas en el código, con el mismo mecanismo de rotación diaria de los consejos (fase 10).
-- **[NECESITA ACLARACIÓN]** **Acceso desde «Mi perfil».** El dashboard ya tiene 8 botones (riesgo señalado en la fase 12); las preferencias de notificaciones son un ajuste, así que se abren desde un botón en «Mi perfil», no desde el dashboard.
+- **Resuelta (2026-09-26):** **Notificaciones locales en lugar de FCM (#51 se descarta por ahora).** Recomendación: implementar #35, #52 y #53 como notificaciones **locales programadas** con `expo-notifications`. Ventajas: funcionan sin internet y sin servidor, a la hora exacta, no requieren proyecto de Firebase ni *development build*, y se pueden verificar con el flujo actual. Costo: el contenido lo decide la app (no puede reaccionar a algo que solo sabe el servidor) y no hay entrega si la app se desinstala. FCM solo sería necesario para avisos originados en el servidor (p. ej. «hace 3 días que no registras» enviado con la app cerrada, o alertas a un familiar); no está pedido y se revisaría en su propia fase. #51 se cierra con un comentario que lo explique. Si prefieres FCM igualmente, la fase cambia de forma: habría que configurar Firebase, migrar a una *development build* y agregar un módulo de backend con tokens y envío.
+- **Resuelta (2026-09-26):** **#52 – #54 sin «lógica de backend».** Los tres issues dicen «backend»; con la decisión anterior se resuelven en el celular. #54 (logros) queda limitado: el aviso aparece **al abrir la app**, no en el instante en que se desbloquea (los logros se calculan al consultar, fase 9). Un aviso en tiempo real requeriría servidor + FCM.
+- **Resuelta (2026-09-26):** **Preferencias en el servidor (perfil) y programación en el celular.** Se guardan en `notificationPreferences`/`reminderTimes` vía el perfil (así sobreviven a una reinstalación o un teléfono nuevo, y #16 pide que estén «en el perfil»), y cada celular programa sus propias notificaciones a partir de ellas. Alternativa más simple: guardarlas solo en el celular (AsyncStorage), sin tocar el backend.
+- **Resuelta (2026-09-26):** **Apagadas por defecto, permiso al activar.** Ningún aviso llega hasta que el paciente lo activa; el permiso del sistema se pide en ese momento (no al abrir la app por primera vez).
+- **Resuelta (2026-09-26):** **Mensaje motivacional fijo a las 9:00.** Sin horario configurable en esta fase (P8). El catálogo son frases fijas en el código, con el mismo mecanismo de rotación diaria de los consejos (fase 10).
+- **Resuelta (2026-09-26):** **Acceso desde «Mi perfil».** El dashboard ya tiene 8 botones (riesgo señalado en la fase 12); las preferencias de notificaciones son un ajuste, así que se abren desde un botón en «Mi perfil», no desde el dashboard.
 
 ## 9. Definición de terminado
 

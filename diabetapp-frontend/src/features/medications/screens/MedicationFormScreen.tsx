@@ -18,7 +18,7 @@ import { toApiError } from '@/src/shared/api/errors';
 import { applyServerErrors } from '@/src/shared/forms/applyServerErrors';
 import { COLORS } from '@/src/shared/theme/colors';
 import { medicationsApi } from '../api';
-import TimesField from '../components/TimesField';
+import TimesField from '@/src/shared/components/TimesField';
 import { useMedications } from '../hooks/useMedications';
 import {
   MedicationFormValues,
