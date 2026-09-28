@@ -224,3 +224,25 @@ Authorization: Bearer {{token}}
 ### CA-9.1 – CA-9.7 · Catálogo de logros con progreso y desbloqueo
 GET {{host}}/achievements
 Authorization: Bearer {{token}}
+
+### Medicación (spec fase 11)
+GET {{host}}/medications
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/medications
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "name": "Metformina", "dosage": "850 mg", "scheduledTimes": ["08:00", "20:00"] }
+
+###
+POST {{host}}/medications/{{medicationId}}/intakes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
+
+###
+GET {{host}}/medications/adherence
+Authorization: Bearer {{token}}

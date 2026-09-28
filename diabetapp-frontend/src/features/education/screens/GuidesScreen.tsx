@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card, Icon } from '@/src/shared/components/ui';
+import ScreenHeader from '@/src/shared/components/ui/ScreenHeader';
 import { COLORS } from '@/src/shared/theme/colors';
-import ScreenHeader from '../components/ScreenHeader';
 import { FAQS, GUIDES } from '../constants';
 
 /** Guías y preguntas frecuentes (spec fase 10, RF-10.5): las preguntas empiezan plegadas. */

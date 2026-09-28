@@ -2,9 +2,9 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Card, Icon } from '@/src/shared/components/ui';
+import ScreenHeader from '@/src/shared/components/ui/ScreenHeader';
 import type { AppIconName } from '@/src/shared/components/ui';
 import { COLORS } from '@/src/shared/theme/colors';
-import ScreenHeader from '../components/ScreenHeader';
 
 const OPTIONS: { title: string; subtitle: string; icon: AppIconName; href: string }[] = [
   {

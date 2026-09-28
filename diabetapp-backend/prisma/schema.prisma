@@ -69,7 +69,8 @@ model User {
   // Relaciones futuras (preparación para Fase 2-3)
    glucoseReadings GlucoseReading[]
   refreshTokens   RefreshToken[]
-  // medications     Medication[]
+  medications     Medication[]
+  medicationIntakes MedicationIntake[]
   // achievements    Achievement[]
   // dailyGoals      DailyGoal[]
 
@@ -112,6 +113,43 @@ model RefreshToken {
   @@index([userId])
   @@index([familyId])
   @@map("refresh_tokens")
+}
+
+/// Medicamento del paciente (spec fase 11, D-11.1). `active=false` = archivado: conserva el historial de tomas.
+model Medication {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name           String
+  dosage         String   // texto libre: "500 mg", "10 unidades"
+  scheduledTimes String[] // horas locales "HH:mm", ordenadas
+  notes          String?
+  active         Boolean  @default(true)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  intakes        MedicationIntake[]
+
+  @@index([userId, active])
+  @@map("medications")
+}
+
+/// Una toma registrada de un medicamento (spec fase 11, D-11.1).
+model MedicationIntake {
+  id           String     @id @default(cuid())
+  medicationId String
+  medication   Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  userId       String     // duplicado a propósito: filtra por usuario sin JOIN
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  takenAt      DateTime
+  createdAt    DateTime   @default(now())
+
+  @@index([userId, takenAt])
+  @@index([medicationId])
+  @@map("medication_intakes")
 }
 
 // --- Enums (fase 1, RF-1.18): la base de datos rechaza valores fuera de estas listas ---
