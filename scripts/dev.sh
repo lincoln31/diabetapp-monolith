@@ -215,6 +215,13 @@ sync_build_dir() {
   [ -f "$FRONTEND/.npmrc" ] && cp "$FRONTEND/.npmrc" "$dst/"
   [ -f "$FRONTEND/.env" ] && cp "$FRONTEND/.env" "$dst/"
   rm -rf "$dst/assets" && cp -r "$FRONTEND/assets" "$dst/assets"
+  [ -d "$FRONTEND/plugins" ] && { rm -rf "$dst/plugins" && cp -r "$FRONTEND/plugins" "$dst/plugins"; }
+  # Las development builds cargan el JS en vivo desde Metro (corriendo en el repo real), así
+  # que nunca hizo falta el código fuente aquí. La build "release" en cambio empaqueta el JS
+  # como parte del build de Gradle, leyendo `app/`/`src/` de ESTA copia: sin esto, el bundle
+  # queda vacío y la app se cae con "Error: No routes found" (spec fase 16, hallazgo real).
+  rm -rf "$dst/app" "$dst/src" && cp -r "$FRONTEND/app" "$dst/app" && cp -r "$FRONTEND/src" "$dst/src"
+  cp "$FRONTEND/tsconfig.json" "$dst/"
 
   lock_hash="$(cksum <"$FRONTEND/package-lock.json" | cut -d' ' -f1)"
   if [ ! -d "$dst/node_modules" ] || [ "$(cat "$dst/.lock-hash" 2>/dev/null || true)" != "$lock_hash" ]; then
@@ -397,6 +404,23 @@ cmd_build() {
   cd "$BUILD_DIR/$FRONTEND"
   EXPO_PUBLIC_API_URL="$api_url" npx expo run:android --no-bundler
   echo "Listo. Ahora: make up DEV_CLIENT=1"
+}
+
+# Compila e instala una build "release" (standalone): el JavaScript queda empacado dentro
+# del APK (nada de Metro) y la API apunta fija al backend en producción, así que la app
+# funciona sola, sin el PC ni la WiFi del PC (spec fase 16). Firma con el keystore de debug
+# (no hay uno de release configurado): sirve para instalarla por USB, no para la Play Store.
+# API_URL=<otra-url> para apuntar a otro backend si hiciera falta.
+cmd_release() {
+  local api_url="${API_URL:-https://diabetapp-backend.onrender.com/api}"
+  require_device
+  setup_android_env
+
+  sync_build_dir
+  echo "Compilando la build release en $BUILD_DIR/$FRONTEND (API: $api_url)..."
+  cd "$BUILD_DIR/$FRONTEND"
+  EXPO_PUBLIC_API_URL="$api_url" npx expo run:android --variant release
+  echo "Lista: queda instalada y funciona sola, sin Metro ni el PC (API: $api_url)."
 }
 
 cmd_up() {

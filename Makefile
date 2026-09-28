@@ -17,7 +17,7 @@ SHELL := bash
 .DEFAULT_GOAL := help
 DEV := bash scripts/dev.sh
 
-.PHONY: help doctor devices db backend backend-bg reverse app build up stop down \
+.PHONY: help doctor devices db backend backend-bg reverse app build release up stop down \
 	logs logs-crash logs-backend report status reinstall-expo-go adb-reset
 
 help: ## Muestra esta ayuda
@@ -49,6 +49,9 @@ app: ## Arranca Metro e instala/abre la app en el celular (instala Expo Go si fa
 
 build: ## Compila e instala la development build (para notificaciones; la 1.ª vez tarda)
 	@$(DEV) build
+
+release: ## Compila e instala una build standalone contra el backend en producción (sin PC ni Metro)
+	@$(DEV) release
 
 up: ## Todo junto: BD + backend + app en el celular (DEV_CLIENT=1 usa la development build)
 	@$(DEV) up
