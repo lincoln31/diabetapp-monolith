@@ -10,9 +10,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  
+  provider  = "postgresql"
+  // `DATABASE_URL` puede ser una conexión con *pooler* (PgBouncer, como el de Neon): más
+  // eficiente para las consultas normales, pero no soporta los bloqueos que usa
+  // `prisma migrate`. `directUrl` es opcional (si no está, se usa `url` para todo); en
+  // desarrollo local no hace falta definir `DIRECT_URL` (spec fase 16).
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 

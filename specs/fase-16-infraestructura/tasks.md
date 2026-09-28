@@ -13,9 +13,9 @@ Implementa: [plan.md](plan.md) · Rama: `docs/fase-16-infraestructura`
 
 ## Bloque 1 — Cuentas y despliegue 👤
 
-- [ ] **T16.5** 👤 Crear cuenta en Neon y el proyecto Postgres; guardar la `DATABASE_URL`. — RF-16.2
-- [ ] **T16.6** 👤 Crear cuenta en Render, conectar el repo de GitHub y crear el Blueprint desde `render.yaml`. — RF-16.1, RF-16.4
-- [ ] **T16.7** 👤 Pegar `DATABASE_URL` y `JWT_SECRET` en el panel de Render (variables `sync: false`). — RF-16.6
+- [x] **T16.5** 👤 Crear cuenta en Neon y el proyecto Postgres; guardar la `DATABASE_URL` (con "-pooler") y la `DIRECT_URL` (la misma, sin "-pooler" — ver D-16.8). — RF-16.2
+- [x] **T16.6** 👤 Crear cuenta en Render, conectar el repo de GitHub y crear el Blueprint desde `render.yaml`. — RF-16.1, RF-16.4
+- [ ] **T16.7** 👤 Pegar `DATABASE_URL`, `DIRECT_URL` y `JWT_SECRET` en el panel de Render (variables `sync: false`). — RF-16.6
 - [ ] **T16.8** 👤 Esperar el primer despliegue y confirmar `GET /api/health` en la URL pública. — CA-16.1
 
 ## Bloque 2 — Verificación

@@ -26,6 +26,10 @@ services:
       # Generar con: cd diabetapp-backend && npm run generate-secret
       - key: JWT_SECRET
         sync: false
-      # URL de Neon (incluye usuario, contraseña y ?sslmode=require)
+      # URL de Neon CON el *pooler* (host termina en "-pooler..."), para las consultas normales.
       - key: DATABASE_URL
+        sync: false
+      # La misma URL de Neon SIN "-pooler" en el host: prisma migrate deploy la necesita
+      # porque el *pooler* (PgBouncer) no soporta los bloqueos que usan las migraciones.
+      - key: DIRECT_URL
         sync: false

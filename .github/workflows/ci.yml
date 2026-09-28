@@ -39,6 +39,9 @@ jobs:
       NODE_ENV: test
       # Valores de prueba, sin secretos reales (RNF-4.2)
       DATABASE_URL: postgresql://user:password@localhost:5433/diabetapp_test
+      # Igual que DATABASE_URL: en local/CI no hay *pooler*, así que es la misma conexión
+      # (spec fase 16; `directUrl` en schema.prisma exige que la variable exista).
+      DIRECT_URL: postgresql://user:password@localhost:5433/diabetapp_test
       SHADOW_DATABASE_URL: postgresql://user:password@localhost:5433/diabetapp_shadow
 
     steps:

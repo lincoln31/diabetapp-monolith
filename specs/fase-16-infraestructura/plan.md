@@ -61,10 +61,14 @@ services:
       - key: JWT_SECRET
         sync: false        # se pega a mano en el panel; nunca en este archivo
       - key: DATABASE_URL
-        sync: false        # ídem: URL de Neon con la contraseña incluida
+        sync: false        # ídem: URL de Neon (con "-pooler" en el host) con la contraseña incluida
+      - key: DIRECT_URL
+        sync: false        # la misma URL de Neon SIN "-pooler" (ver D-16.8)
 ```
 
 `sync: false` es lo que le dice a Render "esta variable existe pero no la definas aquí": queda vacía en el blueprint y se completa una sola vez en el panel web, cumpliendo RF-16.6.
+
+- **D-16.8** (encontrada al desplegar) — Neon da la conexión **con *pooler*** (PgBouncer) por defecto, con `-pooler` en el nombre del host (p. ej. `ep-xxx-pooler.c-6.us-east-2.aws.neon.tech`). Esa conexión es la correcta para las consultas normales de la app, pero PgBouncer (en modo *transaction*) no soporta los bloqueos que usa `prisma migrate`. Por eso `schema.prisma` declara `directUrl = env("DIRECT_URL")` además de `url = env("DATABASE_URL")`: Prisma usa `directUrl` solo para migrar, y `url` para todo lo demás. `DIRECT_URL` es la **misma cadena de Neon quitándole `-pooler`** del host (el usuario, la contraseña, la base y el resto quedan igual). En local y en tests, `DIRECT_URL` vale lo mismo que `DATABASE_URL` (no hay *pooler*).
 
 ## 5. Pasos manuales (fuera del alcance del asistente)
 
