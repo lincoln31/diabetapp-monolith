@@ -13,7 +13,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#1D4ED8"
       },
       "package": "com.diabetapp.app"
     },
@@ -40,7 +40,13 @@
       "expo-status-bar",
       "expo-web-browser",
       "expo-sharing",
-      "expo-notifications"
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#1D4ED8"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
