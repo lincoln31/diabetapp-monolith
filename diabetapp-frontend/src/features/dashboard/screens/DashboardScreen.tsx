@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSession } from '@/src/features/auth';
+import { TipCard } from '@/src/features/education';
 import { Button } from '@/src/shared/components/ui';
 import { COLORS } from '@/src/shared/theme/colors';
 import EmptyState from '../components/EmptyState';
@@ -49,6 +50,8 @@ const DashboardScreen = () => {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
     >
       <Text style={styles.greeting}>Hola{user?.firstName ? `, ${user.firstName}` : ''} 👋</Text>
+
+      <TipCard />
 
       {status === 'loading' && (
         <View style={styles.centered}>
@@ -91,6 +94,12 @@ const DashboardScreen = () => {
         title="Mis Logros"
         variant="outline"
         onPress={() => router.push('/achievements')}
+        style={styles.action}
+      />
+      <Button
+        title="Educación"
+        variant="outline"
+        onPress={() => router.push('/education')}
         style={styles.action}
       />
       <ExportReportButton style={styles.action} />
