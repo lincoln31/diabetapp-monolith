@@ -80,10 +80,10 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 7    | Implementada (fusionada en main) |
 | 8    | Implementada (fusionada en main) |
 | 9    | Implementada (fusionada en main) |
-| 10   | Implementada (verificada en dispositivo; pendiente fusionar #92) |
-| 11   | Implementada (verificada en dispositivo; pendiente fusionar #94) |
-| 12   | Implementada (verificada en dispositivo; pendiente fusionar #96) |
-| 13   | Implementada (verificada en dispositivo con la development build; pendiente fusionar #98 y el PR de la fase 14) |
-| 14   | Implementada (verificada en dispositivo; pendiente fusionar) |
-| 15   | Implementada (verificada en dispositivo: recorrido completo, TalkBack y texto al 200 %; pendiente fusionar #101) |
-| 16   | Aprobada (backend en Render + Postgres en Neon, gratis; pendiente que el usuario cree las cuentas — bloque 1 de `tasks.md`) |
+| 10   | Implementada (verificada en dispositivo, fusionada a main) |
+| 11   | Implementada (verificada en dispositivo, fusionada a main) |
+| 12   | Implementada (verificada en dispositivo, fusionada a main) |
+| 13   | Implementada (verificada en dispositivo, fusionada a main) |
+| 14   | Implementada (verificada en dispositivo, fusionada a main) |
+| 15   | Implementada (verificada en dispositivo: recorrido completo, TalkBack y texto al 200 %; fusionada a main) |
+| 16   | Aprobada, fusionada a main (spec/render.yaml); pendiente que el usuario cree las cuentas de Neon/Render — bloque 1 de `tasks.md` |
