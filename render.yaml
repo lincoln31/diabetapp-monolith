@@ -9,10 +9,11 @@ services:
     region: oregon
     rootDir: diabetapp-backend
     buildCommand: npm ci && npx prisma generate && npm run build
-    # Corre una vez por despliegue, después del build y antes de servir tráfico (spec
-    # fase 16, D-16.3): si migrate falla, Render no sustituye la versión que ya funciona.
-    preDeployCommand: npx prisma migrate deploy
-    startCommand: npm start
+    # `preDeployCommand` no existe en el plan gratuito de Render (solo en los pagos), así que
+    # la migración va en el arranque (spec fase 16, D-16.3 revisada): `prisma migrate deploy`
+    # no hace nada si el esquema ya está al día, así que es seguro correrlo en cada arranque,
+    # no solo en cada despliegue.
+    startCommand: npx prisma migrate deploy && npm start
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:

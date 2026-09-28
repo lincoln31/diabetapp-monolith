@@ -34,7 +34,7 @@ No se toca `diabetapp-backend/src/**` (el `TRUST_PROXY` y el `CORS_ORIGIN` confi
 
 - **D-16.1** — Render Web Service (no "Background Worker" ni "Static Site"): el backend expone HTTP.
 - **D-16.2** — `render.yaml` en la raíz del monorepo con `rootDir: diabetapp-backend`, para que Render instale/compile solo ese paquete (no hay *workspaces*, cada proyecto tiene su propio `package.json`, tal como documenta `CLAUDE.md`).
-- **D-16.3** — Migraciones en `preDeployCommand` del blueprint (`npx prisma migrate deploy`), no en `buildCommand`: en Render, `preDeployCommand` corre una sola vez por despliegue, después del build y antes de que el servicio nuevo reciba tráfico; si la migración falla, el despliegue no sustituye a la versión anterior (RF-16.3, CA-16.4).
+- **D-16.3** (revisada al desplegar) — `preDeployCommand` **no existe en el plan gratuito de Render** (Render lo rechaza: "pre-deploy command is not supported for free tier services"; es una función de los planes pagos). La migración va entonces al inicio de `startCommand` (`npx prisma migrate deploy && npm start`): se pierde la garantía de "si falla, no se sustituye la versión anterior" (eso solo lo da `preDeployCommand`/`release`), pero `prisma migrate deploy` es **idempotente** — no hace nada si el esquema ya está al día —, así que correrlo en cada arranque (no solo en cada despliegue) es seguro. Si el plan pasara a uno pago (§8 de la spec, camino de salida), se puede volver a `preDeployCommand` sin más cambios.
 - **D-16.4** (resuelve el `[NECESITA ACLARACIÓN]` de la spec) — el despliegue se dispara desde `main`, igual que el resto del proyecto (`specs/README.md` ya usa `main`/`Develop` como ramas de integración); no se crea una rama `production` aparte para no duplicar el flujo de PRs.
 - **D-16.5** — `CORS_ORIGIN` en producción: como la app es Expo (React Native, no web), las peticiones no llevan `Origin` de navegador; se deja `CORS_ORIGIN` en su valor por defecto salvo que en el futuro haya una versión web. RF-16.5 se cumple igual porque `TRUST_PROXY=1` sí es indispensable (si no, `express-rate-limit` limitaría por la IP del proxy de Render, no la del celular).
 - **D-16.6** — `JWT_SECRET` de producción: se genera con el script que ya existe (`npm run generate-secret`, backend) y se pega una sola vez en el panel de Render; nunca se guarda en un archivo.
@@ -50,8 +50,7 @@ services:
     plan: free
     rootDir: diabetapp-backend
     buildCommand: npm ci && npx prisma generate && npm run build
-    preDeployCommand: npx prisma migrate deploy
-    startCommand: npm start
+    startCommand: npx prisma migrate deploy && npm start
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
@@ -84,7 +83,7 @@ Estos pasos requieren una cuenta y un navegador; el asistente los documenta y gu
 |---|---|
 | *Cold start* del plan gratuito de Render hace lenta la primera petición tras inactividad | Aceptado (RNF-16.2); si molesta en el uso diario, el camino de salida a Railway (§8 de la spec) no cambia código. |
 | El plan gratuito de Render duerme el servicio tras 15 min sin tráfico | Mismo trade-off; no se agrega un *cron* externo para mantenerlo despierto (violaría P8, simplicidad, por un problema aceptado). |
-| Migraciones que fallan en `release` dejan el despliegue a medias | Render no enruta tráfico al despliegue nuevo si el paso `release` falla (D-16.3); el servicio anterior sigue respondiendo. |
+| Migraciones que fallan en el arranque (plan gratuito, sin `preDeployCommand`) | El servicio no llega a levantar (`npx prisma migrate deploy && npm start` corta la cadena), así que no queda sirviendo a medio migrar; Render lo marca como fallido y se ve en los logs. Es peor que el `preDeployCommand` de los planes pagos (ahí la versión anterior sigue respondiendo mientras se corrige), pero aceptable para RNF-16.1 ($0/mes). |
 | `JWT_SECRET` distinto entre desarrollo y producción invalida sesiones viejas al desplegar por primera vez | Esperado: es la primera vez que existe un `JWT_SECRET` de producción, no hay sesiones previas que perder. |
 
 ## 7. Definición de terminado del plan
