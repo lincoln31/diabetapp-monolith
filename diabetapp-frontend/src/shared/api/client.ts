@@ -72,8 +72,7 @@ http.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const config = error.config as
-      | (AxiosRequestConfig & { _retry?: boolean; _coldStartRetry?: boolean })
-      | undefined;
+      (AxiosRequestConfig & { _retry?: boolean; _coldStartRetry?: boolean }) | undefined;
     const apiError = toApiError(error);
 
     // En vez de mostrar el error de una, se reintenta una sola vez con más margen: la

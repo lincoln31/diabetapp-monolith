@@ -141,7 +141,11 @@ describe('cliente HTTP: renovación única', () => {
       .onGet('/glucose')
       .networkErrorOnce()
       .onGet('/glucose')
-      .reply(200, { success: true, data: [], meta: { page: 1, limit: 50, total: 0, totalPages: 0 } });
+      .reply(200, {
+        success: true,
+        data: [],
+        meta: { page: 1, limit: 50, total: 0, totalPages: 0 },
+      });
 
     await setTokens({ accessToken: 'valido', refreshToken: 'r1' });
 
