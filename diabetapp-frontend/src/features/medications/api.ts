@@ -13,5 +13,12 @@ export const medicationsApi = {
 
   logIntake: (id: string) => post<{ id: string }>(`/medications/${id}/intakes`, {}),
 
+  /** «No tomé esta dosis», con un motivo opcional (no cuenta como toma cumplida). */
+  logSkip: (id: string, skipReason?: string) =>
+    post<{ id: string }>(`/medications/${id}/intakes`, {
+      taken: false,
+      skipReason: skipReason?.trim() || undefined,
+    }),
+
   getAdherence: () => get<AdherenceStats>('/medications/adherence'),
 };

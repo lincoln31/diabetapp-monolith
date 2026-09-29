@@ -49,6 +49,7 @@ export class MedicationsService {
         SELECT "medicationId", COUNT(*)::int AS count
         FROM medication_intakes
         WHERE "userId" = ${userId}
+          AND taken = true
           AND (("takenAt" AT TIME ZONE 'UTC') AT TIME ZONE ${tz})::date
               = (now() AT TIME ZONE ${tz})::date
         GROUP BY "medicationId"`,
@@ -84,7 +85,18 @@ export class MedicationsService {
     if (count === 0) throw new AppError('NOT_FOUND');
   }
 
-  async logIntake(id: string, userId: string, takenAt: Date = new Date()) {
+  /**
+   * Registra una toma (`taken: true`, por defecto) o que el paciente marcó que NO la tomó,
+   * con un motivo opcional (`taken: false`); ese caso no cuenta como toma cumplida (RF de
+   * adherencia): `list()` y `getAdherence()` filtran por `taken = true`.
+   */
+  async logIntake(
+    id: string,
+    userId: string,
+    takenAt: Date = new Date(),
+    taken = true,
+    skipReason?: string | null,
+  ) {
     const medication = await prisma.medication.findFirst({
       where: { id, userId, active: true },
       select: { id: true },
@@ -92,8 +104,8 @@ export class MedicationsService {
     if (!medication) throw new AppError('NOT_FOUND');
 
     return prisma.medicationIntake.create({
-      data: { medicationId: id, userId, takenAt },
-      select: { id: true, medicationId: true, takenAt: true },
+      data: { medicationId: id, userId, takenAt, taken, skipReason: taken ? null : skipReason },
+      select: { id: true, medicationId: true, takenAt: true, taken: true, skipReason: true },
     });
   }
 
@@ -114,6 +126,7 @@ export class MedicationsService {
                COUNT(*)::int AS taken
         FROM medication_intakes
         WHERE "userId" = ${userId}
+          AND taken = true
           AND "takenAt" >= now() - interval '31 days'
         GROUP BY 1, 2`,
       prisma.$queryRaw<{ today: string }[]>`

@@ -82,5 +82,22 @@ export const useMedications = () => {
     [load, toast],
   );
 
-  return { ...state, busyId, refreshing, refresh, reload: retry, logIntake };
+  /** «No tomé esta dosis» (motivo opcional): no cuenta en la adherencia. */
+  const logSkip = useCallback(
+    async (medication: Medication, reason?: string) => {
+      setBusyId(medication.id);
+      try {
+        await medicationsApi.logSkip(medication.id, reason);
+        toast.show(`Se registró que no tomaste: ${medication.name}`);
+        await load();
+      } catch (error) {
+        toast.show(toApiError(error).message, 'error');
+      } finally {
+        setBusyId(null);
+      }
+    },
+    [load, toast],
+  );
+
+  return { ...state, busyId, refreshing, refresh, reload: retry, logIntake, logSkip };
 };

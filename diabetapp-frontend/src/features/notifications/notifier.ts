@@ -152,6 +152,37 @@ export const syncSchedule = async (items: ScheduledItem[]): Promise<void> => {
   }
 };
 
+/**
+ * Recordatorio puntual en una fecha exacta (spec: «Recordármelo en 2 horas» al registrar
+ * glucosa), a diferencia de `syncSchedule` (diario) y `notifyNow` (inmediata). Si la fecha
+ * ya pasó, `expo-notifications` la dispara casi al instante en vez de rechazarla: quien llama
+ * debe comprobar antes que `date` sigue en el futuro.
+ */
+export const scheduleReminder = async (
+  id: string,
+  title: string,
+  body: string,
+  date: Date,
+): Promise<void> => {
+  const Notifications = load();
+  if (!Notifications) return;
+
+  try {
+    await configure(Notifications);
+    await Notifications.scheduleNotificationAsync({
+      identifier: id,
+      content: { title, body },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date,
+        channelId: CHANNEL_ID,
+      },
+    });
+  } catch (error) {
+    console.warn('No se pudo programar el recordatorio', error);
+  }
+};
+
 /** Notificación inmediata (aviso de logro nuevo). */
 export const notifyNow = async (title: string, body: string): Promise<void> => {
   const Notifications = load();

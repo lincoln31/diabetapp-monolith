@@ -128,6 +128,35 @@ describe('/api/medications', () => {
       expect(list.body.data.medications[0].takenToday).toBe(1);
     });
 
+    it('marcar que NO se tomó una dosis, con motivo, no sube takenToday', async () => {
+      const { accessToken } = await registerUser();
+      const { id } = (await createMedication(accessToken)).body.data;
+
+      const skip = await api()
+        .post(`/api/medications/${id}/intakes`)
+        .set(authHeader(accessToken))
+        .send({ taken: false, skipReason: 'Se me olvidó' });
+
+      expect(skip.status).toBe(201);
+      expect(skip.body.data).toMatchObject({ taken: false, skipReason: 'Se me olvidó' });
+
+      const list = await api().get('/api/medications').set(authHeader(accessToken));
+      expect(list.body.data.medications[0].takenToday).toBe(0);
+    });
+
+    it('el motivo de no tomar es opcional', async () => {
+      const { accessToken } = await registerUser();
+      const { id } = (await createMedication(accessToken)).body.data;
+
+      const skip = await api()
+        .post(`/api/medications/${id}/intakes`)
+        .set(authHeader(accessToken))
+        .send({ taken: false });
+
+      expect(skip.status).toBe(201);
+      expect(skip.body.data.skipReason).toBeNull();
+    });
+
     it('una toma de ayer no cuenta como de hoy', async () => {
       const { accessToken } = await registerUser();
       const { id } = (await createMedication(accessToken)).body.data;
@@ -199,6 +228,19 @@ describe('/api/medications', () => {
 
       expect(response.body.data.days7).toEqual({ expected: 2, taken: 1, percent: 50 });
       expect(response.body.data.days30).toEqual({ expected: 2, taken: 1, percent: 50 });
+    });
+
+    it('marcar que NO se tomó una dosis no cuenta en la adherencia', async () => {
+      const { accessToken } = await registerUser();
+      const { id } = (await createMedication(accessToken)).body.data;
+      await api()
+        .post(`/api/medications/${id}/intakes`)
+        .set(authHeader(accessToken))
+        .send({ taken: false, skipReason: 'Efectos secundarios' });
+
+      const response = await api().get('/api/medications/adherence').set(authHeader(accessToken));
+
+      expect(response.body.data.days7).toEqual({ expected: 2, taken: 0, percent: 0 });
     });
 
     it('cuenta las tomas de días pasados de un medicamento antiguo', async () => {

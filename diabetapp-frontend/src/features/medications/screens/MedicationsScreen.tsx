@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -6,6 +6,7 @@ import {
   Card,
   EmptyView,
   ErrorView,
+  Input,
   LoadingView,
   Screen,
 } from '@/src/shared/components/ui';
@@ -21,12 +22,27 @@ interface MedicationRowProps {
   medication: Medication;
   busy: boolean;
   onLogIntake: () => void;
+  onLogSkip: (reason?: string) => void;
   onEdit: () => void;
 }
 
-const MedicationRow = ({ medication, busy, onLogIntake, onEdit }: MedicationRowProps) => {
+const MedicationRow = ({
+  medication,
+  busy,
+  onLogIntake,
+  onLogSkip,
+  onEdit,
+}: MedicationRowProps) => {
   const { name, dosage, scheduledTimes, notes, takenToday } = medication;
   const total = scheduledTimes.length;
+  const [skipping, setSkipping] = useState(false);
+  const [reason, setReason] = useState('');
+
+  const confirmSkip = () => {
+    onLogSkip(reason);
+    setSkipping(false);
+    setReason('');
+  };
 
   return (
     <Card padding="large" style={styles.row}>
@@ -61,6 +77,49 @@ const MedicationRow = ({ medication, busy, onLogIntake, onEdit }: MedicationRowP
           onPress={onEdit}
         />
       </View>
+
+      {skipping ? (
+        <View style={styles.skipForm}>
+          <Input
+            label="Motivo (opcional)"
+            placeholder="Ej. Se me olvidó"
+            value={reason}
+            onChangeText={setReason}
+            maxLength={200}
+          />
+          <View style={styles.skipFormActions}>
+            <Button
+              title="Cancelar"
+              variant="tertiary"
+              size="small"
+              onPress={() => {
+                setSkipping(false);
+                setReason('');
+              }}
+            />
+            <Button
+              title="Confirmar"
+              variant="tertiary"
+              tone="danger"
+              size="small"
+              loading={busy}
+              disabled={busy}
+              onPress={confirmSkip}
+            />
+          </View>
+        </View>
+      ) : (
+        <Button
+          title="No tomé esta dosis"
+          variant="tertiary"
+          tone="danger"
+          size="small"
+          icon="close-circle"
+          accessibilityLabel={`Marcar que no tomaste ${name}`}
+          onPress={() => setSkipping(true)}
+          style={styles.skipTrigger}
+        />
+      )}
     </Card>
   );
 };
@@ -120,6 +179,7 @@ const MedicationsScreen = () => {
                 medication={medication}
                 busy={meds.busyId === medication.id}
                 onLogIntake={() => void meds.logIntake(medication)}
+                onLogSkip={(reason) => void meds.logSkip(medication, reason)}
                 onEdit={() =>
                   router.push({ pathname: '/medications/form', params: { id: medication.id } })
                 }
@@ -162,6 +222,9 @@ const styles = StyleSheet.create({
   },
   actions: { flexDirection: 'row', alignItems: 'center', columnGap: space.sm, marginTop: space.md },
   actionMain: { flex: 1 },
+  skipTrigger: { alignSelf: 'flex-start', marginTop: space.sm },
+  skipForm: { marginTop: space.sm, rowGap: space.sm },
+  skipFormActions: { flexDirection: 'row', justifyContent: 'flex-end', columnGap: space.sm },
 });
 
 export default MedicationsScreen;

@@ -59,6 +59,12 @@ module.exports = defineConfig([
               except: ['./index.ts'],
               message: 'Importa otra funcionalidad solo desde su index.ts.',
             },
+            {
+              target: './src/features/glucose',
+              from: './src/features/notifications',
+              except: ['./index.ts'],
+              message: 'Importa otra funcionalidad solo desde su index.ts.',
+            },
           ],
         },
       ],

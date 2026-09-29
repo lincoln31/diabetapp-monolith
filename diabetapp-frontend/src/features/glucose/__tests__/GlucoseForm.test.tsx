@@ -22,6 +22,13 @@ jest.mock('@/src/features/profile', () => ({
   useProfile: () => ({ profile: { targetGlucoseMin: 80, targetGlucoseMax: 180 } }),
 }));
 
+const mockEnsurePermission = jest.fn();
+const mockScheduleReminder = jest.fn();
+jest.mock('@/src/features/notifications', () => ({
+  ensurePermission: (...a: unknown[]) => mockEnsurePermission(...a),
+  scheduleReminder: (...a: unknown[]) => mockScheduleReminder(...a),
+}));
+
 const mockShow = jest.fn();
 jest.mock('@/src/shared/components/ui/Toast', () => ({
   ToastProvider: ({ children }: { children: React.ReactNode }) => children,
@@ -116,6 +123,34 @@ describe('GlucoseForm — registrar', () => {
     await waitFor(() => expect(mockBack).toHaveBeenCalled(), WAIT);
     expect(mockShow).toHaveBeenCalledWith('Medición guardada: 112 mg/dL');
     expect(alertSpy).not.toHaveBeenCalled(); // sin «¡Éxito!» modal
+  });
+
+  it('con «Recordármelo en 2 horas» marcado, programa el recordatorio al guardar', async () => {
+    mockCreate.mockResolvedValue({ id: 'nuevo' });
+    mockEnsurePermission.mockResolvedValue('granted');
+    const { getByLabelText, getByRole } = await render(<GlucoseForm />);
+
+    await fireEvent.changeText(getByLabelText('Nivel de glucosa'), '112');
+    await fireEvent.press(getByRole('checkbox', { name: 'Recordármelo en 2 horas' }));
+    await fireEvent.press(getByRole('button', { name: 'Guardar medición' }));
+
+    await waitFor(() => expect(mockScheduleReminder).toHaveBeenCalled(), WAIT);
+    expect(mockScheduleReminder.mock.calls[0][0]).toBe('glucose-reminder-nuevo');
+    expect(mockScheduleReminder.mock.calls[0][3].getTime() - Date.now()).toBeGreaterThan(
+      1000 * 60 * 60, // ~2 horas, con margen para lo que tarda el test
+    );
+  });
+
+  it('sin marcar «Recordármelo en 2 horas», no programa nada', async () => {
+    mockCreate.mockResolvedValue({ id: 'nuevo' });
+    const { getByLabelText, getByRole } = await render(<GlucoseForm />);
+
+    await fireEvent.changeText(getByLabelText('Nivel de glucosa'), '112');
+    await fireEvent.press(getByRole('button', { name: 'Guardar medición' }));
+
+    await waitFor(() => expect(mockCreate).toHaveBeenCalled(), WAIT);
+    expect(mockScheduleReminder).not.toHaveBeenCalled();
+    expect(mockEnsurePermission).not.toHaveBeenCalled();
   });
 
   it('si falla por la red muestra el error y conserva lo escrito', async () => {

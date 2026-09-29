@@ -151,6 +151,10 @@ model MedicationIntake {
 
   takenAt      DateTime
   createdAt    DateTime   @default(now())
+  // `false` = el paciente marcó que NO tomó esa dosis, con un motivo opcional. No cuenta como
+  // toma cumplida en la adherencia (spec: motivo al no tomar una dosis).
+  taken        Boolean    @default(true)
+  skipReason   String?
 
   @@index([userId, takenAt])
   @@index([medicationId])

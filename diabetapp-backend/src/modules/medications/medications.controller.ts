@@ -42,9 +42,11 @@ export const archiveMedication = async (req: Request, res: Response) => {
 
 export const logMedicationIntake = async (req: Request, res: Response) => {
   const { id } = validatedParams<MedicationIdParams>(req);
-  const { takenAt } = validatedBody<LogIntakeInput>(req);
+  const { takenAt, taken, skipReason } = validatedBody<LogIntakeInput>(req);
 
-  return ok(res, await medicationsService.logIntake(id, req.user!.id, takenAt), { status: 201 });
+  return ok(res, await medicationsService.logIntake(id, req.user!.id, takenAt, taken, skipReason), {
+    status: 201,
+  });
 };
 
 export const getMedicationAdherence = async (req: Request, res: Response) => {

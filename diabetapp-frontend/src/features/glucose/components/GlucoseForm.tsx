@@ -4,12 +4,21 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Chips, FormError, Input, Screen, useToast } from '@/src/shared/components/ui';
+import {
+  Button,
+  Checkbox,
+  Chips,
+  FormError,
+  Input,
+  Screen,
+  useToast,
+} from '@/src/shared/components/ui';
 import ScreenHeader from '@/src/shared/components/ui/ScreenHeader';
 import { toApiError } from '@/src/shared/api/errors';
 import { applyServerErrors } from '@/src/shared/forms/applyServerErrors';
 import { color, space, type } from '@/src/shared/theme/tokens';
 import { useProfile } from '@/src/features/profile';
+import { ensurePermission, scheduleReminder } from '@/src/features/notifications';
 import { glucoseApi } from '../api';
 import { GLUCOSE_MAX, GLUCOSE_MIN, MOMENT_OF_DAY_OPTIONS, NOTES_MAX_LENGTH } from '../constants';
 import { formatWhen } from '../history';
@@ -20,6 +29,10 @@ import { GlucoseReading } from '../types';
 import RangeAlert from './RangeAlert';
 
 const FIELDS = ['value', 'momentOfDay', 'notes', 'timestamp'] as const;
+const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+// Función de módulo, no del cuerpo del componente: `Date.now()` es impura y
+// `react-hooks/purity` no permite llamarla directamente al renderizar.
+const isFuture = (date: Date): boolean => date.getTime() > Date.now();
 
 interface GlucoseFormProps {
   /** Con una medición existente el formulario edita; sin ella, registra una nueva. */
@@ -41,6 +54,7 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
   const [showNotes, setShowNotes] = useState(Boolean(reading?.notes));
   const [formError, setFormError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [remindLater, setRemindLater] = useState(false);
 
   const initialTimestamp = reading ? new Date(reading.timestamp) : new Date();
 
@@ -99,6 +113,25 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
     }
   };
 
+  /** «Recordármelo en 2 horas»: un aviso puntual, no la reprogramación diaria de la fase 13. */
+  const scheduleTwoHourReminder = async (readingId: string, glucoseValue: number) => {
+    const remindAt = new Date(timestamp.getTime() + TWO_HOURS_MS);
+    if (!isFuture(remindAt)) return; // Hora ya pasada: no tiene sentido avisar
+
+    const permission = await ensurePermission();
+    if (permission !== 'granted') {
+      toast.show('No se pudo programar el recordatorio: activa las notificaciones');
+      return;
+    }
+
+    await scheduleReminder(
+      `glucose-reminder-${readingId}`,
+      'Hora de tu próxima medición',
+      `Registraste ${glucoseValue} mg/dL hace 2 horas. Es un buen momento para volver a medir.`,
+      remindAt,
+    );
+  };
+
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
     const input = {
@@ -111,9 +144,11 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
     try {
       if (reading) {
         await glucoseApi.update(reading.id, { ...input, notes: values.notes.trim() });
+        if (remindLater) await scheduleTwoHourReminder(reading.id, input.value);
         toast.show('Cambios guardados');
       } else {
-        await glucoseApi.create(input);
+        const created = await glucoseApi.create(input);
+        if (remindLater) await scheduleTwoHourReminder(created.id, input.value);
         toast.show(`Medición guardada: ${input.value} mg/dL`);
       }
       router.back();
@@ -228,6 +263,13 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
         )}
       />
 
+      <Checkbox
+        checked={remindLater}
+        onPress={() => setRemindLater((v) => !v)}
+        label="Recordármelo en 2 horas"
+        containerStyle={styles.remindLater}
+      />
+
       <View style={styles.notes}>
         {showNotes ? (
           <Controller
@@ -298,6 +340,7 @@ const styles = StyleSheet.create({
   },
   when: { fontSize: type.body.fontSize, lineHeight: type.body.lineHeight, color: color.text },
   error: { fontSize: type.caption.fontSize, color: color.danger, fontWeight: '600' },
+  remindLater: { marginTop: space.lg },
   notes: { marginTop: space.lg },
   notesInput: { minHeight: 80, textAlignVertical: 'top' },
   addNote: { alignSelf: 'flex-start' },

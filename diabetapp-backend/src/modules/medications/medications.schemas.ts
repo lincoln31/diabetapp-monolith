@@ -44,6 +44,9 @@ export const logIntakeSchema = z.object({
     )
     .transform((value) => new Date(value))
     .optional(),
+  // `false` = "no tomé esta dosis"; no cuenta como toma cumplida en la adherencia.
+  taken: z.boolean().default(true),
+  skipReason: z.string().trim().max(200, 'El motivo no puede superar 200 caracteres').nullish(),
 });
 
 export type CreateMedicationInput = z.infer<typeof createMedicationSchema>;

@@ -36,6 +36,7 @@ const state = (overrides: object = {}) => ({
   busyId: null,
   reload: jest.fn(),
   logIntake: jest.fn(),
+  logSkip: jest.fn(),
   ...overrides,
 });
 
@@ -61,6 +62,41 @@ describe('MedicationsScreen', () => {
     await fireEvent.press(getByText('Registrar toma'));
 
     expect(logIntake).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1' }));
+  });
+
+  it('«No tomé esta dosis» pide un motivo opcional y lo manda al confirmar', async () => {
+    const logSkip = jest.fn();
+    mockUseMedications.mockReturnValue(state({ logSkip }));
+
+    const { getByText, getByLabelText } = await render(<MedicationsScreen />);
+    await fireEvent.press(getByText('No tomé esta dosis'));
+    await fireEvent.changeText(getByLabelText('Motivo (opcional)'), 'Se me olvidó');
+    await fireEvent.press(getByText('Confirmar'));
+
+    expect(logSkip).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1' }), 'Se me olvidó');
+  });
+
+  it('«No tomé esta dosis» se puede confirmar sin motivo', async () => {
+    const logSkip = jest.fn();
+    mockUseMedications.mockReturnValue(state({ logSkip }));
+
+    const { getByText } = await render(<MedicationsScreen />);
+    await fireEvent.press(getByText('No tomé esta dosis'));
+    await fireEvent.press(getByText('Confirmar'));
+
+    expect(logSkip).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1' }), '');
+  });
+
+  it('«Cancelar» cierra el formulario de motivo sin llamar a logSkip', async () => {
+    const logSkip = jest.fn();
+    mockUseMedications.mockReturnValue(state({ logSkip }));
+
+    const { getByText, queryByText } = await render(<MedicationsScreen />);
+    await fireEvent.press(getByText('No tomé esta dosis'));
+    await fireEvent.press(getByText('Cancelar'));
+
+    expect(logSkip).not.toHaveBeenCalled();
+    expect(queryByText('Confirmar')).toBeNull();
   });
 
   it('con la lista vacía invita a agregar el primer medicamento', async () => {
