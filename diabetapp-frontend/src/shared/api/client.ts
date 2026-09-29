@@ -32,6 +32,13 @@ http.interceptors.request.use(async (config) => {
 });
 
 /**
+ * El plan gratuito de Render "duerme" el backend tras ~15 min sin tráfico: la primera
+ * petición después de eso puede tardar 30-50 s en responder, más que `API_TIMEOUT_MS`
+ * (spec fase 16, RNF-16.2).
+ */
+const COLD_START_TIMEOUT_MS = 45000;
+
+/**
  * Renovación única: si varias peticiones caducan a la vez, todas esperan
  * la misma promesa y se repiten con el token nuevo (spec fase 2, RF-2.19).
  */
@@ -44,9 +51,12 @@ const doRefresh = async (): Promise<string> => {
     throw new Error('SIN_SESION');
   }
 
+  // Con más margen: si esto falla por tiempo agotado, es la llamada que más chance tiene de
+  // toparse con el servidor recién despertando (pasó un rato desde el último uso).
   const response = await plain.post<ApiSuccess<{ accessToken: string; refreshToken: string }>>(
     '/auth/refresh',
     { refreshToken: tokens.refreshToken },
+    { timeout: COLD_START_TIMEOUT_MS },
   );
 
   const { accessToken, refreshToken } = response.data.data;
@@ -61,8 +71,23 @@ const isAuthEndpoint = (url?: string): boolean =>
 http.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const config = error.config as (AxiosRequestConfig & { _retry?: boolean }) | undefined;
+    const config = error.config as
+      | (AxiosRequestConfig & { _retry?: boolean; _coldStartRetry?: boolean })
+      | undefined;
     const apiError = toApiError(error);
+
+    // En vez de mostrar el error de una, se reintenta una sola vez con más margen: la
+    // mayoría de las veces el servidor ya despertó y la petición pasa sola.
+    if (apiError.code === 'NETWORK_ERROR' && config && !config._coldStartRetry) {
+      config._coldStartRetry = true;
+      config.timeout = COLD_START_TIMEOUT_MS;
+
+      try {
+        return await http(config);
+      } catch (retryError) {
+        return Promise.reject(toApiError(retryError));
+      }
+    }
 
     if (
       apiError.code === 'TOKEN_EXPIRED' &&
@@ -78,10 +103,17 @@ http.interceptors.response.use(
 
         config.headers = { ...config.headers, Authorization: `Bearer ${accessToken}` };
         return http(config);
-      } catch {
-        // La renovación falló: la sesión terminó de verdad
-        await clearTokens();
-        notifySessionExpired();
+      } catch (refreshError) {
+        // Si el backend no respondió (el celular sin datos, o el *cold start* del plan
+        // gratuito de Render: la primera petición tras un rato inactivo puede tardar
+        // 30-50 s, más que API_TIMEOUT_MS) la sesión sigue siendo válida — no se sabe si el
+        // token de renovación de verdad venció. Cerrar sesión aquí forzaba un login de más
+        // cada vez que el servidor tardaba en despertar (hallazgo de uso real). Solo se cierra
+        // la sesión cuando el backend respondió y dijo que el token ya no sirve.
+        if (toApiError(refreshError).code !== 'NETWORK_ERROR') {
+          await clearTokens();
+          notifySessionExpired();
+        }
       }
     }
 

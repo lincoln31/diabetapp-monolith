@@ -86,9 +86,12 @@ const Screen = ({
       ]}
     >
       {keyboard ? (
+        // "height" en Android, no `undefined`: con el modo edge-to-edge (por defecto desde
+        // Expo SDK 54), `windowSoftInputMode="adjustResize"` del manifest ya no basta por sí
+        // solo y el teclado tapaba el campo que se estaba editando (hallazgo de uso real).
         <KeyboardAvoidingView
           style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           {inner}
         </KeyboardAvoidingView>
