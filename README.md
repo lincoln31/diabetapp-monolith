@@ -1,134 +1,111 @@
-# 🩸 DiabetApp (in progress)
+# 🩸 DiabetApp
 
-Una aplicación móvil completa para el seguimiento y gestión de la diabetes, construida con React Native (Expo) y Node.js.
+Una aplicación móvil completa para el seguimiento y gestión de la diabetes, construida con React Native (Expo) y Node.js. El backend está en producción en [Render](https://diabetapp-backend.onrender.com) + [Neon](https://neon.tech).
 
 ## 📋 Descripción
 
-DiabetApp es una solución integral que ayuda a las personas con diabetes a monitorear sus niveles de glucosa, mantener un registro de sus medicamentos y seguir un plan de tratamiento personalizado. La aplicación está diseñada con un enfoque en la usabilidad y la experiencia del usuario, proporcionando herramientas esenciales para el manejo diario de la diabetes.
+DiabetApp es una solución integral que ayuda a las personas con diabetes a monitorear sus niveles de glucosa, su medicación, su actividad física y su avance hacia sus metas. La aplicación está diseñada con un enfoque en la usabilidad, con recordatorios locales, contenido educativo y un sistema de logros que motiva la constancia diaria.
+
+## 📸 Capturas
+
+| Hoy | Glucosa | Medicación |
+| --- | --- | --- |
+| ![Pantalla Hoy](docs/screenshots/hoy.png) | ![Pantalla Glucosa](docs/screenshots/glucosa.png) | ![Pantalla Medicación](docs/screenshots/medicacion.png) |
+
+| Actividad | Logros | Educación |
+| --- | --- | --- |
+| ![Pantalla Actividad](docs/screenshots/actividad.png) | ![Pantalla Logros](docs/screenshots/logros.png) | ![Pantalla Educación](docs/screenshots/educacion.png) |
 
 ## ✨ Características Principales
 
 ### 🔐 Autenticación y Seguridad
 
-- Sistema de registro e inicio de sesión seguro
-- Autenticación JWT
-- Encriptación de contraseñas con bcrypt
-- Protección de datos médicos sensibles
+- Registro e inicio de sesión con JWT de 15 min + token de renovación opaco de 30 días (rotación y revocación de cadena de sesión)
+- Contraseñas con bcrypt, `helmet`, rate limiting en login/registro/refresh y protección contra IDOR
+- Revisado contra OWASP Top 10
 
-### 📊 Monitoreo de Glucosa
+### 📊 Glucosa
 
-- Registro de lecturas de glucosa con timestamp
-- Categorización por momento del día (ayunas, después de comidas, etc.)
-- Notas personalizadas para cada registro
-- Validación de rangos de valores (20-600 mg/dL)
+- Registro de lecturas con momento del día y notas, promedios de 7/14/30 días y proyección de HbA1c
+- Gráfico de tendencia, racha de días seguidos y exportación del historial en CSV/PDF
+- Recordatorio local opcional 2 horas después de una lectura, para volver a medir
 
-### 👤 Perfil Personalizado
+### 💊 Medicación
 
-- Información personal y médica
-- Tipo de diabetes (Tipo 1, Tipo 2, Gestacional, Prediabetes)
-- Metas personalizadas de HbA1c y glucosa
-- Configuración de medicamentos y actividad física
+- CRUD de medicamentos con horarios, registro de tomas y % de adherencia de 7/30 días
+- Motivo opcional al registrar que **no** se tomó una dosis
 
-### 🎯 Metas y Seguimiento
+### 🏃 Actividad
 
-- Establecimiento de metas diarias de glucometrías
-- Objetivos de ejercicio físico
-- Seguimiento de progreso personalizado
+- Registro de ejercicio (con cronómetro) y comparación de glucosa en días con/sin ejercicio
+
+### 🏆 Logros y 📚 Educación
+
+- Catálogo de logros por racha y por lecturas totales
+- Consejo del día, calculadora de carbohidratos y guías/FAQs (contenido local, sin backend)
+
+### 🔔 Notificaciones locales
+
+- Recordatorios de medicación, glucosa y motivacionales, sincronizados desde el perfil (sin servidor push)
+
+### 👤 Perfil y metas
+
+- Tipo de diabetes, rangos de glucosa y HbA1c, metas de lecturas diarias y minutos de ejercicio
 
 ## 🏗️ Arquitectura del Proyecto
 
-El proyecto está estructurado como un monorepo con dos componentes principales:
+Monorepo con dos proyectos independientes (sin workspaces), cada uno con su propio `package.json`:
 
 ```
 diabetapp-monolith/
-├── diabetapp-backend/     # API REST con Node.js + Express
-├── diabetapp-frontend/    # App móvil con React Native + Expo
-└── README.md
+├── diabetapp-backend/     # API REST: Express 5 + TypeScript + Prisma + PostgreSQL
+├── diabetapp-frontend/    # App Expo (SDK 57) con Expo Router
+├── specs/                 # Especificaciones del proceso SDD (spec → plan → tareas)
+└── scripts/dev.sh         # Automatización de desarrollo local (make up/build/release)
 ```
 
 ### Backend (`diabetapp-backend/`)
 
-- **Framework**: Node.js con Express
-- **Base de datos**: PostgreSQL con Prisma ORM
-- **Autenticación**: JWT + bcrypt
-- **Validación**: Zod
-- **Contenedorización**: Docker Compose
+- **Framework**: Express 5 + TypeScript (CommonJS)
+- **Base de datos**: PostgreSQL con Prisma ORM (Neon en producción)
+- **Autenticación**: JWT + bcrypt, refresh tokens con hash SHA-256
+- **Validación**: Zod 4
+- **Despliegue**: Render (Web Service, plan gratuito), migraciones en `startCommand`
 
 ### Frontend (`diabetapp-frontend/`)
 
-- **Framework**: React Native con Expo
-- **Navegación**: Expo Router
-- **UI Components**: Componentes personalizados
-- **Estado**: React Hooks
-- **HTTP Client**: Axios
+- **Framework**: Expo SDK 57 + React Native 0.86 + React 19.2
+- **Navegación**: Expo Router (file-based), 5 pestañas principales
+- **Formularios**: react-hook-form + Zod
+- **HTTP Client**: Axios (con reintento automático ante *cold start* del backend)
+- **Notificaciones**: expo-notifications (solo en development build, no en Expo Go)
 
-## 📱 Uso de la Aplicación
+## 📱 Probar la app
 
-### Registro e Inicio de Sesión
+Ver `CLAUDE.md` para los comandos completos. En resumen:
 
-1. Abre la aplicación en tu dispositivo móvil
-2. Crea una cuenta nueva o inicia sesión con credenciales existentes
-3. Completa el proceso de onboarding con tu información médica
-
-### Registro de Glucosa
-
-1. Toca el botón "+" para agregar una nueva lectura
-2. Ingresa el valor de glucosa en mg/dL
-3. Selecciona el momento del día
-4. Agrega notas opcionales
-5. Guarda el registro
-
-### Seguimiento
-
-- Revisa tu historial de lecturas
-- Monitorea tu progreso hacia las metas establecidas
-- Recibe recordatorios personalizados
-
-## 🗄️ Base de Datos
-
-### Modelos Principales
-
-#### User
-
-- Información personal y médica
-- Configuración de metas y preferencias
-- Datos de autenticación
-
-#### GlucoseReading
-
-- Valores de glucosa
-- Timestamp y contexto
-- Notas del usuario
+- **Celular por USB/WiFi**: `make doctor` y luego `make up` (requiere Docker y `make`)
+- **Solo backend + frontend en local**: `docker compose up -d` en `diabetapp-backend/` y `npm run dev`; `npm start` en `diabetapp-frontend/`
+- **Contra producción sin nada local**: cambia `EXPO_PUBLIC_API_URL` en `diabetapp-frontend/.env` a `https://diabetapp-backend.onrender.com/api`
 
 ## 🔒 Seguridad
 
-- Contraseñas encriptadas con bcrypt (12 rounds)
-- Autenticación JWT
-- Validación de datos con Zod
-- Protección CORS configurada
-- Manejo seguro de datos médicos
+- Contraseñas con bcrypt, JWT de corta duración + refresh token hasheado y rotado
+- Validación de datos con Zod en cada capa, `helmet`, rate limiting, límite de tamaño de body
+- Recursos de usuario siempre filtrados por `userId`; una lectura ajena responde `NOT_FOUND` (no `FORBIDDEN`)
+- Revisión completa contra OWASP Top 10, con corrección de una vulnerabilidad de firma HMAC en una dependencia (`npm audit fix`)
 
 ## 🛠️ Tecnologías Utilizadas
 
 ### Backend
 
-- **Node.js** - Runtime de JavaScript
-- **Express** - Framework web
-- **Prisma** - ORM para PostgreSQL
-- **PostgreSQL** - Base de datos relacional
-- **JWT** - Autenticación
-- **bcrypt** - Encriptación de contraseñas
-- **Zod** - Validación de esquemas
-- **TypeScript** - Tipado estático
+- **Express 5**, **Prisma 6**, **PostgreSQL**, **Zod 4**, **JWT**, **bcrypt**, **TypeScript**
+- **Render** + **Neon** para producción
 
 ### Frontend
 
-- **React Native** - Framework móvil
-- **Expo** - Plataforma de desarrollo
-- **Expo Router** - Navegación
-- **TypeScript** - Tipado estático
-- **Axios** - Cliente HTTP
-- **React Native Vector Icons** - Iconografía
+- **Expo SDK 57**, **React Native 0.86**, **Expo Router**, **TypeScript**
+- **Axios**, **react-hook-form**, **expo-notifications**, **react-native-svg**
 
 ## 📄 Licencia
 
