@@ -13,6 +13,8 @@ const valid = {
   birthDate: '',
   weight: '',
   height: '',
+  insulinCarbRatio: '',
+  insulinSensitivityFactor: '',
 };
 
 const messagesFor = (values: typeof valid, path: string) => {
@@ -40,6 +42,8 @@ describe('profileFormSchema', () => {
       birthDate: '20/05/1990',
       weight: '72.5',
       height: '170',
+      insulinCarbRatio: '10',
+      insulinSensitivityFactor: '40',
     });
 
     expect(result.success).toBe(true);
@@ -66,6 +70,10 @@ describe('profileFormSchema', () => {
     expect(messagesFor({ ...valid, weight: '5' }, 'weight')).toHaveLength(1);
     expect(messagesFor({ ...valid, height: '300' }, 'height')).toHaveLength(1);
     expect(messagesFor({ ...valid, weight: 'abc' }, 'weight')).toHaveLength(1);
+    expect(messagesFor({ ...valid, insulinCarbRatio: '0' }, 'insulinCarbRatio')).toHaveLength(1);
+    expect(
+      messagesFor({ ...valid, insulinSensitivityFactor: '500' }, 'insulinSensitivityFactor'),
+    ).toHaveLength(1);
   });
 
   it('permite elegir la meta diaria (4, 5, 1…) y exige un entero entre 1 y 20', () => {
@@ -119,6 +127,8 @@ describe('formValuesToInput', () => {
       birthDate: null,
       weight: null,
       height: null,
+      insulinCarbRatio: null,
+      insulinSensitivityFactor: null,
     });
   });
 
@@ -143,6 +153,8 @@ describe('profileToFormValues', () => {
       activityLevel: 'ACTIVE',
       phone: null,
       birthDate: '1990-05-20T00:00:00.000Z',
+      insulinCarbRatio: 10,
+      insulinSensitivityFactor: null,
       onboardingCompleted: true,
       notificationPreferences: {
         medicationReminders: false,
@@ -165,6 +177,8 @@ describe('profileToFormValues', () => {
       birthDate: '20/05/1990',
       weight: '72.5',
       height: '',
+      insulinCarbRatio: '10',
+      insulinSensitivityFactor: '',
     });
   });
 });

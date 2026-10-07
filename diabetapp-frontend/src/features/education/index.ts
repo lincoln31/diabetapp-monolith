@@ -2,5 +2,6 @@
 export { default as TipCard } from './components/TipCard';
 export { default as EducationHubScreen } from './screens/EducationHubScreen';
 export { default as CarbCalculatorScreen } from './screens/CarbCalculatorScreen';
+export { default as InsulinCalculatorScreen } from './screens/InsulinCalculatorScreen';
 export { default as GuidesScreen } from './screens/GuidesScreen';
 export { getTipOfTheDay } from './tips';

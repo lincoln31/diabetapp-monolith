@@ -25,6 +25,10 @@ export interface Profile {
   phone: string | null;
   /** ISO 8601; el formulario la captura como DD/MM/YYYY. */
   birthDate: string | null;
+  /** Gramos de carbohidratos que cubre 1 unidad de insulina rápida (spec fase 17). */
+  insulinCarbRatio: number | null;
+  /** mg/dL que baja la glucosa 1 unidad de insulina rápida (spec fase 17). */
+  insulinSensitivityFactor: number | null;
   onboardingCompleted: boolean;
   notificationPreferences: NotificationPreferences;
   glucoseReminderTimes: string[];

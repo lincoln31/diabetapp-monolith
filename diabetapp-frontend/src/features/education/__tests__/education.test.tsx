@@ -2,6 +2,8 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
 import { calculateCarbs } from '../carbCalculator';
 import { FAQS, TIPS } from '../constants';
+import { FOOD_TABLE, searchFood } from '../foodTable';
+import { calculateInsulinDose } from '../insulinCalculator';
 import { carbCalculatorSchema } from '../schemas';
 import GuidesScreen from '../screens/GuidesScreen';
 import { getTipOfTheDay } from '../tips';
@@ -65,6 +67,64 @@ describe('carbCalculatorSchema', () => {
     expect(carbCalculatorSchema.safeParse({ carbsPer100g: '25', gramsEaten: value }).success).toBe(
       false,
     );
+  });
+});
+
+describe('FOOD_TABLE / searchFood', () => {
+  it('tiene al menos 100 alimentos, todos con valores positivos', () => {
+    expect(FOOD_TABLE.length).toBeGreaterThanOrEqual(100);
+    FOOD_TABLE.forEach((item) => {
+      expect(item.portionGrams).toBeGreaterThan(0);
+      expect(item.carbsGrams).toBeGreaterThan(0);
+      expect(item.name.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('no tiene ids repetidos', () => {
+    const ids = FOOD_TABLE.map((item) => item.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('busca sin distinguir mayúsculas ni tildes', () => {
+    const results = searchFood('arepa');
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.every((item) => item.name.toLowerCase().includes('arepa'))).toBe(true);
+
+    expect(searchFood('MANDARINA').some((item) => item.name === 'Mandarina')).toBe(true);
+  });
+
+  it('no devuelve resultados con la búsqueda vacía', () => {
+    expect(searchFood('')).toEqual([]);
+    expect(searchFood('   ')).toEqual([]);
+  });
+});
+
+describe('calculateInsulinDose', () => {
+  it('suma la dosis por comida y la de corrección, redondeada a 0.5 u', () => {
+    const result = calculateInsulinDose({
+      carbsGrams: 45,
+      currentGlucose: 200,
+      targetGlucose: 130,
+      carbRatio: 10,
+      sensitivityFactor: 40,
+    });
+
+    expect(result.mealDose).toBe(4.5);
+    expect(result.correctionDose).toBe(1.75);
+    expect(result.totalDose).toBe(6.5);
+  });
+
+  it('no da una dosis de corrección negativa cuando la glucosa está bajo la meta', () => {
+    const result = calculateInsulinDose({
+      carbsGrams: 0,
+      currentGlucose: 100,
+      targetGlucose: 130,
+      carbRatio: 10,
+      sensitivityFactor: 40,
+    });
+
+    expect(result.correctionDose).toBe(0);
+    expect(result.totalDose).toBe(0);
   });
 });
 

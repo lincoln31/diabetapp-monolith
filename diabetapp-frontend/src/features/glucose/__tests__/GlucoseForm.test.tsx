@@ -5,7 +5,8 @@ import GlucoseForm from '../components/GlucoseForm';
 import { GlucoseReading } from '../types';
 
 const mockBack = jest.fn();
-jest.mock('expo-router', () => ({ useRouter: () => ({ back: mockBack, push: jest.fn() }) }));
+const mockPush = jest.fn();
+jest.mock('expo-router', () => ({ useRouter: () => ({ back: mockBack, push: mockPush }) }));
 
 const mockCreate = jest.fn();
 const mockUpdate = jest.fn();
@@ -151,6 +152,29 @@ describe('GlucoseForm — registrar', () => {
     await waitFor(() => expect(mockCreate).toHaveBeenCalled(), WAIT);
     expect(mockScheduleReminder).not.toHaveBeenCalled();
     expect(mockEnsurePermission).not.toHaveBeenCalled();
+  });
+
+  it('«Calcular dosis de insulina» lleva la glucosa escrita como parámetro', async () => {
+    const { getByLabelText, getByRole } = await render(<GlucoseForm />);
+
+    await fireEvent.changeText(getByLabelText('Nivel de glucosa'), '150');
+    await fireEvent.press(getByRole('button', { name: 'Calcular dosis de insulina' }));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/education/insulin-calculator',
+      params: { glucose: '150' },
+    });
+  });
+
+  it('«Calcular dosis de insulina» sin glucosa escrita no manda el parámetro', async () => {
+    const { getByRole } = await render(<GlucoseForm />);
+
+    await fireEvent.press(getByRole('button', { name: 'Calcular dosis de insulina' }));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/education/insulin-calculator',
+      params: undefined,
+    });
   });
 
   it('si falla por la red muestra el error y conserva lo escrito', async () => {

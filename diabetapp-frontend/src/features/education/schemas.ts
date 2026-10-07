@@ -25,3 +25,27 @@ export const carbCalculatorSchema = z.object({
 });
 
 export type CarbCalculatorValues = z.infer<typeof carbCalculatorSchema>;
+
+/** Número cero o positivo capturado como texto (spec fase 17, RF-17.3): sin carbohidratos es válido (solo corrección). */
+const nonNegativeNumber = () =>
+  z
+    .string()
+    .refine((raw) => raw.trim() !== '', 'Indica un valor')
+    .refine(
+      (raw) => raw.trim() === '' || Number.isFinite(parseCalculatorValue(raw)),
+      'Debe ser un número',
+    )
+    .refine(
+      (raw) =>
+        raw.trim() === '' ||
+        !Number.isFinite(parseCalculatorValue(raw)) ||
+        parseCalculatorValue(raw) >= 0,
+      'No puede ser negativo',
+    );
+
+export const insulinCalculatorSchema = z.object({
+  carbsGrams: nonNegativeNumber(),
+  currentGlucose: positiveNumber(),
+});
+
+export type InsulinCalculatorValues = z.infer<typeof insulinCalculatorSchema>;

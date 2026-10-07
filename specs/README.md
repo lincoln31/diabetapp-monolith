@@ -63,6 +63,7 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 14   | [Development build](fase-14-dev-build/spec.md) | Compilar e instalar una build de desarrollo (expo-dev-client) para probar notificaciones, sin quitar Expo Go | Fase 13 | — (desbloquea #16, #35, #52–#54) | 1–2 días |
 | 15   | [Rediseño UX](fase-15-rediseno-ux/spec.md) | Auditoría UX y rediseño de toda la app: pestañas, sistema de diseño, historial de glucosa y accesibilidad | Fase 3–14 | — | 2–3 semanas (5 etapas) |
 | 16   | [Infraestructura y despliegue](fase-16-infraestructura/spec.md) | Backend desplegado en Render con Postgres en Neon, gratis, con despliegue automático desde `main` | Fase 1, 2, 4 | — | 1 día + pasos manuales |
+| 17   | [Calculadora de dosis de insulina](fase-17-calculadora-insulina/spec.md) | Ratio y factor de sensibilidad en el perfil, buscador de alimentos y cálculo de dosis, con acceso directo desde «Registrar glucosa» | Fase 7, 10 | — | 1 día |
 
 > La fase 4 puede empezar en paralelo para el backend en cuanto la fase 1 esté fusionada.
 
@@ -87,3 +88,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 14   | Implementada (verificada en dispositivo, fusionada a main) |
 | 15   | Implementada (verificada en dispositivo: recorrido completo, TalkBack y texto al 200 %; fusionada a main) |
 | 16   | Implementada: backend real en https://diabetapp-backend.onrender.com, verificado (registro/login contra Neon en producción) |
+| 17   | Implementada: lint, tipos y tests en verde en ambos proyectos; pendiente verificar en dispositivo |

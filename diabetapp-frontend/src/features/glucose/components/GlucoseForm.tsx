@@ -221,6 +221,19 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
 
       <RangeAlert status={rangeStatus} min={min} max={max} />
 
+      <Button
+        title="Calcular dosis de insulina"
+        variant="tertiary"
+        icon="pulse"
+        onPress={() =>
+          router.push({
+            pathname: '/education/insulin-calculator',
+            params: glucoseValue.trim() !== '' ? { glucose: glucoseValue } : undefined,
+          })
+        }
+        style={styles.insulinButton}
+      />
+
       <Text style={styles.label}>Cuándo</Text>
       <View style={styles.whenRow}>
         <Text style={styles.when}>{formatWhen(timestamp.toISOString())}</Text>
@@ -339,6 +352,7 @@ const styles = StyleSheet.create({
     marginBottom: space.lg,
   },
   when: { fontSize: type.body.fontSize, lineHeight: type.body.lineHeight, color: color.text },
+  insulinButton: { alignSelf: 'flex-start', marginBottom: space.sm },
   error: { fontSize: type.caption.fontSize, color: color.danger, fontWeight: '600' },
   remindLater: { marginTop: space.lg },
   notes: { marginTop: space.lg },

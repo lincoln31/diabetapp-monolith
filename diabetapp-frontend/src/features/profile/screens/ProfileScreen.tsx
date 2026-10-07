@@ -42,6 +42,8 @@ const FIELDS = [
   'birthDate',
   'weight',
   'height',
+  'insulinCarbRatio',
+  'insulinSensitivityFactor',
 ] as const;
 
 type NumberField =
@@ -51,7 +53,9 @@ type NumberField =
   | 'dailyGlucoseChecks'
   | 'exerciseGoalMinutes'
   | 'weight'
-  | 'height';
+  | 'height'
+  | 'insulinCarbRatio'
+  | 'insulinSensitivityFactor';
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <Card padding="large" style={styles.section}>
@@ -207,6 +211,19 @@ const ProfileForm = ({ profile }: { profile: Profile }) => {
           )}
         />
       </Section>
+
+      <Section title="Insulina">
+        <Text style={styles.helper}>
+          Los valores que te dio tu médico o nutricionista, para calcular tu dosis en la calculadora
+          de insulina.
+        </Text>
+        {numberInput('insulinCarbRatio', 'Ratio (g de carbohidratos por unidad)', 'decimal-pad')}
+        {numberInput(
+          'insulinSensitivityFactor',
+          'Factor de sensibilidad (mg/dL que baja 1 unidad)',
+          'decimal-pad',
+        )}
+      </Section>
     </Screen>
   );
 };
@@ -241,6 +258,11 @@ const styles = StyleSheet.create({
     lineHeight: type.label.lineHeight,
     fontWeight: '600',
     color: color.text,
+  },
+  helper: {
+    fontSize: type.caption.fontSize,
+    lineHeight: type.caption.lineHeight,
+    color: color.textMuted,
   },
 });
 

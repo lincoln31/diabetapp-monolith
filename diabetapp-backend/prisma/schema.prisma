@@ -48,6 +48,8 @@ model User {
   // Configuración de medicamentos (según RF005)
   currentMedications String? // JSON o texto simple por ahora
   insulinType     InsulinType?
+  insulinCarbRatio Float?   // Gramos de carbohidratos que cubre 1 unidad de insulina rápida (spec fase 17)
+  insulinSensitivityFactor Float? // mg/dL que baja la glucosa 1 unidad de insulina rápida (spec fase 17)
   
   // Preferencias de notificaciones (según RF001)
   notificationPreferences Json? // Estructura flexible para diferentes tipos

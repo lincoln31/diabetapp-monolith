@@ -30,6 +30,8 @@ describe('/api/profile', () => {
       activityLevel: null,
       phone: null,
       birthDate: null,
+      insulinCarbRatio: null,
+      insulinSensitivityFactor: null,
       onboardingCompleted: false,
       notificationPreferences: {
         medicationReminders: false,
@@ -115,6 +117,27 @@ describe('/api/profile', () => {
     const cleared = await put({ phone: null, birthDate: null });
     expect(cleared.body.data.phone).toBeNull();
     expect(cleared.body.data.birthDate).toBeNull();
+  });
+
+  it('guarda, borra y valida el ratio y el factor de sensibilidad de insulina (fase 17)', async () => {
+    const { accessToken } = await registerUser();
+    const put = (body: object) => api().put('/api/profile').set(authHeader(accessToken)).send(body);
+
+    const saved = await put({ insulinCarbRatio: 10, insulinSensitivityFactor: 40 });
+    expect(saved.status).toBe(200);
+    expect(saved.body.data.insulinCarbRatio).toBe(10);
+    expect(saved.body.data.insulinSensitivityFactor).toBe(40);
+
+    const cleared = await put({ insulinCarbRatio: null, insulinSensitivityFactor: null });
+    expect(cleared.body.data.insulinCarbRatio).toBeNull();
+    expect(cleared.body.data.insulinSensitivityFactor).toBeNull();
+
+    const outOfRange = await put({ insulinCarbRatio: 0, insulinSensitivityFactor: 500 });
+    expect(outOfRange.status).toBe(400);
+    const fields = outOfRange.body.error.fields.map((f: { field: string }) => f.field);
+    expect(fields).toEqual(
+      expect.arrayContaining(['insulinCarbRatio', 'insulinSensitivityFactor']),
+    );
   });
 
   it('rechaza un rango incoherente contra el valor ya guardado', async () => {

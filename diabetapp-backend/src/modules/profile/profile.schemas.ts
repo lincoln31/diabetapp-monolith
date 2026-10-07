@@ -71,6 +71,17 @@ export const updateProfileSchema = z
       .min(50, 'La altura debe estar entre 50 y 250 cm')
       .max(250, 'La altura debe estar entre 50 y 250 cm')
       .nullable(),
+    // Calculadora de dosis de insulina (spec fase 17, D-17.2)
+    insulinCarbRatio: z
+      .number('El ratio debe ser un número')
+      .min(1, 'El ratio debe estar entre 1 y 100 g por unidad')
+      .max(100, 'El ratio debe estar entre 1 y 100 g por unidad')
+      .nullable(),
+    insulinSensitivityFactor: z
+      .number('El factor de sensibilidad debe ser un número')
+      .min(1, 'El factor debe estar entre 1 y 200 mg/dL por unidad')
+      .max(200, 'El factor debe estar entre 1 y 200 mg/dL por unidad')
+      .nullable(),
   })
   .partial()
   .refine((data) => Object.keys(data).length > 0, {

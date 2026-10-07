@@ -15,6 +15,12 @@ const OPTIONS: { title: string; subtitle: string; icon: AppIconName; href: strin
     href: '/education/calculator',
   },
   {
+    title: 'Calculadora de dosis de insulina',
+    subtitle: 'Busca un alimento y calcula tu dosis',
+    icon: 'pulse',
+    href: '/education/insulin-calculator',
+  },
+  {
     title: 'Guías y FAQs',
     subtitle: 'Aprende sobre glucosa, HbA1c y más',
     icon: 'book',

@@ -77,6 +77,8 @@ export const profileFormSchema = z
       ),
     weight: optionalNumber('El peso', 20, 400, 'kg'),
     height: optionalNumber('La altura', 50, 250, 'cm'),
+    insulinCarbRatio: optionalNumber('El ratio', 1, 100, 'g por unidad'),
+    insulinSensitivityFactor: optionalNumber('El factor', 1, 200, 'mg/dL por unidad'),
   })
   .refine(
     (v) => {
@@ -111,6 +113,8 @@ export const profileToFormValues = (profile: Profile): ProfileFormValues => ({
   birthDate: profile.birthDate ? isoToDateInput(profile.birthDate) : '',
   weight: numberToText(profile.weight),
   height: numberToText(profile.height),
+  insulinCarbRatio: numberToText(profile.insulinCarbRatio),
+  insulinSensitivityFactor: numberToText(profile.insulinSensitivityFactor),
 });
 
 const textToNumber = (raw: string): number | null => (raw.trim() === '' ? null : toNumber(raw));
@@ -128,4 +132,6 @@ export const formValuesToInput = (values: ProfileFormValues): UpdateProfileInput
   birthDate: values.birthDate.trim() === '' ? null : dateOfBirthToISO(values.birthDate),
   weight: textToNumber(values.weight),
   height: textToNumber(values.height),
+  insulinCarbRatio: textToNumber(values.insulinCarbRatio),
+  insulinSensitivityFactor: textToNumber(values.insulinSensitivityFactor),
 });

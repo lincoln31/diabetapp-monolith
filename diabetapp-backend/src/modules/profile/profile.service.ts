@@ -17,6 +17,8 @@ const profileFields = {
   activityLevel: true,
   phone: true,
   birthDate: true,
+  insulinCarbRatio: true,
+  insulinSensitivityFactor: true,
   onboardingCompleted: true,
   notificationPreferences: true,
   reminderTimes: true,
