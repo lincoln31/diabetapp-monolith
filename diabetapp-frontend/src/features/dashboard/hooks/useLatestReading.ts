@@ -1,43 +1,31 @@
-import { useCallback, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
 import { toApiError } from '@/src/shared/api/errors';
+import { useStaleQuery } from '@/src/shared/cache/useStaleQuery';
 import { glucoseApi } from '@/src/features/glucose';
 import type { GlucoseReading } from '@/src/features/glucose';
 
-type Status = 'loading' | 'success' | 'error';
+const CACHE_KEY = 'dashboard.latestReading';
 
-interface LatestState {
-  status: Status;
-  reading: GlucoseReading | null;
-  errorMessage: string | null;
-}
+const fetchLatest = async (): Promise<GlucoseReading | null> => {
+  const { items } = await glucoseApi.list({ page: 1, limit: 1 });
+  return items[0] ?? null;
+};
 
-/** Última medición para «Hoy» (spec fase 15, RF-15.3): la lista viene del más reciente al más antiguo. */
+/**
+ * Última medición para «Hoy» (spec fase 15, RF-15.3; con caché local desde la fase 18): la
+ * lista viene del más reciente al más antiguo.
+ */
 export const useLatestReading = () => {
-  const [state, setState] = useState<LatestState>({
-    status: 'loading',
-    reading: null,
-    errorMessage: null,
-  });
-
-  const load = useCallback(async () => {
-    try {
-      const { items } = await glucoseApi.list({ page: 1, limit: 1 });
-      setState({ status: 'success', reading: items[0] ?? null, errorMessage: null });
-    } catch (error) {
-      setState((current) => ({
-        status: 'error',
-        reading: current.reading,
-        errorMessage: toApiError(error).message,
-      }));
-    }
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      void load();
-    }, [load]),
+  const query = useStaleQuery<GlucoseReading | null>(
+    CACHE_KEY,
+    fetchLatest,
+    (error) => toApiError(error).message,
   );
 
-  return { ...state, refresh: load };
+  return {
+    status: query.status,
+    reading: query.data,
+    errorMessage: query.errorMessage,
+    stale: query.stale,
+    refresh: query.refresh,
+  };
 };
