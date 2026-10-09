@@ -49,14 +49,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setStatus('authenticated');
         }
       } catch (error) {
+        const isNetworkError = toApiError(error).code === 'NETWORK_ERROR';
+
         // Sin conexión no se borra la sesión guardada: solo se pide iniciar sesión
-        if (toApiError(error).code !== 'NETWORK_ERROR') {
+        if (!isNetworkError) {
           await clearTokens();
         }
 
         if (!cancelled) {
           setUser(null);
-          setStatus('unauthenticated');
+          // Sin red no se sabe si el token sigue sirviendo, pero tampoco se borró: se
+          // entra igual (spec fase 18) en vez de mandar al login por no poder confirmar
+          // la sesión — así el dashboard puede mostrar lo que tenga en caché. Las
+          // pantallas que sí necesitan datos del servidor ya saben pedirlos o fallar solas.
+          setStatus(isNetworkError ? 'authenticated' : 'unauthenticated');
         }
       }
     };

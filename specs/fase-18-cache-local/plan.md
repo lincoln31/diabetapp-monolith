@@ -8,6 +8,7 @@
 - **D-18.4** `fetcher` y `getErrorMessage` se guardan en una `ref` dentro de `useStaleQuery`, no como dependencias de `useCallback`: así `load` no cambia de identidad en cada render y `useFocusEffect` no se dispara de más (cada hook sigue pasando una función inline nueva en cada render, como ya hacían antes).
 - **D-18.5** Los cinco hooks de `features/dashboard/hooks/` se reescriben sobre `useStaleQuery`, conservando exactamente su forma pública (mismos nombres de campo: `stats`, `streak`, `projection`, `reading`, `medications`, `refresh`, `busyId`, `logIntake`) para no tocar `DashboardScreen.tsx` ni sus tests, que mockean los hooks por módulo.
 - **D-18.6** `useDashboardStats` sigue calculando `status: 'empty'` por encima del `'success'` de `useStaleQuery` (cuando `periods['30'].count === 0`), igual que antes.
+- **D-18.8** (añadida tras verificar en dispositivo, spec H18.3) `AuthProvider.tsx` (`src/features/auth/`): en `restore()`, cuando `GET /auth/me` falla con `NETWORK_ERROR`, el `catch` ya no borraba el token (eso venía de la fase 2) pero sí ponía `status: 'unauthenticated'` — y como `app/_layout.tsx` usa `Stack.Protected guard={status === 'authenticated'}`, eso mandaba al login y la app nunca llegaba a «Hoy» para aprovechar la caché. Se cambió esa única rama: `status` queda `'authenticated'` con `user: null` cuando el error es de red; para cualquier otro código (el servidor sí respondió y dijo que el token no sirve) sigue igual que antes (borra el token, pide login).
 - **D-18.7** No se tocó `useExerciseSummary` (en `features/exercise`, usado también por la pestaña Actividad): mismo patrón, pero se dejó fuera del alcance de esta fase (ver spec §3).
 
 ## Archivos afectados
@@ -16,6 +17,7 @@
 - `src/shared/cache/useStaleQuery.ts` (nuevo)
 - `src/shared/cache/__tests__/useStaleQuery.test.tsx`, `useStaleQuery.staleFresh.test.tsx`, `useStaleQuery.offline.test.tsx` (nuevos; separados en tres archivos para que cada escenario tenga su propio *test runner* de React aislado, evitando falsos negativos por un `act()` de un test anterior que todavía no había terminado de asentarse)
 - `src/features/dashboard/hooks/{useDashboardStats,useStreak,useHba1cProjection,useLatestReading,useTodayMedications}.ts` (reescritos sobre `useStaleQuery`)
+- `src/features/auth/AuthProvider.tsx` (D-18.8, tras verificar en dispositivo) y `src/features/auth/__tests__/AuthProvider.test.tsx` (nuevo)
 
 ## Riesgos
 

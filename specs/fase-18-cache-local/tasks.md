@@ -10,3 +10,6 @@
 - [x] T18.8 [P] Reescribir `useTodayMedications.ts` sobre `useStaleQuery` (conservando `logIntake`).
 - [x] T18.9 `npm run lint`, `npm run typecheck`, `npm test` en el frontend (sin tocar el backend).
 - [x] T18.10 Actualizar `CLAUDE.md` (sección de arquitectura del frontend) y `specs/README.md` (índice + estado `Implementada`).
+- [x] T18.11 Verificar en dispositivo (modo avión): reveló H18.3 — `AuthProvider` mandaba al login sin red pese a conservar el token. (CA-18.5, CA-18.6)
+- [x] T18.12 Corregir `AuthProvider.tsx`: `NETWORK_ERROR` en `restore()` entra como `authenticated` en vez de `unauthenticated`. (RF-18.6)
+- [x] T18.13 Tests de `AuthProvider` (`src/features/auth/__tests__/AuthProvider.test.tsx`): confirma con el servidor, sin red, token inválido, sin token guardado.
