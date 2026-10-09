@@ -93,6 +93,7 @@ model GlucoseReading {
   timestamp DateTime  // Fecha y hora exactas del registro, enviadas desde el móvil
   momentOfDay MomentOfDay @default(OTHER)
   notes     String?   // Notas opcionales del usuario, ej: "Comí pizza"
+  insulinUnits Float? // Unidades de insulina rápida aplicadas junto a esta lectura (spec fase 19)
 
   // Relación con el usuario (¡LA PARTE MÁS IMPORTANTE!)
   userId    String    // Clave foránea que apunta al ID del usuario

@@ -11,11 +11,13 @@ jest.mock('expo-router', () => ({ useRouter: () => ({ back: mockBack, push: mock
 const mockCreate = jest.fn();
 const mockUpdate = jest.fn();
 const mockRemove = jest.fn();
+const mockList = jest.fn();
 jest.mock('../api', () => ({
   glucoseApi: {
     create: (...a: unknown[]) => mockCreate(...a),
     update: (...a: unknown[]) => mockUpdate(...a),
     remove: (...a: unknown[]) => mockRemove(...a),
+    list: (...a: unknown[]) => mockList(...a),
   },
 }));
 
@@ -44,11 +46,15 @@ const reading: GlucoseReading = {
   timestamp: new Date(2026, 8, 20, 8, 5).toISOString(),
   momentOfDay: 'BEFORE_BREAKFAST',
   notes: null,
+  insulinUnits: null,
   createdAt: new Date(2026, 8, 20, 8, 5).toISOString(),
 };
 
 describe('GlucoseForm — registrar', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockList.mockResolvedValue({ items: [] });
+  });
 
   it('pide primero el valor y deja lo demás con valores por defecto', async () => {
     const { getByLabelText, getByText, queryByText, getByRole } = await render(<GlucoseForm />);
@@ -124,6 +130,43 @@ describe('GlucoseForm — registrar', () => {
     await waitFor(() => expect(mockBack).toHaveBeenCalled(), WAIT);
     expect(mockShow).toHaveBeenCalledWith('Medición guardada: 112 mg/dL');
     expect(alertSpy).not.toHaveBeenCalled(); // sin «¡Éxito!» modal
+  });
+
+  it('«Agregar unidades de insulina aplicadas» guarda el valor escrito', async () => {
+    mockCreate.mockResolvedValue({ id: 'nuevo', value: 200, timestamp: new Date().toISOString() });
+    const { getByLabelText, getByRole } = await render(<GlucoseForm />);
+
+    await fireEvent.changeText(getByLabelText('Nivel de glucosa'), '200');
+    await fireEvent.press(getByRole('button', { name: 'Agregar unidades de insulina aplicadas' }));
+    await fireEvent.changeText(getByLabelText('Unidades de insulina aplicadas (opcional)'), '4');
+    await fireEvent.press(getByRole('button', { name: 'Guardar medición' }));
+
+    await waitFor(() => expect(mockCreate).toHaveBeenCalled(), WAIT);
+    expect(mockCreate.mock.calls[0][0]).toMatchObject({ insulinUnits: 4 });
+  });
+
+  it('con una lectura anterior que tenía insulina hace ~2 horas, avisa cuánto bajó', async () => {
+    const now = new Date();
+    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString();
+    mockList.mockResolvedValue({
+      items: [
+        { id: 'nuevo', value: 155, timestamp: now.toISOString() },
+        { id: 'previa', value: 200, insulinUnits: 4, timestamp: twoHoursAgo },
+      ],
+    });
+    mockCreate.mockResolvedValue({ id: 'nuevo', value: 155, timestamp: now.toISOString() });
+    const { getByLabelText, getByRole } = await render(<GlucoseForm />);
+
+    await fireEvent.changeText(getByLabelText('Nivel de glucosa'), '155');
+    await fireEvent.press(getByRole('button', { name: 'Guardar medición' }));
+
+    await waitFor(
+      () =>
+        expect(mockShow).toHaveBeenCalledWith(
+          'Bajó 45 mg/dL con 4 unidades (≈11.3 mg/dL por unidad)',
+        ),
+      WAIT,
+    );
   });
 
   it('con «Recordármelo en 2 horas» marcado, programa el recordatorio al guardar', async () => {

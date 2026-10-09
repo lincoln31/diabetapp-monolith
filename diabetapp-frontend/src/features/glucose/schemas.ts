@@ -26,6 +26,18 @@ export const createGlucoseFormSchema = z.object({
   ]),
   notes: z.string().max(NOTES_MAX_LENGTH, `Máximo ${NOTES_MAX_LENGTH} caracteres`),
   timestamp: z.date(),
+  // Unidades de insulina aplicadas, opcional (spec fase 19). Texto vacío = no se aplicó.
+  insulinUnits: z
+    .string()
+    .refine(
+      (raw) => raw.trim() === '' || Number.isFinite(Number(raw.replace(',', '.'))),
+      'Debe ser un número',
+    )
+    .refine((raw) => {
+      if (raw.trim() === '') return true;
+      const n = Number(raw.replace(',', '.'));
+      return n >= 0.5 && n <= 100;
+    }, 'Las unidades deben estar entre 0.5 y 100'),
 });
 
 export type CreateGlucoseFormValues = z.infer<typeof createGlucoseFormSchema>;

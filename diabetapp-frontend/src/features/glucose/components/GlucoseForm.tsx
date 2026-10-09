@@ -22,13 +22,14 @@ import { ensurePermission, scheduleReminder } from '@/src/features/notifications
 import { glucoseApi } from '../api';
 import { GLUCOSE_MAX, GLUCOSE_MIN, MOMENT_OF_DAY_OPTIONS, NOTES_MAX_LENGTH } from '../constants';
 import { formatWhen } from '../history';
+import { calculateInsulinEffect, formatInsulinEffectMessage } from '../insulinEffect';
 import { suggestMomentOfDay } from '../momentOfDay';
 import { getRangeStatus } from '../rangeStatus';
 import { CreateGlucoseFormValues, createGlucoseFormSchema } from '../schemas';
 import { GlucoseReading } from '../types';
 import RangeAlert from './RangeAlert';
 
-const FIELDS = ['value', 'momentOfDay', 'notes', 'timestamp'] as const;
+const FIELDS = ['value', 'momentOfDay', 'notes', 'timestamp', 'insulinUnits'] as const;
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
 // Función de módulo, no del cuerpo del componente: `Date.now()` es impura y
 // `react-hooks/purity` no permite llamarla directamente al renderizar.
@@ -52,6 +53,7 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
   const [pickerMode, setPickerMode] = useState<'date' | 'time' | null>(null);
   const [momentTouched, setMomentTouched] = useState(editing);
   const [showNotes, setShowNotes] = useState(Boolean(reading?.notes));
+  const [showInsulinUnits, setShowInsulinUnits] = useState(Boolean(reading?.insulinUnits));
   const [formError, setFormError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [remindLater, setRemindLater] = useState(false);
@@ -71,6 +73,7 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
       momentOfDay: reading ? reading.momentOfDay : suggestMomentOfDay(initialTimestamp),
       notes: reading?.notes ?? '',
       timestamp: initialTimestamp,
+      insulinUnits: reading?.insulinUnits ? String(reading.insulinUnits) : '',
     },
     mode: 'onSubmit',
     reValidateMode: 'onChange',
@@ -132,13 +135,34 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
     );
   };
 
+  /** Compara con la lectura anterior si tenía insulina, cuando cae dentro de la ventana de ~2 h. */
+  const insulinEffectMessage = async (current: GlucoseReading): Promise<string | null> => {
+    const { items } = await glucoseApi.list({ page: 1, limit: 2 });
+    const previous = items.find((item) => item.id !== current.id);
+    if (!previous) return null;
+
+    const effect = calculateInsulinEffect({
+      previous: {
+        value: previous.value,
+        insulinUnits: previous.insulinUnits,
+        timestamp: previous.timestamp,
+      },
+      current: { value: current.value, timestamp: current.timestamp },
+    });
+
+    return effect ? formatInsulinEffectMessage(effect) : null;
+  };
+
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
+    const insulinUnits =
+      values.insulinUnits.trim() === '' ? undefined : Number(values.insulinUnits.replace(',', '.'));
     const input = {
       value: Number(values.value),
       momentOfDay: values.momentOfDay,
       notes: values.notes.trim() || undefined,
       timestamp: values.timestamp.toISOString(),
+      insulinUnits,
     };
 
     try {
@@ -149,7 +173,9 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
       } else {
         const created = await glucoseApi.create(input);
         if (remindLater) await scheduleTwoHourReminder(created.id, input.value);
-        toast.show(`Medición guardada: ${input.value} mg/dL`);
+
+        const effectMessage = await insulinEffectMessage(created).catch(() => null);
+        toast.show(effectMessage ?? `Medición guardada: ${input.value} mg/dL`);
       }
       router.back();
     } catch (error) {
@@ -233,6 +259,35 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
         }
         style={styles.insulinButton}
       />
+
+      <View style={styles.insulinUnits}>
+        {showInsulinUnits ? (
+          <Controller
+            control={control}
+            name="insulinUnits"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                label="Unidades de insulina aplicadas (opcional)"
+                placeholder="Ej. 4"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.insulinUnits?.message}
+                keyboardType="decimal-pad"
+                maxLength={5}
+              />
+            )}
+          />
+        ) : (
+          <Button
+            title="Agregar unidades de insulina aplicadas"
+            variant="tertiary"
+            icon="plus"
+            onPress={() => setShowInsulinUnits(true)}
+            style={styles.addNote}
+          />
+        )}
+      </View>
 
       <Text style={styles.label}>Cuándo</Text>
       <View style={styles.whenRow}>
@@ -353,6 +408,7 @@ const styles = StyleSheet.create({
   },
   when: { fontSize: type.body.fontSize, lineHeight: type.body.lineHeight, color: color.text },
   insulinButton: { alignSelf: 'flex-start', marginBottom: space.sm },
+  insulinUnits: { marginBottom: space.lg },
   error: { fontSize: type.caption.fontSize, color: color.danger, fontWeight: '600' },
   remindLater: { marginTop: space.lg },
   notes: { marginTop: space.lg },

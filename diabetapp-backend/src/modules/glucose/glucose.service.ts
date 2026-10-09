@@ -21,6 +21,7 @@ const readingFields = {
   timestamp: true,
   momentOfDay: true,
   notes: true,
+  insulinUnits: true,
   createdAt: true,
 } satisfies Prisma.GlucoseReadingSelect;
 

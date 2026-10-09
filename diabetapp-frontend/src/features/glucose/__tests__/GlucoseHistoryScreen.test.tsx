@@ -22,6 +22,7 @@ const reading = (id: string, value: number, iso: string): GlucoseReading => ({
   timestamp: iso,
   momentOfDay: 'BEFORE_BREAKFAST',
   notes: null,
+  insulinUnits: null,
   createdAt: iso,
 });
 

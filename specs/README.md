@@ -65,6 +65,7 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 16   | [Infraestructura y despliegue](fase-16-infraestructura/spec.md) | Backend desplegado en Render con Postgres en Neon, gratis, con despliegue automático desde `main` | Fase 1, 2, 4 | — | 1 día + pasos manuales |
 | 17   | [Calculadora de dosis de insulina](fase-17-calculadora-insulina/spec.md) | Ratio y factor de sensibilidad en el perfil, buscador de alimentos y cálculo de dosis, con acceso directo desde «Registrar glucosa» | Fase 7, 10 | — | 1 día |
 | 18   | [Caché local para el cold start](fase-18-cache-local/spec.md) | «Hoy» muestra los últimos datos guardados de inmediato mientras el backend dormido responde, en vez de la pantalla de carga | Fase 5, 16 | — | ½ día |
+| 19   | [Registrar la insulina aplicada](fase-19-registro-insulina/spec.md) | Campo opcional de unidades de insulina al registrar glucosa, y aviso automático de cuánto bajó al registrar la siguiente lectura | Fase 13, 17 | — | ½ día |
 
 > La fase 4 puede empezar en paralelo para el backend en cuanto la fase 1 esté fusionada.
 
@@ -91,3 +92,4 @@ Las palabras **DEBE**, **NO DEBE** y **PUEDE** en los requisitos tienen el senti
 | 16   | Implementada: backend real en https://diabetapp-backend.onrender.com, verificado (registro/login contra Neon en producción) |
 | 17   | Implementada: lint, tipos y tests en verde en ambos proyectos; pendiente verificar en dispositivo |
 | 18   | Implementada: lint, tipos y tests en verde en el frontend |
+| 19   | Implementada: lint, tipos y tests en verde en ambos proyectos |

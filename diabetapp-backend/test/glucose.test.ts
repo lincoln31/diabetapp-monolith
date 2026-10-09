@@ -16,6 +16,32 @@ describe('/api/glucose', () => {
     expect(response.body.data).toMatchObject({ value: 110, momentOfDay: 'BEFORE_BREAKFAST' });
   });
 
+  it('guarda las unidades de insulina aplicadas, opcionales (spec fase 19)', async () => {
+    const { accessToken } = await registerUser();
+
+    const sinInsulina = await api().post('/api/glucose').set(authHeader(accessToken)).send({
+      value: 110,
+      timestamp: '2026-09-19T10:00:00.000Z',
+    });
+    expect(sinInsulina.body.data.insulinUnits).toBeNull();
+
+    const conInsulina = await api().post('/api/glucose').set(authHeader(accessToken)).send({
+      value: 200,
+      timestamp: '2026-09-19T10:00:00.000Z',
+      insulinUnits: 4.5,
+    });
+    expect(conInsulina.status).toBe(201);
+    expect(conInsulina.body.data.insulinUnits).toBe(4.5);
+
+    const fueraDeRango = await api().post('/api/glucose').set(authHeader(accessToken)).send({
+      value: 200,
+      timestamp: '2026-09-19T10:00:00.000Z',
+      insulinUnits: 0,
+    });
+    expect(fueraDeRango.status).toBe(400);
+    expect(fueraDeRango.body.error.fields[0].field).toBe('insulinUnits');
+  });
+
   it('valida el valor, el momento del día y la fecha', async () => {
     const { accessToken } = await registerUser();
 

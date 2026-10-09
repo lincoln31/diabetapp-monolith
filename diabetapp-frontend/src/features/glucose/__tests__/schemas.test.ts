@@ -5,6 +5,7 @@ const valido = {
   momentOfDay: 'BEFORE_BREAKFAST' as const,
   notes: 'Antes del desayuno',
   timestamp: new Date('2026-09-19T10:00:00.000Z'),
+  insulinUnits: '',
 };
 
 describe('createGlucoseFormSchema', () => {
@@ -37,5 +38,19 @@ describe('createGlucoseFormSchema', () => {
     const result = createGlucoseFormSchema.safeParse({ ...valido, notes: 'x'.repeat(201) });
 
     expect(result.success).toBe(false);
+  });
+
+  it('las unidades de insulina son opcionales, pero validadas si se escriben', () => {
+    expect(createGlucoseFormSchema.safeParse({ ...valido, insulinUnits: '4' }).success).toBe(true);
+    expect(createGlucoseFormSchema.safeParse({ ...valido, insulinUnits: '4,5' }).success).toBe(
+      true,
+    );
+    expect(createGlucoseFormSchema.safeParse({ ...valido, insulinUnits: '0' }).success).toBe(false);
+    expect(createGlucoseFormSchema.safeParse({ ...valido, insulinUnits: '101' }).success).toBe(
+      false,
+    );
+    expect(createGlucoseFormSchema.safeParse({ ...valido, insulinUnits: 'abc' }).success).toBe(
+      false,
+    );
   });
 });

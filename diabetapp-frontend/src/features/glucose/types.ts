@@ -16,6 +16,8 @@ export interface GlucoseReading {
   timestamp: string; // ISO
   momentOfDay: MomentOfDay;
   notes: string | null;
+  /** Unidades de insulina rápida aplicadas junto a esta lectura (spec fase 19). */
+  insulinUnits: number | null;
   createdAt: string;
 }
 
@@ -24,6 +26,7 @@ export interface CreateGlucoseInput {
   timestamp: string; // ISO
   momentOfDay?: MomentOfDay;
   notes?: string;
+  insulinUnits?: number;
 }
 
 export interface ListGlucoseParams {

@@ -16,6 +16,13 @@ export const createGlucoseSchema = z.object({
   momentOfDay: z.enum(MomentOfDay).optional(),
 
   notes: z.string().max(200, 'Las notas no pueden superar 200 caracteres').optional(),
+
+  // Unidades de insulina rápida aplicadas junto a esta lectura (spec fase 19)
+  insulinUnits: z
+    .number('Las unidades de insulina deben ser un número')
+    .min(0.5, 'Las unidades de insulina deben estar entre 0.5 y 100')
+    .max(100, 'Las unidades de insulina deben estar entre 0.5 y 100')
+    .optional(),
 });
 
 // Actualización parcial, pero con al menos un campo (spec fase 1, RF-1.17)
