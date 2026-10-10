@@ -15,7 +15,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#1D4ED8"
       },
-      "package": "com.diabetapp.app"
+      "package": "com.diabetapp.app",
+      "permissions": ["SCHEDULE_EXACT_ALARM"]
     },
     "web": {
       "bundler": "metro",

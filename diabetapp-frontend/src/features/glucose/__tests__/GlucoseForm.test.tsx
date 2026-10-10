@@ -169,13 +169,16 @@ describe('GlucoseForm — registrar', () => {
     );
   });
 
-  it('con «Recordármelo en 2 horas» marcado, programa el recordatorio al guardar', async () => {
+  it('«Recordármelo en 2 horas» viene marcado por defecto y programa el recordatorio al guardar', async () => {
     mockCreate.mockResolvedValue({ id: 'nuevo' });
     mockEnsurePermission.mockResolvedValue('granted');
     const { getByLabelText, getByRole } = await render(<GlucoseForm />);
 
+    expect(
+      getByRole('checkbox', { name: 'Recordármelo en 2 horas' }).props.accessibilityState,
+    ).toMatchObject({ checked: true });
+
     await fireEvent.changeText(getByLabelText('Nivel de glucosa'), '112');
-    await fireEvent.press(getByRole('checkbox', { name: 'Recordármelo en 2 horas' }));
     await fireEvent.press(getByRole('button', { name: 'Guardar medición' }));
 
     await waitFor(() => expect(mockScheduleReminder).toHaveBeenCalled(), WAIT);
@@ -185,11 +188,12 @@ describe('GlucoseForm — registrar', () => {
     );
   });
 
-  it('sin marcar «Recordármelo en 2 horas», no programa nada', async () => {
+  it('desmarcando «Recordármelo en 2 horas», no programa nada', async () => {
     mockCreate.mockResolvedValue({ id: 'nuevo' });
     const { getByLabelText, getByRole } = await render(<GlucoseForm />);
 
     await fireEvent.changeText(getByLabelText('Nivel de glucosa'), '112');
+    await fireEvent.press(getByRole('checkbox', { name: 'Recordármelo en 2 horas' }));
     await fireEvent.press(getByRole('button', { name: 'Guardar medición' }));
 
     await waitFor(() => expect(mockCreate).toHaveBeenCalled(), WAIT);

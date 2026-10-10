@@ -56,7 +56,9 @@ const GlucoseForm = ({ reading }: GlucoseFormProps) => {
   const [showInsulinUnits, setShowInsulinUnits] = useState(Boolean(reading?.insulinUnits));
   const [formError, setFormError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [remindLater, setRemindLater] = useState(false);
+  // Marcado por defecto (hallazgo de uso real): el paciente lo olvidaba si tenía que
+  // acordarse de tocarlo cada vez; ahora lo desmarca si de verdad no lo quiere.
+  const [remindLater, setRemindLater] = useState(true);
 
   const initialTimestamp = reading ? new Date(reading.timestamp) : new Date();
 
